@@ -40,14 +40,11 @@ export const authOptions: AuthOptions = NextAuth({
     })
   ],
   callbacks: {
-    session: ({session, token}) => {
-      return {
-        ...session,
-        user: {
-          ...session.user,
-          id: token.id
-        }
+    session: ({ session, token }) => {
+      if (session?.user) {
+        session.user.id = token.id as string 
       }
+      return session
     },
     jwt: ({token, user}) => {
       if(user){

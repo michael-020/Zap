@@ -9,26 +9,48 @@ datasource db {
 }
 
 model User {
-  id          String      @unique   @id   @default(uuid())
-  email       String      @unique
-  password    String?    
-  provider    AUTHOPTIONS @default(CREDENTIALS)
-  createdAt   DateTime    @default(now())
+  id        String      @id @unique @default(uuid())
+  email     String      @unique
+  password  String?
+  provider  AUTHOPTIONS @default(CREDENTIALS)
+  createdAt DateTime    @default(now())
+  Project   Project[]
 }
 
 model Admin {
-  id         String   @unique   @default(uuid())
-  adminId    String   @unique   
-  password   String   
-  createdAt  DateTime  @default(now())
+  id        String   @unique @default(uuid())
+  adminId   String   @unique
+  password  String
+  createdAt DateTime @default(now())
 }
 
 model OTP {
-  id          String    @unique   @id     @default(uuid())
-  email       String    @unique
-  otp         String
-  createdAt   DateTime  @default(now())
-  expiresAt   DateTime  
+  id        String   @id @unique @default(uuid())
+  email     String   @unique
+  otp       String
+  createdAt DateTime @default(now())
+  expiresAt DateTime
+}
+
+model Project {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  name      String
+  path      String
+  code      String
+  chats     Chat[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+model Chat {
+  id        String   @id @default(uuid())
+  projectId String
+  project   Project  @relation(fields: [projectId], references: [id])
+  prompt    String
+  response  String
+  createdAt DateTime @default(now())
 }
 
 enum AUTHOPTIONS {

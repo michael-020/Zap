@@ -2,8 +2,9 @@
 
 import { useEffect, useRef, useState } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
-import { Clock, AlertCircle, ArrowRight, Loader2, Check, Copy } from 'lucide-react'
+import { Clock, AlertCircle, Loader2, Check, Copy, ArrowUp } from 'lucide-react'
 import { BuildStepType, statusType } from "@/stores/editorStore/types"
+import { TextArea } from "./text-area"
 
 export function StatusPanel() {
   const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap } = useEditorStore()
@@ -11,8 +12,7 @@ export function StatusPanel() {
   const bottomRef = useRef<HTMLDivElement>(null)
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null)
   
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = () => {
     if (!prompt.trim()) return
     
     processFollowupPrompts(
@@ -20,6 +20,11 @@ export function StatusPanel() {
     );
     
     setPrompt("") 
+  }
+
+  const handleFormSubmit = async (e: React.FormEvent) => {
+    e.preventDefault()
+    handleSubmit()
   }
 
   const handleCopy = async (text: string, promptIndex: number) => {
@@ -34,7 +39,6 @@ export function StatusPanel() {
       console.error("Failed to copy text: ", err)
     }
   }
-
 
   const getStatusIcon = (status: statusType) => {
     switch (status) {
@@ -131,19 +135,22 @@ export function StatusPanel() {
       </div>
 
       <div className="border-t border-neutral-800 p-2 bg-neutral-950">
-        <form onSubmit={handleSubmit} className="flex gap-2">
-          <input
-            type="text"
+        <form onSubmit={handleFormSubmit} className="flex gap-2 relative">
+          <TextArea
+            id="description"
             value={prompt}
-            readOnly={isProcessing || isProcessingFollowups}
             onChange={(e) => setPrompt(e.target.value)}
+            onEnterSubmit={handleSubmit}
             placeholder="Ask a follow up..."
-            className="flex-1 px-2 py-2  w-8 placeholder:text-sm bg-neutral-800 border border-neutral-700 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-0.5 focus:ring-neutral-500 focus:border-neutral-500"
+            height="4rem"
+            className="text-[1rem] pl-4 pt-2"
+            maxHeight="16rem"
+            required
           />
           <button
             type="submit"
             disabled={!prompt.trim() || isProcessingFollowups}
-            className={`px-4 py-2 rounded-lg font-medium transition-all duration-200 flex items-center gap-2 ${
+            className={`px-2 py-2 rounded-lg absolute bottom-2 right-2 font-medium transition-all duration-200 flex items-center gap-2 ${
               prompt.trim() && !isProcessing
                 ? "bg-neutral-300 hover:bg-neutral-400 text-black"
                 : "bg-neutral-600 text-gray-400 cursor-not-allowed"
@@ -153,7 +160,7 @@ export function StatusPanel() {
               <Loader2 className="w-4 h-4 animate-spin" />
             ) : (
               <>
-                <ArrowRight className="w-4 h-4" />
+                <ArrowUp className="w-4 h-4" />
               </>
             )}
           </button>

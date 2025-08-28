@@ -4,7 +4,7 @@ import { z } from "zod";
 
 const chatSchema = z.object({
   prompt: z.string(),
-  response: z.string(),
+  response: z.array(z.string()),
   projectId: z.string(),
 })
 
@@ -14,7 +14,7 @@ export async function POST(req: NextRequest) {
         
         if(!validatedSchema.success){
           return NextResponse.json(
-            { msg: "Invlid inputs" },
+            { msg: "Invlid Inputs" },
             { status: 400 }
           )
         }
@@ -24,7 +24,7 @@ export async function POST(req: NextRequest) {
         await prisma.chat.create({
             data: {
                 prompt, 
-                response,
+                response: response.join("\n"),
                 projectId
             }
         })
@@ -36,6 +36,11 @@ export async function POST(req: NextRequest) {
         //     projectId: projectId
         //   }))
         // });
+
+        return NextResponse.json(
+          { msg: "Chats stored successfully" },
+          { status: 200 }
+        )
 
     } catch (error) {
         console.error("Error while storing chats", error)

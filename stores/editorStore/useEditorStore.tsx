@@ -313,7 +313,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     processPrompt: async (prompt) => {
       set({ isProcessing: true, isInitialising: true })
       const currentPromptIndex = get().inputPrompts.length
-
       try {
         set(state => ({
           inputPrompts: [
@@ -358,12 +357,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
         const projectRes = await axiosInstance.post("/api/store-project", { prompt });
         set({ projectId: projectRes.data.projectId });
-
-        await axiosInstance.post("/store-chats", {
-          prompt,
-          response: parsedSteps,
-          projectId: get().projectId
-        })
       } catch (err) {
         console.error("Error during initialisation:", err)
         toast.error("Error while initialising project")
@@ -558,6 +551,16 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         return;
       } finally {
         set({ isProcessing: false })
+      }
+
+      try {
+        await axiosInstance.post("/api/store-chats", {
+          prompt,
+          response: get().messages,
+          projectId: get().projectId
+        })
+      } catch (error) {
+        console.error("Error while storing chats: ", error)
       }
     },
 
@@ -754,6 +757,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         });
 
         get().setMessages(fullResponse);
+        await axiosInstance.post("/api/store-chats", {
+          prompt,
+          response: [fullResponse],
+          projectId: get().projectId
+        })
       } catch (error) {
         console.error("Error processing followup prompt:", error);
       } finally {

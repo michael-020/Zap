@@ -3,10 +3,27 @@ import { BASE_PROMPT } from "@/lib/prompts";
 import { basePrompt as reactBasePrompt } from "@/defaults/react";
 import { basePrompt as nodeBasePrompt } from "@/defaults/node";
 import { openai } from "@/lib/server/openai";
+import { z } from "zod";
+
+const templateSchema = z.object({
+  prompt: 
+    z.object({
+      role: z.enum(["user", "system", "assistant"]),
+      content: z.string()
+    })
+
+});
 
 export async function POST(req: NextRequest) {
     try {
-        const { prompt } = await req.json()
+        const validatedSchema = templateSchema.safeParse(await req.json())
+        if(!validatedSchema.success){
+          return NextResponse.json(
+            { msg: "Invalid Inputs" },
+            { status: 400 }
+          )
+        }
+        const { prompt } = validatedSchema.data
 
         const response = await openai.chat.completions.create({
             model: "gemini-2.5-flash",

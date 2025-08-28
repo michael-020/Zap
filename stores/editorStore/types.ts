@@ -54,6 +54,7 @@ export interface StoreState {
     isInitialising: boolean,
     isProcessing: boolean,
     isProcessingFollowups: boolean,
+    projectId: string,
 
     // File system
     fileItems: FileItemFlat[]

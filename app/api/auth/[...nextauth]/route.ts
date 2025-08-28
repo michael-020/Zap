@@ -6,13 +6,13 @@ import bcrypt from "bcrypt"
 import { AuthOptions } from "next-auth";
 import { AUTHOPTIONS } from "@/prisma/app/generated/prisma";
 
-export const authOptions: AuthOptions = NextAuth({
+export const authOptions: AuthOptions = ({
   providers: [
     CredentialsProvider({
-      name: "Credentials",
+      name: "credentials",
       credentials: {
-        email: { label: "Email", type: "text", placeholder: "Email" },
-        password: { label: "Password", type: "password", placeholder: "Password" }
+        email: { label: "Email", type: "text" },
+        password: { label: "Password", type: "password" }
       },
       async authorize(credentials) {
         if(!credentials?.email || !credentials?.password)
@@ -46,23 +46,34 @@ export const authOptions: AuthOptions = NextAuth({
       }
       return session
     },
-    jwt: ({token, user}) => {
-      if(user){
-        return {
-          ...token,
-          id: user.id
+    jwt: async ({token, user, account}) => {
+      if (user) {
+        token.id = user.id;
+      }
+      
+      if (account?.provider === "google" && token.email) {
+        try {
+          const dbUser = await prisma.user.findUnique({
+            where: { email: token.email },
+            select: { id: true }
+          });
+          if (dbUser) {
+            token.id = dbUser.id;
+          }
+        } catch (error) {
+          console.error("Error fetching user ID:", error);
         }
       }
-      return token
+      
+      return token;
     }, 
     async signIn({ account, profile }) {
       try {
-        if (!profile?.email) {
-          console.error("No email provided by Google");
-          return false;
-        }
-
         if (account?.provider === "google") {
+          if (!profile?.email) {
+            console.error("No email provided by Google");
+            return false;
+          }
           await prisma.user.upsert({
             where: {
               email: profile.email,
@@ -74,11 +85,13 @@ export const authOptions: AuthOptions = NextAuth({
               email: profile.email,
               provider: AUTHOPTIONS.GOOGLE,
             },
+            select: { id: true }
           });
+
           return true
         }
 
-        return false;
+        return true;
       } catch (error) {
         console.error("Error in signIn callback:", error);
         if (error instanceof Error) {
@@ -98,5 +111,5 @@ export const authOptions: AuthOptions = NextAuth({
   secret: process.env.AUTH_SECRET
 })
 
-const handler = authOptions
+const handler = NextAuth(authOptions)
 export { handler as GET, handler as POST}

@@ -2,10 +2,22 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { authOptions } from "../auth/[...nextauth]/route";
+import { z } from "zod";
+
+export const projectSchema = z.object({
+  prompt: z.string().min(1)
+})
 
 export async function POST(req: NextRequest) {
     try {
-        const { prompt } = await req.json()
+        const validatedSchema = projectSchema.safeParse(await req.json())
+        if(!validatedSchema.success){
+          return NextResponse.json(
+            { msg: "Invalid Inputs" },
+            { status: 400 }
+          )
+        }
+        const { prompt } = validatedSchema.data
         const session = await getServerSession(authOptions)
 
         if(!session || !session.user){
@@ -27,8 +39,8 @@ export async function POST(req: NextRequest) {
         //         { status: 403 }
         //     )
         // }
-
-        await prisma.project.create({
+        console.log("user id: ", session.user)
+        const newProject = await prisma.project.create({
             data: {
                 name: prompt,
                 userId: session.user.id
@@ -36,10 +48,13 @@ export async function POST(req: NextRequest) {
         })
 
         return NextResponse.json(
-            { msg: "Project created Successfully" }
+            { 
+                msg: "Project created Successfully",
+                projectId: newProject.id
+            }
         )
     } catch (error) {
-        console.error("Error while storing chats", error)
+        console.error("Error while creating project", error)
         return NextResponse.json(
             { msg: "Internal Server Error" },
             { status: 500 }

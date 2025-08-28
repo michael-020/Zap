@@ -1,13 +1,10 @@
-import dotenv from 'dotenv';
 import nodemailer, { Transporter } from 'nodemailer';
-
-dotenv.config();
 
 const transporter: Transporter = nodemailer.createTransport({
   service: 'gmail',
   auth: {
-    user: process.env.NEXT_PUBLIC_EMAIL_USER as string, 
-    pass: process.env.NEXT_PUBLIC_EMAIL_PASS as string,
+    user: process.env.EMAIL_USER as string, 
+    pass: process.env.EMAIL_PASS as string,
   }
 });
 
@@ -20,7 +17,7 @@ export function generateOTP(): string {
 export async function sendOTP(email: string, otp: string): Promise<boolean> {
 
   const mailOptions = {
-    from: `"Mirror" <${process.env.NEXT_PUBLIC_EMAIL_USER}>`,
+    from: `"Mirror" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Email Verification OTP',
     text: `Your OTP for email verification is: ${otp}`,

@@ -1,4 +1,4 @@
-import { generateOTP, sendOTP } from "@/lib/emailService";
+import { generateOTP, sendOTP } from "@/lib/server/emailService";
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import z from "zod"

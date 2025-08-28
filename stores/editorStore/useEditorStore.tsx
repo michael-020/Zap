@@ -24,6 +24,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   devServerProcess: null,
   streamingFiles: new Map(),
   userEditedFiles: new Set(),
+  projectId: "",
 
   setWebcontainer: async (instance: WebContainer) => {
     set({ webcontainer: instance })
@@ -354,8 +355,20 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         get().executeSteps(parsedSteps.filter(step => step.shouldExecute !== false))
 
         get().setMessages(res.data.prompts)
+
+        const projectRes = await axiosInstance.post("/api/store-project", { prompt });
+        set({ projectId: projectRes.data.projectId });
+
+        await axiosInstance.post("/store-chats", {
+          prompt,
+          response: parsedSteps,
+          projectId: get().projectId
+        })
       } catch (err) {
         console.error("Error during initialisation:", err)
+        toast.error("Error while initialising project")
+        set({ isInitialising: false })
+        return;
       } finally {
         set({ isInitialising: false })
       }
@@ -540,6 +553,9 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         get().setMessages(fullResponse);
       } catch (err) {
         console.error("Error during build:", err)
+        toast.error("Error while building project")
+        set({ isProcessing: false })
+        return;
       } finally {
         set({ isProcessing: false })
       }

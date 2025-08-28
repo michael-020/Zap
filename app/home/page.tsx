@@ -15,7 +15,7 @@ export default async function Home() {
       <LoginButton />
       <LogoutButton  />
       <h2>Server Session</h2>
-      <pre>{JSON.stringify(session)}</pre>
+      <pre>{JSON.stringify(session.user.id)}</pre>
       <h2>Client Call</h2>
       <User />
       <div className='bg-amber-200 select-none border rounded-full size-12 p-2 flex items-center justify-center'>

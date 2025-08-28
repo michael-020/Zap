@@ -1,11 +1,12 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowUp, LoaderPinwheel } from 'lucide-react'
+import { ArrowUp, LoaderPinwheel, PanelRight } from 'lucide-react'
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { TextArea } from "./text-area"
+import RightSidebar from "./sidebar"
 
 interface ProjectInitializerProps {
   onSubmit: (description: string) => void
@@ -16,6 +17,8 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
   const [isLoading, setIsLoading] = useState(false)
   const textareaRef = useRef(null)
   const { processPrompt } = useEditorStore()
+  const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   const session = useSession()
 
   useEffect(() => {
@@ -29,6 +32,28 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
     }
   }, [])
 
+  useEffect(() => {
+     const threshold = 20;
+ 
+     const onMouseMove = (e: MouseEvent) => {
+       const isNearRightEdge = window.innerWidth - e.clientX <= threshold;
+       if (isNearRightEdge) {
+         setIsHovered(true);
+       } else {
+         setIsHovered(false);
+       }
+     };
+ 
+     document.addEventListener("mousemove", onMouseMove);
+     return () => document.removeEventListener("mousemove", onMouseMove);
+   }, []);
+ 
+   // Handle mouse leave from sidebar - close hover state
+   const handleSidebarMouseLeave = () => {
+     setIsHovered(false);
+   };
+   
+   const sidebarVisible = isOpen || isHovered;
 
   const handleSubmit = () => {
     if (!description.trim()) return
@@ -57,13 +82,18 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
       {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-neutral-800">
         <div className="flex items-center justify-between px-6 py-3">
-          <div className="text-white font-bold text-xl tracking-wide">
+          <div className="text-white font-bold text-xl tracking-wide cursor-pointer select-none flex gap-3">
             Mirror
           </div>
-          <div className="flex items-center justify-center size-10 text-white cursor-pointer bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-full hover:from-neutral-500 hover:to-neutral-600 transition-all duration-200 shadow-lg">
-            <span className="text-sm font-medium">
-              {session.data?.user?.email?.charAt(0).toUpperCase()}
-            </span>
+          <div className="flex gap-3">
+            <div className="flex items-center justify-center size-10 text-white cursor-pointer bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-full hover:from-neutral-500 hover:to-neutral-600 transition-all duration-200 shadow-lg">
+              <div className="text-sm font-medium">
+                {session.data?.user?.email?.charAt(0).toUpperCase()}
+              </div>
+            </div>
+            <button className="text-neutral-500" onClick={() => setIsOpen(!isOpen)}>
+              <PanelRight />
+            </button>
           </div>
         </div>
       </nav>
@@ -122,6 +152,11 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
           </form>
         </div>
       </div>
+      <RightSidebar
+        isOpen={sidebarVisible}
+        setIsOpen={setIsOpen}
+        onMouseLeave={handleSidebarMouseLeave}
+      />
     </div>
   )
 }

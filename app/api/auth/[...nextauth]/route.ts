@@ -41,7 +41,7 @@ export const authOptions: AuthOptions = ({
   ],
   callbacks: {
     session: ({ session, token }) => {
-      if (session?.user) {
+      if (session?.user && token.id) {
         session.user.id = token.id as string 
       }
       return session
@@ -85,9 +85,7 @@ export const authOptions: AuthOptions = ({
               email: profile.email,
               provider: AUTHOPTIONS.GOOGLE,
             },
-            select: { id: true }
           });
-
           return true
         }
 

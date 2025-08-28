@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react"
 import { StatusPanel } from "@/components/status-panel"
 import { CreateFileModal } from "@/components/create-file-modal"
 import { useEditorStore as useStore } from "@/stores/editorStore/useEditorStore"
-import { Plus } from "lucide-react"
+import { PanelLeft, Plus } from "lucide-react"
 import { ProjectInitializer } from "@/components/project-initializer"
 import { EditorWorkspace } from "@/components/editor-workspace"
 import { InitLoadingModal } from "@/components/init-loading-modal"
@@ -49,7 +49,10 @@ export default function ChatPage() {
         className="h-screen flex flex-col bg-gray-900 text-white"
       >
         <div className="py-2 pt-5 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between px-4">
-          <div>
+          <div className="flex">
+            <button>
+              <PanelLeft />
+            </button>
             <button onClick={handleBackToInitializer}>
               <h1 className="text-lg font-semibold font-stretch-ultra-expanded">Mirror</h1>
             </button>

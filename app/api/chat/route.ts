@@ -3,6 +3,8 @@ import { openai } from "@/lib/server/openai";
 import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { z } from "zod";
+import { authOptions } from "../auth/[...nextauth]/route";
+import { getServerSession } from "next-auth";
 
 export const chatStreamSchema = z.object({
   messages: z.array(
@@ -19,6 +21,13 @@ export const chatStreamSchema = z.object({
 
 export async function POST(req: NextRequest){
   try {
+    const session = await getServerSession(authOptions)
+    if(!session || !session.user){
+        return NextResponse.json(
+            { msg: "You are not authorised to access this endpoint" },
+            { status: 401}
+        )
+    }
     const validatedSchema = chatStreamSchema.safeParse(await req.json())
     if(!validatedSchema.success){
       return NextResponse.json(

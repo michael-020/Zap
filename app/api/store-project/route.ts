@@ -10,54 +10,56 @@ export const projectSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        const validatedSchema = projectSchema.safeParse(await req.json())
-        if(!validatedSchema.success){
+      const session = await getServerSession(authOptions)
+
+      if(!session || !session.user){
           return NextResponse.json(
-            { msg: "Invalid Inputs" },
-            { status: 400 }
+              { msg: "You are not authorised to access this endpoint" },
+              { status: 401}
           )
-        }
-        const { prompt } = validatedSchema.data
-        const session = await getServerSession(authOptions)
-
-        if(!session || !session.user){
-            return NextResponse.json(
-                { msg: "You are not authorised to access this endpoint" },
-                { status: 401}
-            )
-        }
-
-        // const user = await prisma.user.findUnique({
-        //     where: {
-        //         email: session.user.email
-        //     }
-        // })
-
-        // if(!user){
-        //     return NextResponse.json(
-        //         { msg: "User not found" },
-        //         { status: 403 }
-        //     )
-        // }
-        console.log("user id: ", session.user)
-        const newProject = await prisma.project.create({
-            data: {
-                name: prompt,
-                userId: session.user.id
-            }
-        })
-
+      }
+      
+      const validatedSchema = projectSchema.safeParse(await req.json())
+      if(!validatedSchema.success){
         return NextResponse.json(
-            { 
-                msg: "Project created Successfully",
-                projectId: newProject.id
-            }
+          { msg: "Invalid Inputs" },
+          { status: 400 }
         )
+      }
+      const { prompt } = validatedSchema.data
+      
+
+      // const user = await prisma.user.findUnique({
+      //     where: {
+      //         email: session.user.email
+      //     }
+      // })
+
+      // if(!user){
+      //     return NextResponse.json(
+      //         { msg: "User not found" },
+      //         { status: 403 }
+      //     )
+      // }
+      console.log("user id: ", session.user)
+      const newProject = await prisma.project.create({
+          data: {
+              name: prompt,
+              userId: session.user.id
+          }
+      })
+
+      return NextResponse.json(
+          { 
+              msg: "Project created Successfully",
+              projectId: newProject.id
+          }
+      )
     } catch (error) {
-        console.error("Error while creating project", error)
-        return NextResponse.json(
-            { msg: "Internal Server Error" },
-            { status: 500 }
-        )
+      console.error("Error while creating project", error)
+      return NextResponse.json(
+          { msg: "Internal Server Error" },
+          { status: 500 }
+      )
     }
 }

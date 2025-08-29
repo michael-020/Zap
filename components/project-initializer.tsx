@@ -7,7 +7,6 @@ import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
-import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 interface ProjectInitializerProps {
   onSubmit: (description: string) => void
@@ -20,16 +19,13 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
   const { processPrompt } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const { authUser } = useAuthStore()
-  const { data: session, status } = useSession()
+  const { data: session } = useSession()
   
   useEffect(() => {
-    if (status === "loading") return
     if (!session) {
       redirect("/")
     }
-  }, [session, status])
-
+  }, [session])
 
   useEffect(() => { 
     if (textareaRef.current) {

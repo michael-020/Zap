@@ -4,8 +4,10 @@ import { useEffect, useRef, useState } from "react"
 import { StatusPanel } from "@/components/status-panel"
 import { CreateFileModal } from "@/components/create-file-modal"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
-import { Plus } from "lucide-react"
+import { Loader2, Plus } from "lucide-react"
 import { EditorWorkspace } from "@/components/editor-workspace"
+import { useSession } from "next-auth/react"
+import { redirect } from "next/navigation"
 // import { InitLoadingModal } from "@/components/init-loading-modal"
 
 export function EditorInterface({
@@ -16,6 +18,13 @@ export function EditorInterface({
   const [isModalOpen, setIsModalOpen] = useState(false)
   const { setSelectedFile, fileItems } = useEditorStore()
   const hasSelectedInitialFile = useRef(false)
+  const { data: session } = useSession()
+  
+  useEffect(() => {
+    if (!session) {
+      redirect("/")
+    }
+  }, [session])
 
   useEffect(() => {
     if (!hasSelectedInitialFile.current && fileItems.length > 0) {
@@ -26,6 +35,12 @@ export function EditorInterface({
       }
     }
   }, [fileItems, setSelectedFile])
+  
+  if(!session){
+     return <div className="h-screen bg-black flex items-center justify-center">
+       <Loader2 className="size-14 animate-spin text-neutral-200" />
+     </div>
+   }
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">

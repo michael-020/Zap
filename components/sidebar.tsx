@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
@@ -17,14 +17,20 @@ interface Chat {
 interface RightSidebarProps {
   isOpen: boolean;
   setIsOpenAction: (value: boolean) => void;
-  onMouseLeaveAction: () => void; 
+  onMouseLeaveAction: () => void;
 }
 
-export default function RightSidebar({ isOpen, setIsOpenAction, onMouseLeaveAction }: RightSidebarProps) {
+export default function RightSidebar({
+  isOpen,
+  setIsOpenAction,
+  onMouseLeaveAction,
+}: RightSidebarProps) {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
-  const router = useRouter()
+  const router = useRouter();
+  const sidebarRef = useRef<HTMLDivElement>(null);
 
+  // Fetch chats
   useEffect(() => {
     if (!isOpen) return;
 
@@ -44,8 +50,25 @@ export default function RightSidebar({ isOpen, setIsOpenAction, onMouseLeaveActi
     fetchChats();
   }, [isOpen]);
 
+  useEffect(() => {
+    if (!isOpen) return;
+
+    const handleClickOutside = (event: MouseEvent) => {
+      if (
+        sidebarRef.current &&
+        !sidebarRef.current.contains(event.target as Node)
+      ) {
+        setIsOpenAction(false);
+      }
+    };
+
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => document.removeEventListener('mousedown', handleClickOutside);
+  }, [isOpen, setIsOpenAction]);
+
   return (
     <aside
+      ref={sidebarRef}
       onMouseLeave={onMouseLeaveAction}
       className={clsx(
         'fixed top-0 right-0 h-full w-64 bg-black border-l border-neutral-800 text-white shadow-lg transform transition-transform duration-300 z-50',
@@ -65,7 +88,7 @@ export default function RightSidebar({ isOpen, setIsOpenAction, onMouseLeaveActi
         </button>
       </div>
 
-      <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden  h-[calc(100%-56px)]">
+      <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden h-[calc(100%-56px)]">
         {loading ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div
@@ -85,7 +108,6 @@ export default function RightSidebar({ isOpen, setIsOpenAction, onMouseLeaveActi
             >
               {chat.name}
             </button>
-
           ))
         )}
       </div>

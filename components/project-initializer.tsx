@@ -35,22 +35,24 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
   }, [])
 
   useEffect(() => {
-     const threshold = 20;
+      const threshold = 25;
+      const sidebarWidth = 256; 
+   
+      const onMouseMove = (e: MouseEvent) => {
+        const isNearRightEdge = window.innerWidth - e.clientX <= threshold;
+        const isInsideSidebar = e.clientX >= window.innerWidth - sidebarWidth;
+        
+        if (isNearRightEdge) {
+          setIsHovered(true);
+        } else if (!isInsideSidebar && isHovered) {
+          setIsHovered(false);
+        }
+      };
+   
+      document.addEventListener("mousemove", onMouseMove);
+      return () => document.removeEventListener("mousemove", onMouseMove);
+    }, [isHovered]);
  
-     const onMouseMove = (e: MouseEvent) => {
-       const isNearRightEdge = window.innerWidth - e.clientX <= threshold;
-       if (isNearRightEdge) {
-         setIsHovered(true);
-       } else {
-         setIsHovered(false);
-       }
-     };
- 
-     document.addEventListener("mousemove", onMouseMove);
-     return () => document.removeEventListener("mousemove", onMouseMove);
-   }, []);
- 
-   // Handle mouse leave from sidebar - close hover state
    const handleSidebarMouseLeave = () => {
      setIsHovered(false);
    };
@@ -87,7 +89,6 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
 
   return (
     <div className="relative min-h-screen bg-black">
-      {/* Navigation */}
       <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-neutral-800">
         <div className="flex items-center justify-between px-6 py-3">
           <div className="text-white font-bold text-xl tracking-wide cursor-pointer select-none flex gap-3">

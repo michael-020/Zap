@@ -29,7 +29,7 @@ export default function ChatPage() {
   }
 
   if (!showMainInterface) {
-    return <ProjectInitializer onSubmit={handleProjectSubmit} />
+    return <ProjectInitializer onSubmitAction={handleProjectSubmit} />
   }
 
   return <EditorInterface onBack={handleBackToInitializer} />

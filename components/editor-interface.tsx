@@ -1,30 +1,29 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { useEffect, useRef } from "react"
 import { StatusPanel } from "@/components/status-panel"
-import { CreateFileModal } from "@/components/create-file-modal"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
-import { Loader2, Plus } from "lucide-react"
+import { Loader2 } from "lucide-react"
 import { EditorWorkspace } from "@/components/editor-workspace"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
-// import { InitLoadingModal } from "@/components/init-loading-modal"
+import { InitLoadingModal } from "./init-loading-modal"
 
 export function EditorInterface({
   onBack,
 }: {
   onBack?: () => void
 }) {
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const { setSelectedFile, fileItems } = useEditorStore()
+  const { setSelectedFile, fileItems, isInitialising } = useEditorStore()
   const hasSelectedInitialFile = useRef(false)
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   
   useEffect(() => {
+    if(status === "loading") return
     if (!session) {
       redirect("/")
     }
-  }, [session])
+  }, [session, status])
 
   useEffect(() => {
     if (!hasSelectedInitialFile.current && fileItems.length > 0) {
@@ -44,7 +43,7 @@ export function EditorInterface({
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">
-      <div className="py-2 pt-5 bg-neutral-950 border-b border-neutral-800 flex items-center justify-between px-4">
+      <div className="py-2  bg-neutral-950 border-b border-neutral-800 flex items-center justify-between px-4">
         <div className="flex items-center gap-2">
             <button onClick={onBack}>
               <h1 className="text-lg font-semibold font-stretch-ultra-expanded">Mirror</h1>
@@ -52,11 +51,9 @@ export function EditorInterface({
         </div>
         <div className="flex items-center gap-2">
           <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-3 py-1.5 text-sm bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 rounded-md transition-colors flex items-center gap-1"
+            className="px-3 py-1.5 text-sm bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 rounded-full transition-colors flex items-center gap-1"
           >
-            <Plus className="w-4 h-4" />
-            New File
+            {session.user.email.charAt(0).toUpperCase()}
           </button>
         </div>
       </div>
@@ -72,8 +69,7 @@ export function EditorInterface({
         </div>
       </div>
 
-      <CreateFileModal isOpen={isModalOpen} onClose={() => setIsModalOpen(false)} />
-      {/*{!isInitialising && <InitLoadingModal />}*/}
+      {!isInitialising && <InitLoadingModal />}
     </div>
   )
 }

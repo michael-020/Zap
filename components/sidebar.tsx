@@ -16,11 +16,11 @@ interface Chat {
 
 interface RightSidebarProps {
   isOpen: boolean;
-  setIsOpen: (value: boolean) => void;
-  onMouseLeave: () => void; // callback from parent
+  setIsOpenAction: (value: boolean) => void;
+  onMouseLeaveAction: () => void; 
 }
 
-export default function RightSidebar({ isOpen, setIsOpen, onMouseLeave }: RightSidebarProps) {
+export default function RightSidebar({ isOpen, setIsOpenAction, onMouseLeaveAction }: RightSidebarProps) {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
   const router = useRouter()
@@ -46,7 +46,7 @@ export default function RightSidebar({ isOpen, setIsOpen, onMouseLeave }: RightS
 
   return (
     <aside
-      onMouseLeave={onMouseLeave}
+      onMouseLeave={onMouseLeaveAction}
       className={clsx(
         'fixed top-0 right-0 h-full w-64 bg-black border-l border-neutral-800 text-white shadow-lg transform transition-transform duration-300 z-50',
         {
@@ -58,14 +58,14 @@ export default function RightSidebar({ isOpen, setIsOpen, onMouseLeave }: RightS
       <div className="flex justify-between items-center p-4 py-[18px] border-b border-neutral-800">
         <h2 className="text-lg font-semibold">Recent Chats</h2>
         <button
-          onClick={() => setIsOpen(false)}
+          onClick={() => setIsOpenAction(false)}
           className="text-sm text-neutral-400 hover:text-white -translate-x-1"
         >
           <X />
         </button>
       </div>
 
-      <div className="p-4 space-y-4 overflow-y-auto h-[calc(100%-56px)]">
+      <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden  h-[calc(100%-56px)]">
         {loading ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div
@@ -79,12 +79,13 @@ export default function RightSidebar({ isOpen, setIsOpen, onMouseLeave }: RightS
           chats.map((chat) => (
             <button
               key={chat.id}
-              className="truncate bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer"
+              className="w-full truncate bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
               title={chat.name}
               onClick={() => router.push(`/chat/${chat.id}`)}
             >
               {chat.name}
             </button>
+
           ))
         )}
       </div>

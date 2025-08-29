@@ -9,23 +9,24 @@ import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
 
 interface ProjectInitializerProps {
-  onSubmit: (description: string) => void
+  onSubmitAction: (description: string) => void
 }
 
-export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
+export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) {
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const textareaRef = useRef(null)
   const { processPrompt } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const { data: session } = useSession()
+  const { data: session, status } = useSession()
   
   useEffect(() => {
+    if(status === "loading") return
     if (!session) {
       redirect("/")
     }
-  }, [session])
+  }, [session, status])
 
   useEffect(() => { 
     if (textareaRef.current) {
@@ -64,7 +65,7 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
     try {
       processPrompt(description)
       
-      onSubmit(description.trim())
+      onSubmitAction(description.trim())
 
     } catch (error) {
       console.error("Error generating steps:", error)
@@ -161,8 +162,8 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
       </div>
       <RightSidebar
         isOpen={sidebarVisible}
-        setIsOpen={setIsOpen}
-        onMouseLeave={handleSidebarMouseLeave}
+        setIsOpenAction={setIsOpen}
+        onMouseLeaveAction={handleSidebarMouseLeave}
       />
     </div>
   )

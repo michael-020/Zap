@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowUp, Loader2, LoaderPinwheel, PanelRight } from 'lucide-react'
+import { ArrowUp, Loader2, LoaderPinwheel } from 'lucide-react'
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
+import Navbar from "./navbar"
 
 interface ProjectInitializerProps {
   onSubmitAction: (description: string) => void
@@ -57,7 +58,7 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
      setIsHovered(false);
    };
    
-   const sidebarVisible = isOpen || isHovered;
+  const sidebarVisible = isOpen || isHovered;
 
   const handleSubmit = () => {
     if (!description.trim()) return
@@ -89,23 +90,10 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
 
   return (
     <div className="relative min-h-screen bg-black">
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-neutral-800">
-        <div className="flex items-center justify-between px-6 py-3">
-          <div className="text-white font-bold text-xl tracking-wide cursor-pointer select-none flex gap-3">
-            Mirror
-          </div>
-          <div className="flex gap-3">
-            <div className="flex items-center justify-center size-10 text-white cursor-pointer bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-full hover:from-neutral-500 hover:to-neutral-600 transition-all duration-200 shadow-lg">
-              <div className="text-sm font-medium">
-                {session.user.email.charAt(0).toUpperCase()}
-              </div>
-            </div>
-            <button className="text-neutral-500" onClick={() => setIsOpen(!isOpen)}>
-              <PanelRight />
-            </button>
-          </div>
-        </div>
-      </nav>
+      <Navbar
+        onPanelToggle={() => setIsOpen(!isOpen)}
+        showPanelToggle={true}
+      />
 
       <div className="flex items-center justify-center min-h-screen px-6 pb-20">
         <div className="w-full max-w-3xl mx-auto">

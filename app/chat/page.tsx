@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 
 export default function ChatPage() {
   const [showMainInterface, setShowMainInterface] = useState(false)
-  const { clearBuildSteps, setFileItems, setFiles, setSelectedFile, buildSteps, fileItems, files, clearPromptStepsMap } = useEditorStore()
+  const { clearBuildSteps, setFileItems, setFiles, setSelectedFile, clearPromptStepsMap } = useEditorStore()
   const router = useRouter()
 
   const handleProjectSubmit = () => {
@@ -22,13 +22,10 @@ export default function ChatPage() {
     setFiles({})
     setSelectedFile(null)
     clearPromptStepsMap()
-    console.log("files: ", files)
-    console.log("files items: ", fileItems)
-    console.log("build steps: ", buildSteps)
     router.push("/chat")
   }
 
-  if (!showMainInterface) {
+  if (showMainInterface) {
     return <ProjectInitializer onSubmitAction={handleProjectSubmit} />
   }
 

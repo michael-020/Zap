@@ -1,13 +1,15 @@
 "use client"
 
-import { useEffect, useRef } from "react"
+import { useEffect, useRef, useState } from "react"
 import { StatusPanel } from "@/components/status-panel"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { Loader2 } from "lucide-react"
 import { EditorWorkspace } from "@/components/editor-workspace"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
-import { InitLoadingModal } from "./init-loading-modal"
+import Navbar from "./navbar"
+import RightSidebar from "./sidebar"
+// import { InitLoadingModal } from "./init-loading-modal"
 
 export function EditorInterface({
   onBack,
@@ -17,6 +19,10 @@ export function EditorInterface({
   const { setSelectedFile, fileItems, isInitialising } = useEditorStore()
   const hasSelectedInitialFile = useRef(false)
   const { data: session, status } = useSession()
+  const [isOpen, setIsOpen] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
+  
+   const sidebarVisible = isOpen || isHovered;
   
   useEffect(() => {
     if(status === "loading") return
@@ -35,6 +41,29 @@ export function EditorInterface({
     }
   }, [fileItems, setSelectedFile])
   
+  useEffect(() => {
+      const threshold = 25;
+      const sidebarWidth = 256; 
+   
+      const onMouseMove = (e: MouseEvent) => {
+        const isNearRightEdge = window.innerWidth - e.clientX <= threshold;
+        const isInsideSidebar = e.clientX >= window.innerWidth - sidebarWidth;
+        
+        if (isNearRightEdge) {
+          setIsHovered(true);
+        } else if (!isInsideSidebar && isHovered) {
+          setIsHovered(false);
+        }
+      };
+   
+      document.addEventListener("mousemove", onMouseMove);
+      return () => document.removeEventListener("mousemove", onMouseMove);
+    }, [isHovered]);
+ 
+   const handleSidebarMouseLeave = () => {
+     setIsHovered(false);
+   };
+  
   if(!session){
      return <div className="h-screen bg-black flex items-center justify-center">
        <Loader2 className="size-14 animate-spin text-neutral-200" />
@@ -43,20 +72,12 @@ export function EditorInterface({
 
   return (
     <div className="h-screen flex flex-col bg-gray-900 text-white">
-      <div className="py-2  bg-neutral-950 border-b border-neutral-800 flex items-center justify-between px-4">
-        <div className="flex items-center gap-2">
-            <button onClick={onBack}>
-              <h1 className="text-lg font-semibold font-stretch-ultra-expanded">Mirror</h1>
-            </button>
-        </div>
-        <div className="flex items-center gap-2">
-          <button
-            className="px-3 py-1.5 text-sm bg-neutral-800 border border-neutral-700 hover:bg-neutral-700 rounded-full transition-colors flex items-center gap-1"
-          >
-            {session.user.email.charAt(0).toUpperCase()}
-          </button>
-        </div>
-      </div>
+      <Navbar
+        onPanelToggle={() => setIsOpen(!isOpen)}
+        showPanelToggle={true}
+        onBack={onBack}
+        showBackButton={true}
+      />
 
       {/* Main Content - 3 Column Grid */}
       <div className="flex-1 grid grid-cols-12 gap-0">
@@ -69,7 +90,12 @@ export function EditorInterface({
         </div>
       </div>
 
-      {!isInitialising && <InitLoadingModal />}
+      {/*{!isInitialising && <InitLoadingModal />}*/}
+      <RightSidebar
+        isOpen={sidebarVisible}
+        setIsOpenAction={setIsOpen}
+        onMouseLeaveAction={handleSidebarMouseLeave}
+      />
     </div>
   )
 }

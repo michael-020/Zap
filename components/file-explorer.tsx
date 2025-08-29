@@ -2,7 +2,7 @@
 "use client"
 
 import { useState, useMemo, useEffect } from "react"
-import { useEditorStore as useStore } from "@/stores/editorStore/useEditorStore"
+import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { ChevronRight, ChevronDown, FileIcon, Folder, FolderOpen, Search } from "lucide-react"
 import type { FileItemFlat } from "@/stores/editorStore/types"
 
@@ -26,7 +26,7 @@ interface DirectoryNode {
 type MountStructure = Record<string, FileNode | DirectoryNode>
 
 export function FileExplorer() {
-  const { fileItems, selectedFile, setSelectedFile, files, webcontainer } = useStore()
+  const { fileItems, selectedFile, setSelectedFile, files, webcontainer } = useEditorStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState<"files" | "search">("files")
 

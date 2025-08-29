@@ -1,11 +1,18 @@
 import { prisma } from '@/lib/prisma';
-import { NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
-  { params }: { params: { projectId: string } }
-) {
-  const { projectId } = params;
+  req: NextRequest,
+  { params }: { params: Promise<{ projectId: string }> }
+ ) {
+   const { projectId } = await params
   try{
+    if(!projectId){
+      return NextResponse.json(
+        { msg: "Project Id is not provided" },
+        { status: 403 }
+      )
+    }
     const chats = await prisma.chat.findMany({
       where: {
         projectId

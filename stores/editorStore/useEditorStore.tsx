@@ -82,6 +82,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
   // File actions
   setSelectedFile: (path) => set({ selectedFile: path }),
+  
+  clearPromptStepsMap: () => set({ promptStepsMap: new Map() }),
 
   updateFileContent: (path, content) =>
     set((state) => {
@@ -766,6 +768,100 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         console.error("Error processing followup prompt:", error);
       } finally {
         set({ isProcessingFollowups: false });
+      }
+    },
+    
+    processChatData: (chatData) => {
+      const { 
+        setBuildSteps, 
+        addFile, 
+        addFileItem, 
+        setMessages, 
+        setShellCommand,
+        resetUserEditedFiles,
+        clearBuildSteps 
+      } = get()
+
+      // Reset store state
+      clearBuildSteps()
+      resetUserEditedFiles()
+    
+      const allSteps: BuildStep[] = []
+      const allMessages: string[] = []
+
+      chatData.forEach((chat, promptIndex) => {
+        set((state) => ({
+          inputPrompts: [...state.inputPrompts, chat.prompt]
+        }))
+    
+        const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g
+        let match
+        const promptSteps: BuildStep[] = []
+    
+        while ((match = actionRegex.exec(chat.response)) !== null) {
+          const [, type, filePath, content] = match
+          const code = content.trim()
+    
+          if (type === "file" && filePath) {
+            const step: BuildStep = {
+              id: crypto.randomUUID(),
+              title: getTitleFromFile(filePath),
+              description: getDescriptionFromFile(filePath),
+              type: BuildStepType.CreateFile,
+              status: statusType.Completed,
+              code,
+              path: filePath,
+            }
+    
+            addFile(filePath, code)
+    
+            addFileItem({
+              name: filePath.split("/").pop() || filePath,
+              path: filePath,
+              type: "file",
+              content: code
+            })
+    
+            promptSteps.push(step)
+            allSteps.push(step)
+            get().executeSteps([step])
+          }
+    
+          if (type === "shell") {
+            const step: BuildStep = {
+              id: crypto.randomUUID(),
+              title: "Run shell command",
+              description: code,
+              type: BuildStepType.RunScript,
+              status: statusType.Completed,
+              code,
+            }
+    
+            setShellCommand(code)
+    
+            promptSteps.push(step)
+            allSteps.push(step)
+            get().executeSteps([step])
+          }
+        }
+      
+        set((state) => {
+          const newMap = new Map(state.promptStepsMap)
+          newMap.set(promptIndex, {
+            prompt: chat.prompt,
+            steps: promptSteps
+          })
+          return { promptStepsMap: newMap }
+        })
+    
+        allMessages.push(chat.response)
+      })
+      
+      setBuildSteps(allSteps)
+      setMessages(allMessages)
+    
+      if (chatData.length > 0) {
+        set({ projectId: chatData[0].projectId })
       }
     }
 }))

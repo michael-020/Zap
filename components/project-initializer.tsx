@@ -1,12 +1,13 @@
 "use client"
 
 import { useEffect, useRef, useState } from "react"
-import { ArrowUp, LoaderPinwheel, PanelRight } from 'lucide-react'
+import { ArrowUp, Loader2, LoaderPinwheel, PanelRight } from 'lucide-react'
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 interface ProjectInitializerProps {
   onSubmit: (description: string) => void
@@ -19,12 +20,16 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
   const { processPrompt } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
-  const session = useSession()
-
+  const { authUser } = useAuthStore()
+  const { data: session, status } = useSession()
+  
   useEffect(() => {
-      if(!session)
-        redirect("/")
-  }, [session])
+    if (status === "loading") return
+    if (!session) {
+      redirect("/")
+    }
+  }, [session, status])
+
 
   useEffect(() => { 
     if (textareaRef.current) {
@@ -76,6 +81,12 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
       e.preventDefault()
       handleSubmit()
     }
+   
+   if(!session){
+     return <div className="h-screen bg-black flex items-center justify-center">
+       <Loader2 className="size-14 animate-spin text-neutral-200" />
+     </div>
+   }
 
   return (
     <div className="relative min-h-screen bg-black">
@@ -88,7 +99,7 @@ export function ProjectInitializer({ onSubmit }: ProjectInitializerProps) {
           <div className="flex gap-3">
             <div className="flex items-center justify-center size-10 text-white cursor-pointer bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-full hover:from-neutral-500 hover:to-neutral-600 transition-all duration-200 shadow-lg">
               <div className="text-sm font-medium">
-                {session.data?.user?.email?.charAt(0).toUpperCase()}
+                {session.user.email.charAt(0).toUpperCase()}
               </div>
             </div>
             <button className="text-neutral-500" onClick={() => setIsOpen(!isOpen)}>

@@ -2,7 +2,7 @@
 
 import type React from "react"
 import { useState } from "react"
-import { useEditorStore as useStore } from "@/stores/editorStore/useEditorStore"
+import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { FileIcon, Folder, X } from "lucide-react"
 
 interface CreateFileModalProps {
@@ -14,7 +14,7 @@ export function CreateFileModal({ isOpen, onClose }: CreateFileModalProps) {
   const [name, setName] = useState("")
   const [type, setType] = useState<"file" | "folder">("file")
   const [template, setTemplate] = useState("react-component")
-  const { fileItems, setFileItems, files, setFiles } = useStore()
+  const { fileItems, setFileItems, files, setFiles } = useEditorStore()
 
   const templates = {
     "react-component": {

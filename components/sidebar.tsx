@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import clsx from 'clsx';
 import { X } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 interface Chat {
   id: string;
@@ -22,6 +23,7 @@ interface RightSidebarProps {
 export default function RightSidebar({ isOpen, setIsOpen, onMouseLeave }: RightSidebarProps) {
   const [chats, setChats] = useState<Chat[]>([]);
   const [loading, setLoading] = useState(true);
+  const router = useRouter()
 
   useEffect(() => {
     if (!isOpen) return;
@@ -75,13 +77,14 @@ export default function RightSidebar({ isOpen, setIsOpen, onMouseLeave }: RightS
           <p className="text-neutral-500">No recent chats.</p>
         ) : (
           chats.map((chat) => (
-            <div
+            <button
               key={chat.id}
               className="truncate bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer"
               title={chat.name}
+              onClick={() => router.push(`/chat/${chat.id}`)}
             >
               {chat.name}
-            </div>
+            </button>
           ))
         )}
       </div>

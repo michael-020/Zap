@@ -14,10 +14,10 @@ export function EditorWorkspace() {
 
   if (!selectedFile) {
     return (
-      <div className="flex-1 flex items-center justify-center text-gray-500">
+      <div className="flex-1 flex items-center justify-center  pt-10">
         <div className="text-center">
-          <p className="text-lg font-medium">No file selected</p>
-          <p className="text-sm text-gray-600">Please select a file to start editing</p>
+          <p className="text-lg font-medium text-neutral-300">No file selected</p>
+          <p className="text-sm text-neutral-400">Please select a file to start editing</p>
         </div>
       </div>
     )

@@ -25,7 +25,7 @@ export default function ChatPage() {
     router.push("/chat")
   }
 
-  if (showMainInterface) {
+  if (!showMainInterface) {
     return <ProjectInitializer onSubmitAction={handleProjectSubmit} />
   }
 

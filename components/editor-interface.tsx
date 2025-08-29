@@ -9,7 +9,7 @@ import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import Navbar from "./navbar"
 import RightSidebar from "./sidebar"
-// import { InitLoadingModal } from "./init-loading-modal"
+import { InitLoadingModal } from "./init-loading-modal"
 
 export function EditorInterface({
   onBack,
@@ -80,17 +80,17 @@ export function EditorInterface({
       />
 
       {/* Main Content - 3 Column Grid */}
-      <div className="flex-1 grid grid-cols-12 gap-0">
+      <div className="grid grid-cols-12 gap-0 pt-[52px] h-[calc(100vh-52px)]">
         <div className="col-span-3 bg-neutral-950 border-r border-neutral-800">
           <StatusPanel />
         </div>
-
+      
         <div className="col-span-9 bg-neutral-900">
           <EditorWorkspace />
         </div>
       </div>
 
-      {/*{!isInitialising && <InitLoadingModal />}*/}
+      {!isInitialising && <InitLoadingModal />}
       <RightSidebar
         isOpen={sidebarVisible}
         setIsOpenAction={setIsOpen}

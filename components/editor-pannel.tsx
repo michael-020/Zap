@@ -91,49 +91,48 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
       
       <div className="h-full">
         <Editor
-  height="100%"
-  defaultLanguage="typescript"
-  defaultValue={editorValue}
-  path={filePath}
-  onChange={handleEditorChange}
-  theme="vs-dark"
-  beforeMount={(monaco) => {
-    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: true,
-      noSyntaxValidation: true,
-    });
+          height="100%"
+          defaultLanguage="typescript"
+          defaultValue={editorValue}
+          path={filePath}
+          onChange={handleEditorChange}
+          theme="vs-dark"
+          beforeMount={(monaco) => {
+            monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+              noSemanticValidation: true,
+              noSyntaxValidation: true,
+            });
 
-    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-      noSemanticValidation: true,
-      noSyntaxValidation: true,
-    });
+            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+              noSemanticValidation: true,
+              noSyntaxValidation: true,
+            });
 
-    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-      jsx: monaco.languages.typescript.JsxEmit.React,
-      allowJs: true,
-      esModuleInterop: true,
-      target: monaco.languages.typescript.ScriptTarget.ESNext,
-      module: monaco.languages.typescript.ModuleKind.ESNext,
-      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-      skipLibCheck: true,
-      isolatedModules: true,
-      allowSyntheticDefaultImports: true,
-      noEmit: true,
-      typeRoots: [], 
-    });
-  }}
-  options={{
-    readOnly: false,
-    minimap: { enabled: false },
-    fontSize: 14,
-    wordWrap: 'on',
-    scrollBeyondLastLine: false,
-    quickSuggestions: !isStreaming,
-    parameterHints: { enabled: !isStreaming },
-    suggestOnTriggerCharacters: !isStreaming,
-  }}
-/>
-
+            monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+              jsx: monaco.languages.typescript.JsxEmit.React,
+              allowJs: true,
+              esModuleInterop: true,
+              target: monaco.languages.typescript.ScriptTarget.ESNext,
+              module: monaco.languages.typescript.ModuleKind.ESNext,
+              moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+              skipLibCheck: true,
+              isolatedModules: true,
+              allowSyntheticDefaultImports: true,
+              noEmit: true,
+              typeRoots: [], 
+            });
+          }}
+          options={{
+            readOnly: false,
+            minimap: { enabled: false },
+            fontSize: 14,
+            wordWrap: 'on',
+            scrollBeyondLastLine: false,
+            quickSuggestions: !isStreaming,
+            parameterHints: { enabled: !isStreaming },
+            suggestOnTriggerCharacters: !isStreaming,
+          }}
+        />
       </div>
     </div>
   )

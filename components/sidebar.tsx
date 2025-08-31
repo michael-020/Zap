@@ -30,7 +30,6 @@ export default function RightSidebar({
   const router = useRouter();
   const sidebarRef = useRef<HTMLDivElement>(null);
 
-  // Fetch chats
   useEffect(() => {
     if (!isOpen) return;
 
@@ -78,7 +77,7 @@ export default function RightSidebar({
         }
       )}
     >
-      <div className="flex justify-between items-center p-4 py-[18px] border-b border-neutral-800">
+      <div className="flex justify-between items-center p-4 border-b border-neutral-800">
         <h2 className="text-lg font-semibold">Recent Chats</h2>
         <button
           onClick={() => setIsOpenAction(false)}

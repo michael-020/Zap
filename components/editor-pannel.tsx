@@ -3,9 +3,14 @@
 import { useEffect, useState, useRef } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import Editor from '@monaco-editor/react';
+import * as monaco from "monaco-editor"
 
 interface EditorPanelProps {
   filePath: string
+}
+
+const getMonacoUri = (filePath: string) => {
+  return monaco.Uri.parse(`file:///${filePath}`);
 }
 
 export function EditorPanel({ filePath }: EditorPanelProps) {
@@ -35,6 +40,16 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
       }
     }
   }, [file?.content, isStreaming])
+
+  useEffect(() => {
+    const uri = getMonacoUri(filePath);
+    const model = monaco.editor.getModel(uri);
+    if (model && !isUserEditingRef.current) {
+      model.setValue(file.content || "");
+    }
+  }, [file.content]);
+
+
 
   const handleEditorChange = (value: string | undefined) => {
     const newValue = value || ""
@@ -76,49 +91,49 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
       
       <div className="h-full">
         <Editor
-          height="100%"
-          value={editorValue}
-          defaultLanguage="typescript"
-          onChange={handleEditorChange}
-          theme="vs-dark"
-          options={{
-            readOnly: false,
-            minimap: { enabled: false },
-            fontSize: 14,
-            wordWrap: 'on',
-            scrollBeyondLastLine: false,
-            // Disable some features during streaming to improve performance
-            quickSuggestions: !isStreaming,
-            parameterHints: { enabled: !isStreaming },
-            suggestOnTriggerCharacters: !isStreaming,
-          }}
-          beforeMount={(monaco) => {
-            monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
-              noSemanticValidation: true,
-              noSyntaxValidation: true,
-            });
+  height="100%"
+  defaultLanguage="typescript"
+  defaultValue={editorValue}
+  path={filePath}
+  onChange={handleEditorChange}
+  theme="vs-dark"
+  beforeMount={(monaco) => {
+    monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true,
+    });
 
-            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
-              noSemanticValidation: true,
-              noSyntaxValidation: true,
-            });
+    monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true,
+    });
 
-            monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-              jsx: monaco.languages.typescript.JsxEmit.React,
-              allowJs: true,
-              esModuleInterop: true,
-              target: monaco.languages.typescript.ScriptTarget.ESNext,
-              module: monaco.languages.typescript.ModuleKind.ESNext,
-              moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
-              skipLibCheck: true,
-              isolatedModules: true,
-              allowSyntheticDefaultImports: true,
-              noEmit: true,
-              typeRoots: [], 
-            });
-          }}
-          
-        />
+    monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
+      jsx: monaco.languages.typescript.JsxEmit.React,
+      allowJs: true,
+      esModuleInterop: true,
+      target: monaco.languages.typescript.ScriptTarget.ESNext,
+      module: monaco.languages.typescript.ModuleKind.ESNext,
+      moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+      skipLibCheck: true,
+      isolatedModules: true,
+      allowSyntheticDefaultImports: true,
+      noEmit: true,
+      typeRoots: [], 
+    });
+  }}
+  options={{
+    readOnly: false,
+    minimap: { enabled: false },
+    fontSize: 14,
+    wordWrap: 'on',
+    scrollBeyondLastLine: false,
+    quickSuggestions: !isStreaming,
+    parameterHints: { enabled: !isStreaming },
+    suggestOnTriggerCharacters: !isStreaming,
+  }}
+/>
+
       </div>
     </div>
   )

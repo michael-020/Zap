@@ -289,7 +289,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
             case BuildStepType.RunScript: {
               if (step.description) {
-                console.log("Shell command to execute:", step.description)
+                console.log("Executing command:", step.description)
                 get().setShellCommand(step.description)
                 await get().handleShellCommand(step.description)
               }
@@ -833,7 +833,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               title: "Run shell command",
               description: code,
               type: BuildStepType.RunScript,
-              status: statusType.Completed,
+              status: statusType.InProgress,
               code,
             }
     

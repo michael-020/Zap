@@ -14,5 +14,5 @@ export function useWebContainer() {
     };
 
     initWebContainer();
-  }, []);
+  }, [setWebcontainer, webcontainer]);
 }

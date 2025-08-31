@@ -13,8 +13,10 @@ import { InitLoadingModal } from "./init-loading-modal"
 
 export function EditorInterface({
   onBack,
+  shouldInitialize
 }: {
-  onBack?: () => void
+  onBack?: () => void,
+  shouldInitialize?: boolean
 }) {
   const { setSelectedFile, fileItems, isInitialising } = useEditorStore()
   const hasSelectedInitialFile = useRef(false)
@@ -90,7 +92,7 @@ export function EditorInterface({
         </div>
       </div>
 
-      {!isInitialising && <InitLoadingModal />}
+      {shouldInitialize && !isInitialising && <InitLoadingModal />}
       <RightSidebar
         isOpen={sidebarVisible}
         setIsOpenAction={setIsOpen}

@@ -87,8 +87,7 @@ export function EditorInterface({
         showBackButton={true}
       />
 
-      {/* Main Content - 3 Column Grid */}
-      <div className="grid grid-cols-12 gap-0 pt-[52px] h-[calc(100vh-52px)]">
+      <div className="grid grid-cols-12 gap-0 fixed top-[60px] h-[calc(100vh-60px)]">
         <div className="col-span-3 bg-neutral-950 border-r border-neutral-800">
           <StatusPanel />
         </div>

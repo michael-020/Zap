@@ -61,7 +61,7 @@ export function StatusPanel() {
 
 
   return (
-    <div className="h-[94vh] flex flex-col overflow-x-hidden">
+    <div className="h-[calc(100vh-60px)] flex flex-col overflow-x-hidden">
 
       <div className="flex-1 overflow-x-hidden flex-wrap p-4 space-y-4 custom-scrollbar">
         {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps }]) => (
@@ -122,6 +122,7 @@ export function StatusPanel() {
                 ))}
               </div>
             )}
+          <div ref={bottomRef} ></div>
           </div>
         ))}
 
@@ -131,7 +132,6 @@ export function StatusPanel() {
             <span>Processing changes...</span>
           </div>
         )}
-        <div ref={bottomRef} />
       </div>
 
       <div className="border-t border-neutral-800 p-2 bg-neutral-950">

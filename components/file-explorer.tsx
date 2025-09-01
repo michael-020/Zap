@@ -70,6 +70,7 @@ export function FileExplorer() {
               path: currentPath,
               type: isFile ? "file" : "folder",
               children: isFile ? undefined : {},
+              depth: i, // Add depth for sorting
             }
           }
 
@@ -79,14 +80,27 @@ export function FileExplorer() {
         }
       }
 
-      const convert = (node: any): any => {
-        return Object.values(node).map((item: any) => ({
-          ...item,
-          children: item.children ? convert(item.children) : undefined,
+      const sortNodes = (nodes: any[]): any[] => {
+        return nodes.sort((a, b) => {
+          // Special case: src folder always comes first at root level
+          if (a.depth === 0 && b.depth === 0) {
+            if (a.name === "src") return -1
+            if (b.name === "src") return 1
+          }
+          
+          // Folders before files
+          if (a.type === "folder" && b.type === "file") return -1
+          if (a.type === "file" && b.type === "folder") return 1
+          
+          // Alphabetical within same type
+          return a.name.localeCompare(b.name)
+        }).map(node => ({
+          ...node,
+          children: node.children ? sortNodes(Object.values(node.children)) : undefined
         }))
       }
 
-      return convert(root)
+      return sortNodes(Object.values(root))
     }
 
     return buildNestedTree(filteredAndSortedItems)

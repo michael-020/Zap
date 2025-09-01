@@ -118,7 +118,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
           height="100%"
           defaultLanguage="typescript"
           value={editorValue} // Use controlled value instead of defaultValue
-          path={filePath}
+          path={getMonacoUri(filePath).toString()}
           onChange={handleEditorChange}
           onMount={handleEditorMount}
           theme="vs-dark"

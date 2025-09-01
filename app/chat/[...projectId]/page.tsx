@@ -13,12 +13,12 @@ export default function ChatSessionPage() {
   const router = useRouter()
   
   const handleBackToInitializer = () => {
+    router.push("/chat")
     clearBuildSteps()
     setFileItems([])
     setFiles({})
     setSelectedFile(null)
     clearPromptStepsMap()
-    router.push("/chat")
   }
 
   useEffect(() => {
@@ -30,7 +30,7 @@ export default function ChatSessionPage() {
     }
 
     fetchProject()
-  }, [])
+  }, [projectId, processChatData])
 
   return <EditorInterface shouldInitialize={false} onBack={handleBackToInitializer} />
 }

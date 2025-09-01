@@ -16,18 +16,18 @@ export default function ChatPage() {
   }
 
   const handleBackToInitializer = () => {
+    router.push("/chat")
     setShowMainInterface(false)
     clearBuildSteps()
     setFileItems([])
     setFiles({})
     setSelectedFile(null)
     clearPromptStepsMap()
-    router.push("/chat")
   }
 
   if (!showMainInterface) {
     return <ProjectInitializer onSubmitAction={handleProjectSubmit} />
   }
 
-  return <EditorInterface onBack={handleBackToInitializer} />
+  return <EditorInterface shouldInitialize={true} onBack={handleBackToInitializer} />
 }

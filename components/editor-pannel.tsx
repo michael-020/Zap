@@ -18,13 +18,30 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
   const [editorValue, setEditorValue] = useState("")
   const isUserEditingRef = useRef(false)
   const lastStreamedContentRef = useRef("")
+  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+  const currentFilePathRef = useRef<string>(filePath)
 
   const file = fileItems.find(item => item.path === filePath)
   const isStreaming = streamingFiles?.get(filePath) || false
   const isUserEdited = userEditedFiles?.has(filePath) || false
 
+  // Handle file path changes - this is crucial for proper content loading
   useEffect(() => {
-    if (file?.content !== undefined) {
+    if (currentFilePathRef.current !== filePath) {
+      currentFilePathRef.current = filePath
+      isUserEditingRef.current = false
+      lastStreamedContentRef.current = ""
+      
+      // Immediately set the editor value when switching files
+      if (file?.content !== undefined) {
+        setEditorValue(file.content)
+      }
+    }
+  }, [filePath, file?.content])
+
+  // Handle content updates for the current file
+  useEffect(() => {
+    if (file?.content !== undefined && currentFilePathRef.current === filePath) {
       if (!isUserEditingRef.current) {
         if (isStreaming) {
           const contentDiff = file.content.length - lastStreamedContentRef.current.length
@@ -33,22 +50,30 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             lastStreamedContentRef.current = file.content
           }
         } else {
+          // For non-streaming files, always update the editor value
           setEditorValue(file.content)
         }
       }
     }
-  }, [file?.content, isStreaming])
+  }, [file?.content, isStreaming, filePath])
 
+  // Sync Monaco model with content - but only for the current file
   useEffect(() => {
-    const uri = getMonacoUri(filePath);
-    const model = monaco.editor.getModel(uri);
-    if (model && !isUserEditingRef.current) {
-      model.setValue(file?.content || "");
+    if (editorRef.current && currentFilePathRef.current === filePath) {
+      const currentValue = editorRef.current.getValue()
+      if (currentValue !== editorValue && !isUserEditingRef.current) {
+        editorRef.current.setValue(editorValue)
+      }
     }
-  }, [file?.content, filePath]);
+  }, [editorValue, filePath])
 
   const handleEditorChange = (value: string | undefined) => {
     const newValue = value || ""
+    
+    if (currentFilePathRef.current !== filePath) {
+      return
+    }
+    
     isUserEditingRef.current = true
     setEditorValue(newValue)
     
@@ -60,10 +85,15 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     return () => clearTimeout(timeoutId)
   }
 
-  useEffect(() => {
-    isUserEditingRef.current = false
-    lastStreamedContentRef.current = ""
-  }, [filePath])
+  const handleEditorMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
+    editorRef.current = editor
+    
+    // Set initial value for the mounted editor
+    if (file?.content !== undefined) {
+      editor.setValue(file.content)
+      setEditorValue(file.content)
+    }
+  }
 
   if (!file) {
     return (
@@ -87,9 +117,10 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
         <Editor
           height="100%"
           defaultLanguage="typescript"
-          defaultValue={editorValue}
+          value={editorValue} // Use controlled value instead of defaultValue
           path={filePath}
           onChange={handleEditorChange}
+          onMount={handleEditorMount}
           theme="vs-dark"
           beforeMount={(monaco) => {
             monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({

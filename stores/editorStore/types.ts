@@ -57,7 +57,7 @@ export interface StoreState {
   isProcessingFollowups: boolean,
   projectId: string,
 
-  // File system - only using fileItems now
+  // File system
   fileItems: FileItemFlat[]
   selectedFile: string | null
 

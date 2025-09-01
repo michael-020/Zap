@@ -28,18 +28,11 @@ export enum BuildStepType {
     NonExecutuable
 }
 
-
 export type FileItemFlat = {
   name: string
   path: string
   type: "file" | "folder"
-  content?: string
-}
-
-export interface FileContent {
-    name: string
-    content?: string
-    path: string
+  content: string // Make content required since we're consolidating
 }
 
 export interface PromptStepMapping {
@@ -64,9 +57,8 @@ export interface StoreState {
   isProcessingFollowups: boolean,
   projectId: string,
 
-  // File system
+  // File system - only using fileItems now
   fileItems: FileItemFlat[]
-  files: Record<string, FileContent>
   selectedFile: string | null
 
   shellCommands: string[]
@@ -89,7 +81,6 @@ export interface StoreState {
   setSelectedFile: (path: string | null) => void
   updateFileContent: (path: string, content: string) => void
   setFileItems: (items: FileItemFlat[]) => void
-  setFiles: (files: Record<string, FileContent>) => void
   addFile: (path: string, content: string) => void
   addFileItem: (item: FileItemFlat) => void
   executeSteps: (steps: BuildStep[]) => void

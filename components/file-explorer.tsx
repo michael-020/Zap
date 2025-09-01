@@ -26,7 +26,7 @@ interface DirectoryNode {
 type MountStructure = Record<string, FileNode | DirectoryNode>
 
 export function FileExplorer() {
-  const { fileItems, selectedFile, setSelectedFile, files, webcontainer } = useEditorStore()
+  const { fileItems, selectedFile, setSelectedFile, webcontainer } = useEditorStore()
   const [searchTerm, setSearchTerm] = useState("")
   const [activeTab, setActiveTab] = useState<"files" | "search">("files")
 
@@ -112,23 +112,23 @@ export function FileExplorer() {
       const finalName = pathParts[pathParts.length - 1]
       
       if (item.type === 'file') {
-        const fileContent = files[item.path]?.content ?? item.content
-        
+        // Use content directly from fileItems
         currentLevel[finalName] = {
           file: {
-            contents: fileContent!
+            contents: item.content || ""
           }
         }
       } else if (item.type === 'folder') {
-        currentLevel[finalName] = {
-          directory: {}
+        if (!currentLevel[finalName]) {
+          currentLevel[finalName] = {
+            directory: {}
+          }
         }
       }
     })
 
     webcontainer?.mount(mountStructure)
-  }, [fileItems, files, webcontainer])
-
+  }, [fileItems, webcontainer])
 
   return (
     <div className="h-[calc(100vh-4rem)] flex flex-col scrollbar-hidden">

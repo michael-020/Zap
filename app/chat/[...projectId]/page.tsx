@@ -9,14 +9,13 @@ import { useRouter } from "next/navigation"
 
 export default function ChatSessionPage() {
   const { projectId } = useParams()
-  const { processChatData, clearBuildSteps, setFileItems, setFiles, setSelectedFile, clearPromptStepsMap } = useEditorStore()
+  const { processChatData, clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap } = useEditorStore()
   const router = useRouter()
   
   const handleBackToInitializer = () => {
     router.push("/chat")
     clearBuildSteps()
     setFileItems([])
-    setFiles({})
     setSelectedFile(null)
     clearPromptStepsMap()
   }

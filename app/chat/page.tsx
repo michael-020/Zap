@@ -8,7 +8,7 @@ import { useRouter } from "next/navigation"
 
 export default function ChatPage() {
   const [showMainInterface, setShowMainInterface] = useState(false)
-  const { clearBuildSteps, setFileItems, setFiles, setSelectedFile, clearPromptStepsMap } = useEditorStore()
+  const { clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap } = useEditorStore()
   const router = useRouter()
 
   const handleProjectSubmit = () => {
@@ -20,7 +20,6 @@ export default function ChatPage() {
     setShowMainInterface(false)
     clearBuildSteps()
     setFileItems([])
-    setFiles({})
     setSelectedFile(null)
     clearPromptStepsMap()
   }

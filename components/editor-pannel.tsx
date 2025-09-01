@@ -14,20 +14,18 @@ const getMonacoUri = (filePath: string) => {
 }
 
 export function EditorPanel({ filePath }: EditorPanelProps) {
-  const { files, updateFileContent, streamingFiles, userEditedFiles } = useEditorStore()
+  const { fileItems, updateFileContent, streamingFiles, userEditedFiles } = useEditorStore()
   const [editorValue, setEditorValue] = useState("")
   const isUserEditingRef = useRef(false)
   const lastStreamedContentRef = useRef("")
 
-  const file = files[filePath]
+  const file = fileItems.find(item => item.path === filePath)
   const isStreaming = streamingFiles?.get(filePath) || false
   const isUserEdited = userEditedFiles?.has(filePath) || false
 
   useEffect(() => {
     if (file?.content !== undefined) {
-      // Only update editor if user hasn't manually edited or if content changed significantly
       if (!isUserEditingRef.current) {
-        // For streaming files, only update if content is significantly different
         if (isStreaming) {
           const contentDiff = file.content.length - lastStreamedContentRef.current.length
           if (contentDiff > 50 || file.content !== lastStreamedContentRef.current) {
@@ -45,18 +43,15 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     const uri = getMonacoUri(filePath);
     const model = monaco.editor.getModel(uri);
     if (model && !isUserEditingRef.current) {
-      model.setValue(file.content || "");
+      model.setValue(file?.content || "");
     }
-  }, [file.content]);
-
-
+  }, [file?.content, filePath]);
 
   const handleEditorChange = (value: string | undefined) => {
     const newValue = value || ""
     isUserEditingRef.current = true
     setEditorValue(newValue)
     
-    // Debounce the store update to avoid conflicts during rapid typing
     const timeoutId = setTimeout(() => {
       updateFileContent(filePath, newValue)
       isUserEditingRef.current = false
@@ -65,7 +60,6 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     return () => clearTimeout(timeoutId)
   }
 
-  // Reset user editing flag when file path changes
   useEffect(() => {
     isUserEditingRef.current = false
     lastStreamedContentRef.current = ""

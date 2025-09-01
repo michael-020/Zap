@@ -10,12 +10,12 @@ interface CodeEditorTabsProps {
 }
 
 export function CodeEditorTabs({ activeTab, onTabChange }: CodeEditorTabsProps) {
-  const { files } = useEditorStore()
+  const { fileItems } = useEditorStore()
 
   const handleDownloadZip = async () => {
     const zip = new JSZip()
 
-    Object.entries(files).forEach(([, file]) => {
+    Object.entries(fileItems).forEach(([, file]) => {
       if (file?.path && typeof file.content === "string") {
         zip.file(file.path, file.content)
       }

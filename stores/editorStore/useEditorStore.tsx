@@ -10,7 +10,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   buildSteps: [],
   isBuilding: false,
   fileItems: [],
-  files: {},
   selectedFile: null,
   shellCommands: [],
   webcontainer: null,
@@ -94,16 +93,15 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       const newStreamingFiles = new Map(state.streamingFiles)
       newStreamingFiles.set(path, false)
 
+      // Update the fileItems array
+      const updatedFileItems = state.fileItems.map(item =>
+        item.path === path ? { ...item, content } : item
+      )
+
       return {
         userEditedFiles: newUserEditedFiles,
         streamingFiles: newStreamingFiles,
-        files: {
-          ...state.files,
-          [path]: {
-            ...state.files[path],
-            content,
-          },
-        },
+        fileItems: updatedFileItems,
       }
     }),
 
@@ -120,17 +118,17 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         return state
       }
 
-      const currentContent = state.files[path]?.content || ""
+      // Update the fileItems array
+      const updatedFileItems = state.fileItems.map(item => {
+        if (item.path === path) {
+          const currentContent = item.content || ""
+          return { ...item, content: currentContent + chunk }
+        }
+        return item
+      })
+
       return {
-        files: {
-          ...state.files,
-          [path]: {
-            ...state.files[path],
-            name: path.split("/").pop() || path,
-            path,
-            content: currentContent + chunk,
-          },
-        },
+        fileItems: updatedFileItems,
       }
     }),
 
@@ -151,20 +149,34 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
     setFileItems: (items: FileItemFlat[]) => set({ fileItems: items }),
     
-    setFiles: (files) => set({ files }),
+    // Removed setFiles method since we're not using files array anymore
 
     addFile: (path: string, content: string = "") => {
-      
-      set((state) => ({
-          files: {
-            ...state.files,
-            [path]: {
-              name: path.split("/").pop() || path,
-              content,
-              path,
-            },
-          },
-      }))
+      set((state) => {
+        // Check if file already exists
+        const existingIndex = state.fileItems.findIndex(item => item.path === path)
+        
+        if (existingIndex >= 0) {
+          // Update existing file
+          const updatedFileItems = [...state.fileItems]
+          updatedFileItems[existingIndex] = {
+            ...updatedFileItems[existingIndex],
+            content
+          }
+          return { fileItems: updatedFileItems }
+        } else {
+          // Add new file
+          const newFileItem: FileItemFlat = {
+            name: path.split("/").pop() || path,
+            path,
+            type: "file",
+            content,
+          }
+          return {
+            fileItems: [...state.fileItems, newFileItem],
+          }
+        }
+      })
     },
 
     addFileItem: (item: FileItemFlat) =>
@@ -261,13 +273,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 throw new Error("Missing path or code")
               }
               addFile(step.path, step.code)
-
-              addFileItem({
-                name: step.path.split("/").pop() || step.path,
-                path: step.path,
-                type: "file",
-                content: ""
-              })
               break
             }
 
@@ -284,7 +289,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 content: ""
               })
               break
-
             }
 
             case BuildStepType.RunScript: {
@@ -452,7 +456,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   path: filePath,
                 };
 
-                // Set final content (this will also mark as user-edited to prevent further streaming)
+                // Set final content
                 get().addFile(filePath, code);
 
                 set(state => {
@@ -504,12 +508,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               if (!fileCompletionTracker.has(filePath)) {
                 // Initialize file for streaming
                 get().addFile(filePath, "");
-                get().addFileItem({
-                  name: filePath.split("/").pop() || filePath,
-                  path: filePath,
-                  type: "file",
-                  content: ""
-                });
                 get().setSelectedFile(filePath);
 
                 const step: BuildStep = {
@@ -665,7 +663,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   path: filePath,
                 };
 
-                // Set final content (this will also mark as user-edited to prevent further streaming)
+                // Set final content
                 get().addFile(filePath, code);
 
                 set(state => {
@@ -717,12 +715,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               if (!fileCompletionTracker.has(filePath)) {
                 // Initialize file for streaming
                 get().addFile(filePath, "");
-                get().addFileItem({
-                  name: filePath.split("/").pop() || filePath,
-                  path: filePath,
-                  type: "file",
-                  content: ""
-                });
                 get().setSelectedFile(filePath);
 
                 const step: BuildStep = {

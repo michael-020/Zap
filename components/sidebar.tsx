@@ -5,7 +5,7 @@ import clsx from 'clsx';
 import { X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
-interface Chat {
+export interface Chat {
   id: string;
   message: string;
   userId: string;

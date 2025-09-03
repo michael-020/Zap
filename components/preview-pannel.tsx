@@ -8,7 +8,7 @@ import { useEffect } from "react";
 export function PreviewPanel() {
     const { webcontainer, previewUrl, setPreviewUrl } = useEditorStore()
 
-    async function main(){
+    async function init(){
         if(!webcontainer) {
             console.log("return")
             return
@@ -32,7 +32,7 @@ export function PreviewPanel() {
     }
 
     useEffect(() => {
-        main()
+        init()
     }, [])
     
     return (

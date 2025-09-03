@@ -28,5 +28,5 @@ export default function ChatPage() {
     return <ProjectInitializer onSubmitAction={handleProjectSubmit} />
   }
 
-  return <EditorInterface shouldInitialize={true} onBack={handleBackToInitializer} />
+  return <EditorInterface shouldInitialize={false} onBack={handleBackToInitializer} />
 }

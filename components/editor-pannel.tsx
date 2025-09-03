@@ -1,6 +1,6 @@
 "use client"
 
-import { useEffect, useState, useRef } from "react"
+import { useEffect, useState, useRef, useCallback } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import Editor from '@monaco-editor/react';
 import * as monaco from "monaco-editor"
@@ -9,8 +9,27 @@ interface EditorPanelProps {
   filePath: string
 }
 
-const getMonacoUri = (filePath: string) => {
-  return monaco.Uri.parse(`file:///${filePath}`);
+const getLanguageFromPath = (filePath: string): string => {
+  const extension = filePath.split('.').pop()?.toLowerCase()
+  
+  switch (extension) {
+    case 'tsx':
+    case 'ts':
+      return 'typescript'
+    case 'jsx':
+    case 'js':
+      return 'javascript'
+    case 'css':
+      return 'css'
+    case 'html':
+      return 'html'
+    case 'json':
+      return 'json'
+    case 'md':
+      return 'markdown'
+    default:
+      return 'typescript'
+  }
 }
 
 export function EditorPanel({ filePath }: EditorPanelProps) {
@@ -20,24 +39,57 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
   const lastStreamedContentRef = useRef("")
   const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
   const currentFilePathRef = useRef<string>(filePath)
+  const modelDisposalTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const file = fileItems.find(item => item.path === filePath)
   const isStreaming = streamingFiles?.get(filePath) || false
   const isUserEdited = userEditedFiles?.has(filePath) || false
 
-  // Handle file path changes - this is crucial for proper content loading
+  // Clean up old models to prevent memory leaks and conflicts
+  const cleanupOldModels = useCallback(() => {
+    if (typeof window !== 'undefined' && monaco?.editor) {
+      const allModels = monaco.editor.getModels()
+      allModels.forEach(model => {
+        const modelUri = model.uri.toString()
+        const modelPath = modelUri.replace('file:///', '')
+        
+        // Only dispose models that don't correspond to current files
+        const fileExists = fileItems.some(item => item.path === modelPath)
+        if (!fileExists) {
+          try {
+            model.dispose()
+          } catch (err) {
+            console.warn('Error disposing model:', err)
+          }
+        }
+      })
+    }
+  }, [fileItems])
+
+  // Handle file path changes
   useEffect(() => {
     if (currentFilePathRef.current !== filePath) {
       currentFilePathRef.current = filePath
       isUserEditingRef.current = false
       lastStreamedContentRef.current = ""
       
-      // Immediately set the editor value when switching files
+      // Clear any pending model disposal
+      if (modelDisposalTimeoutRef.current) {
+        clearTimeout(modelDisposalTimeoutRef.current)
+        modelDisposalTimeoutRef.current = null
+      }
+      
+      // Set the editor value when switching files
       if (file?.content !== undefined) {
         setEditorValue(file.content)
+      } else {
+        setEditorValue("")
       }
+      
+      // Clean up old models after a short delay
+      modelDisposalTimeoutRef.current = setTimeout(cleanupOldModels, 1000)
     }
-  }, [filePath, file?.content])
+  }, [filePath, file?.content, cleanupOldModels])
 
   // Handle content updates for the current file
   useEffect(() => {
@@ -50,26 +102,16 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             lastStreamedContentRef.current = file.content
           }
         } else {
-          // For non-streaming files, always update the editor value
           setEditorValue(file.content)
         }
       }
     }
   }, [file?.content, isStreaming, filePath])
 
-  // Sync Monaco model with content - but only for the current file
-  useEffect(() => {
-    if (editorRef.current && currentFilePathRef.current === filePath) {
-      const currentValue = editorRef.current.getValue()
-      if (currentValue !== editorValue && !isUserEditingRef.current) {
-        editorRef.current.setValue(editorValue)
-      }
-    }
-  }, [editorValue, filePath])
-
-  const handleEditorChange = (value: string | undefined) => {
+  const handleEditorChange = useCallback((value: string | undefined) => {
     const newValue = value || ""
     
+    // Only process changes for the current file
     if (currentFilePathRef.current !== filePath) {
       return
     }
@@ -77,23 +119,45 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     isUserEditingRef.current = true
     setEditorValue(newValue)
     
+    // Debounce the update
     const timeoutId = setTimeout(() => {
       updateFileContent(filePath, newValue)
       isUserEditingRef.current = false
     }, 300)
 
     return () => clearTimeout(timeoutId)
-  }
+  }, [filePath, updateFileContent])
 
-  const handleEditorMount = (editor: monaco.editor.IStandaloneCodeEditor) => {
+  const handleEditorMount = useCallback((editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof monaco) => {
     editorRef.current = editor
     
-    // Set initial value for the mounted editor
+    // Disable TypeScript diagnostics to prevent file not found errors
+    monacoInstance.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true,
+      noSuggestionDiagnostics: true,
+    })
+
+    monacoInstance.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+      noSemanticValidation: true,
+      noSyntaxValidation: true,
+      noSuggestionDiagnostics: true,
+    })
+    
+    // Set initial value
     if (file?.content !== undefined) {
-      editor.setValue(file.content)
       setEditorValue(file.content)
     }
-  }
+  }, [file?.content])
+
+  // Cleanup on unmount
+  useEffect(() => {
+    return () => {
+      if (modelDisposalTimeoutRef.current) {
+        clearTimeout(modelDisposalTimeoutRef.current)
+      }
+    }
+  }, [])
 
   if (!file) {
     return (
@@ -116,35 +180,48 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
       <div className="h-full">
         <Editor
           height="100%"
-          defaultLanguage="typescript"
-          value={editorValue} // Use controlled value instead of defaultValue
-          path={getMonacoUri(filePath).toString()}
+          language={getLanguageFromPath(filePath)}
+          value={editorValue}
+          path={filePath}
           onChange={handleEditorChange}
           onMount={handleEditorMount}
           theme="vs-dark"
-          beforeMount={(monaco) => {
-            monaco.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
+          beforeMount={(monacoInstance) => {
+            // Completely disable TypeScript services to prevent file resolution errors
+            monacoInstance.languages.typescript.typescriptDefaults.setDiagnosticsOptions({
               noSemanticValidation: true,
               noSyntaxValidation: true,
+              noSuggestionDiagnostics: true,
             });
 
-            monaco.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
+            monacoInstance.languages.typescript.javascriptDefaults.setDiagnosticsOptions({
               noSemanticValidation: true,
               noSyntaxValidation: true,
+              noSuggestionDiagnostics: true,
             });
 
-            monaco.languages.typescript.typescriptDefaults.setCompilerOptions({
-              jsx: monaco.languages.typescript.JsxEmit.React,
+            // Disable extra libraries to prevent file resolution
+            monacoInstance.languages.typescript.typescriptDefaults.setExtraLibs([]);
+            monacoInstance.languages.typescript.javascriptDefaults.setExtraLibs([]);
+
+            monacoInstance.languages.typescript.typescriptDefaults.setCompilerOptions({
+              jsx: monacoInstance.languages.typescript.JsxEmit.React,
               allowJs: true,
               esModuleInterop: true,
-              target: monaco.languages.typescript.ScriptTarget.ESNext,
-              module: monaco.languages.typescript.ModuleKind.ESNext,
-              moduleResolution: monaco.languages.typescript.ModuleResolutionKind.NodeJs,
+              target: monacoInstance.languages.typescript.ScriptTarget.ESNext,
+              module: monacoInstance.languages.typescript.ModuleKind.ESNext,
+              moduleResolution: monacoInstance.languages.typescript.ModuleResolutionKind.NodeJs,
               skipLibCheck: true,
               isolatedModules: true,
               allowSyntheticDefaultImports: true,
               noEmit: true,
-              typeRoots: [], 
+              typeRoots: [],
+              // Disable strict checks that might cause file resolution issues
+              strict: false,
+              noImplicitAny: false,
+              noImplicitReturns: false,
+              noUnusedLocals: false,
+              noUnusedParameters: false,
             });
           }}
           options={{
@@ -156,6 +233,11 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             quickSuggestions: !isStreaming,
             parameterHints: { enabled: !isStreaming },
             suggestOnTriggerCharacters: !isStreaming,
+            // Disable features that might trigger file resolution
+            hover: { enabled: false },
+            links: false,
+            colorDecorators: false,
+            codeLens: false,
           }}
         />
       </div>

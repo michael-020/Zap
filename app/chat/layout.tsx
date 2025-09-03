@@ -14,7 +14,7 @@ export default function ChatLayout({
 
   if(!webcontainer){
     console.log("Initialising web container")
-    return <div>Initializing Environment...</div>
+    return <div className="h-screen bg-black flex items-center justify-center text-white">Initializing Environment...</div>
   }
 
   return <>{children}</>

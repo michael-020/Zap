@@ -25,6 +25,7 @@
     "jsonwebtoken": "^9.0.2",
     "jszip": "^3.10.1",
     "lucide-react": "^0.526.0",
+    "monaco-editor": "^0.52.2",
     "next": "15.3.3",
     "next-auth": "^4.24.11",
     "openai": "^5.10.1",
@@ -50,6 +51,7 @@
     "eslint-config-next": "15.3.3",
     "nodemailer": "^6.10.1",
     "tailwindcss": "^4",
+    "tsx": "^4.20.5",
     "typescript": "^5"
   }
 }

@@ -41,7 +41,7 @@ export async function POST(req: NextRequest) {
       //         { status: 403 }
       //     )
       // }
-      console.log("user id: ", session.user)
+      console.log("user: ", session.user)
       const newProject = await prisma.project.create({
           data: {
               name: prompt,

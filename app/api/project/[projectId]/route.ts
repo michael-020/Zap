@@ -18,28 +18,39 @@ export async function DELETE(
 
         const { projectId } = await params
 
-        const project = await prisma.project.findUnique({
+         const project = await prisma.project.findUnique({
             where: {
                 id: projectId
+            },
+            include: {
+                chats: true 
             }
-        })
+        });
 
-        if(!project){
+        if (!project) {
             return NextResponse.json(
                 { msg: "Project not found" },
                 { status: 400 }
-            )
+            );
+        }
+
+        if (project.chats.length > 0) {
+            await prisma.chat.deleteMany({
+                where: {
+                    projectId
+                }
+            });
         }
 
         await prisma.project.delete({
             where: {
                 id: projectId
             }
-        })
+        });
 
         return NextResponse.json(
             { msg: "Project deleted successfully" }
-        )
+        );
     } catch (error) {
         console.error("Error while deleting project", error)
         return NextResponse.json(
@@ -63,7 +74,7 @@ export async function PUT(
             )
         }
 
-        const newName = await req.json();
+        const { name: newName } = await req.json();
         const { projectId } = await params
 
         const project = await prisma.project.findUnique({

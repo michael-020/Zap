@@ -151,15 +151,6 @@ exports.Prisma.ProjectScalarFieldEnum = {
   updatedAt: 'updatedAt'
 };
 
-exports.Prisma.FilesScalarFieldEnum = {
-  id: 'id',
-  projectId: 'projectId',
-  path: 'path',
-  code: 'code',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-};
-
 exports.Prisma.ChatScalarFieldEnum = {
   id: 'id',
   projectId: 'projectId',
@@ -192,7 +183,6 @@ exports.Prisma.ModelName = {
   Admin: 'Admin',
   OTP: 'OTP',
   Project: 'Project',
-  Files: 'Files',
   Chat: 'Chat'
 };
 

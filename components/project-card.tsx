@@ -1,6 +1,7 @@
 import { useState } from "react"
 import { Chat } from "./sidebar"
 import { useRouter } from "next/navigation"
+import { axiosInstance } from "@/lib/axios"
 
 interface ProjectCardProps {
     chat: Chat
@@ -52,8 +53,7 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
         if (window.confirm("Are you sure you want to delete this project?")) {
             try {
                 // Implement delete functionality
-                console.log("Delete project:", chat.id)
-                // await axiosInstance.delete(`/api/projects/${chat.id}`)
+                await axiosInstance.delete(`/api/project/${chat.id}`)
                 onUpdate?.()
             } catch (error) {
                 console.error("Failed to delete project:", error)
@@ -80,7 +80,7 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
 
     return (
         <div 
-            className="group relative bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-600 transition-all duration-200 cursor-pointer overflow-hidden"
+            className="group relative bg-white dark:bg-neutral-900 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-800 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-600 transition-all duration-200 cursor-pointer "
             onClick={handleCardClick}
         >
             {/* Card Header */}

@@ -77,13 +77,13 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
         <>
             <div className="group relative bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-600 transition-all duration-200">
                 {/* Card Header */}
-                <div className="p-4 pb-2">
+                <div className="p-4">
                     <div className="flex items-start justify-between">
                         <div className="flex items-center space-x-3 flex-1 min-w-0">
                             {/* Project Avatar */}
-                            <div className="w-10 h-10 bg-neutral-700 rounded-lg flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
+                            <button onClick={handleNameClick} className="w-10 h-10 bg-neutral-700 rounded-lg flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
                                 {getInitials(chat.name)}
-                            </div>
+                            </button>
                             
                             {/* Project Info */}
                             <div className="flex-1 min-w-0">
@@ -138,27 +138,7 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
                     </div>
                 </div>
 
-                {/* Card Content */}
-                <div className="px-4 pb-4">
-                    {/* Project Stats */}
-                    <div className="flex items-center justify-between">
-                        <div className="flex items-center space-x-4">
-                            <div className="flex items-center space-x-1">
-                                <svg className="w-3 h-3 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-                                </svg>
-                            </div>
-                        </div>
-
-                        {/* Status Indicator */}
-                        <div className="flex items-center space-x-1">
-                            <div className="w-2 h-2 bg-green-400 rounded-full"></div>
-                            <span className="text-xs text-neutral-500 dark:text-neutral-400">
-                                Active
-                            </span>
-                        </div>
-                    </div>
-                </div>
+                
 
                 {/* Hover Effect */}
                 <div className="absolute inset-0 bg-neutral-700/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />

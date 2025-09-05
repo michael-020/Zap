@@ -153,7 +153,7 @@ export default function ProjectModal({
                                         type="text"
                                         value={newName}
                                         onChange={(e) => setNewName(e.target.value)}
-                                        className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+                                        className="w-full px-3 py-2 bg-neutral-900 border border-neutral-700 rounded-lg text-white placeholder-neutral-400 focus:outline-none focus:ring-2 focus:ring-neutral-400 focus:border-transparent"
                                         placeholder="Enter project name"
                                         autoFocus
                                         disabled={isLoading}
@@ -178,7 +178,7 @@ export default function ProjectModal({
                                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                                     mode === 'delete' 
                                         ? 'bg-red-600 hover:bg-red-700 text-white' 
-                                        : 'bg-blue-600 hover:bg-blue-700 text-white'
+                                        : 'bg-neutral-600 hover:bg-neutral-700 text-white'
                                 }`}
                                 disabled={isLoading || (mode === 'rename' && !newName.trim())}
                             >

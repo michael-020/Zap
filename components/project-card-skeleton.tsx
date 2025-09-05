@@ -19,30 +19,6 @@ export default function ProjectCardSkeleton() {
                     <div className="w-6 h-6 bg-neutral-200 dark:bg-neutral-700 rounded" />
                 </div>
             </div>
-
-            {/* Card Content */}
-            <div className="px-4 pb-4">
-                {/* Description Skeleton */}
-                <div className="space-y-2 mb-3">
-                    <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-full" />
-                    <div className="h-3 bg-neutral-200 dark:bg-neutral-700 rounded w-2/3" />
-                </div>
-
-                {/* Stats Skeleton */}
-                <div className="flex items-center justify-between">
-                    <div className="flex items-center space-x-4">
-                        <div className="flex items-center space-x-1">
-                            <div className="w-3 h-3 bg-neutral-700 rounded" />
-                            <div className="h-3 bg-neutral-700 rounded w-6" />
-                        </div>
-                    </div>
-
-                    <div className="flex items-center space-x-1">
-                        <div className="w-2 h-2 bg-neutral-700 rounded-full" />
-                        <div className="h-3 bg-neutral-700 rounded w-8" />
-                    </div>
-                </div>
-            </div>
         </div>
     )
 }

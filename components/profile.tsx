@@ -53,6 +53,7 @@ export function Profile() {
                 onBack={handleBackToInitializer}
                 onPanelToggle={() => setIsOpen(!isOpen)}
                 showPanelToggle={true} 
+                showBackButton={true}
             />
             
             <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">

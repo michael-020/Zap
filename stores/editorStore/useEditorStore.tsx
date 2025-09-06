@@ -316,7 +316,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       }
     },
 
-    processPrompt: async (prompt) => {
+    processPrompt: async (prompt, images) => {
       set({ isProcessing: true, isInitialising: true })
       const currentPromptIndex = get().inputPrompts.length
       try {
@@ -338,7 +338,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           prompt: {
             role: "user",
             content: prompt
-          } 
+          }
         })
 
         const parsedSteps = parseXml(res.data.uiPrompts[0]).map((x: BuildStep) => ({
@@ -388,7 +388,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               role: "user",
               content: prompt
             },
-            messages: formattedMessages
+            messages: formattedMessages,
+            images
           })
         });
 
@@ -557,14 +558,15 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         await axiosInstance.post("/api/store-chats", {
           prompt,
           response: get().messages,
-          projectId: get().projectId
+          projectId: get().projectId,
+          images
         })
       } catch (error) {
         console.error("Error while storing chats: ", error)
       }
     },
 
-    processFollowupPrompts: async (prompt) => {
+    processFollowupPrompts: async (prompt, images) => {
       set({ isProcessingFollowups: true });
       const currentPromptIndex = get().inputPrompts.length
       try {
@@ -595,7 +597,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               role: "user",
               content: prompt
             },
-            messages: cleanMessages
+            messages: cleanMessages,
+            images
           })
         });
 
@@ -754,7 +757,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         await axiosInstance.post("/api/store-chats", {
           prompt,
           response: [fullResponse],
-          projectId: get().projectId
+          projectId: get().projectId,
+          images
         })
       } catch (error) {
         console.error("Error processing followup prompt:", error);

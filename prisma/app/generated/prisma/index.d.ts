@@ -5165,6 +5165,7 @@ export namespace Prisma {
     projectId: number
     prompt: number
     response: number
+    images: number
     createdAt: number
     _all: number
   }
@@ -5191,6 +5192,7 @@ export namespace Prisma {
     projectId?: true
     prompt?: true
     response?: true
+    images?: true
     createdAt?: true
     _all?: true
   }
@@ -5272,6 +5274,7 @@ export namespace Prisma {
     projectId: string
     prompt: string
     response: string
+    images: string[]
     createdAt: Date
     _count: ChatCountAggregateOutputType | null
     _min: ChatMinAggregateOutputType | null
@@ -5297,6 +5300,7 @@ export namespace Prisma {
     projectId?: boolean
     prompt?: boolean
     response?: boolean
+    images?: boolean
     createdAt?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chat"]>
@@ -5306,6 +5310,7 @@ export namespace Prisma {
     projectId?: boolean
     prompt?: boolean
     response?: boolean
+    images?: boolean
     createdAt?: boolean
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["chat"]>
@@ -5316,10 +5321,11 @@ export namespace Prisma {
     projectId?: boolean
     prompt?: boolean
     response?: boolean
+    images?: boolean
     createdAt?: boolean
   }
 
-  export type ChatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "prompt" | "response" | "createdAt", ExtArgs["result"]["chat"]>
+  export type ChatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "prompt" | "response" | "images" | "createdAt", ExtArgs["result"]["chat"]>
   export type ChatInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }
@@ -5337,6 +5343,7 @@ export namespace Prisma {
       projectId: string
       prompt: string
       response: string
+      images: string[]
       createdAt: Date
     }, ExtArgs["result"]["chat"]>
     composites: {}
@@ -5736,6 +5743,7 @@ export namespace Prisma {
     readonly projectId: FieldRef<"Chat", 'String'>
     readonly prompt: FieldRef<"Chat", 'String'>
     readonly response: FieldRef<"Chat", 'String'>
+    readonly images: FieldRef<"Chat", 'String[]'>
     readonly createdAt: FieldRef<"Chat", 'DateTime'>
   }
     
@@ -6175,6 +6183,7 @@ export namespace Prisma {
     projectId: 'projectId',
     prompt: 'prompt',
     response: 'response',
+    images: 'images',
     createdAt: 'createdAt'
   };
 
@@ -6489,6 +6498,7 @@ export namespace Prisma {
     projectId?: StringFilter<"Chat"> | string
     prompt?: StringFilter<"Chat"> | string
     response?: StringFilter<"Chat"> | string
+    images?: StringNullableListFilter<"Chat">
     createdAt?: DateTimeFilter<"Chat"> | Date | string
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
   }
@@ -6498,6 +6508,7 @@ export namespace Prisma {
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
+    images?: SortOrder
     createdAt?: SortOrder
     project?: ProjectOrderByWithRelationInput
   }
@@ -6510,6 +6521,7 @@ export namespace Prisma {
     projectId?: StringFilter<"Chat"> | string
     prompt?: StringFilter<"Chat"> | string
     response?: StringFilter<"Chat"> | string
+    images?: StringNullableListFilter<"Chat">
     createdAt?: DateTimeFilter<"Chat"> | Date | string
     project?: XOR<ProjectScalarRelationFilter, ProjectWhereInput>
   }, "id">
@@ -6519,6 +6531,7 @@ export namespace Prisma {
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
+    images?: SortOrder
     createdAt?: SortOrder
     _count?: ChatCountOrderByAggregateInput
     _max?: ChatMaxOrderByAggregateInput
@@ -6533,6 +6546,7 @@ export namespace Prisma {
     projectId?: StringWithAggregatesFilter<"Chat"> | string
     prompt?: StringWithAggregatesFilter<"Chat"> | string
     response?: StringWithAggregatesFilter<"Chat"> | string
+    images?: StringNullableListFilter<"Chat">
     createdAt?: DateTimeWithAggregatesFilter<"Chat"> | Date | string
   }
 
@@ -6764,6 +6778,7 @@ export namespace Prisma {
     id?: string
     prompt: string
     response: string
+    images?: ChatCreateimagesInput | string[]
     createdAt?: Date | string
     project: ProjectCreateNestedOneWithoutChatsInput
   }
@@ -6773,6 +6788,7 @@ export namespace Prisma {
     projectId: string
     prompt: string
     response: string
+    images?: ChatCreateimagesInput | string[]
     createdAt?: Date | string
   }
 
@@ -6780,6 +6796,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
+    images?: ChatUpdateimagesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     project?: ProjectUpdateOneRequiredWithoutChatsNestedInput
   }
@@ -6789,6 +6806,7 @@ export namespace Prisma {
     projectId?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
+    images?: ChatUpdateimagesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6797,6 +6815,7 @@ export namespace Prisma {
     projectId: string
     prompt: string
     response: string
+    images?: ChatCreateimagesInput | string[]
     createdAt?: Date | string
   }
 
@@ -6804,6 +6823,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
+    images?: ChatUpdateimagesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -6812,6 +6832,7 @@ export namespace Prisma {
     projectId?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
+    images?: ChatUpdateimagesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7046,6 +7067,14 @@ export namespace Prisma {
     updatedAt?: SortOrder
   }
 
+  export type StringNullableListFilter<$PrismaModel = never> = {
+    equals?: string[] | ListStringFieldRefInput<$PrismaModel> | null
+    has?: string | StringFieldRefInput<$PrismaModel> | null
+    hasEvery?: string[] | ListStringFieldRefInput<$PrismaModel>
+    hasSome?: string[] | ListStringFieldRefInput<$PrismaModel>
+    isEmpty?: boolean
+  }
+
   export type ProjectScalarRelationFilter = {
     is?: ProjectWhereInput
     isNot?: ProjectWhereInput
@@ -7056,6 +7085,7 @@ export namespace Prisma {
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
+    images?: SortOrder
     createdAt?: SortOrder
   }
 
@@ -7189,10 +7219,19 @@ export namespace Prisma {
     deleteMany?: ChatScalarWhereInput | ChatScalarWhereInput[]
   }
 
+  export type ChatCreateimagesInput = {
+    set: string[]
+  }
+
   export type ProjectCreateNestedOneWithoutChatsInput = {
     create?: XOR<ProjectCreateWithoutChatsInput, ProjectUncheckedCreateWithoutChatsInput>
     connectOrCreate?: ProjectCreateOrConnectWithoutChatsInput
     connect?: ProjectWhereUniqueInput
+  }
+
+  export type ChatUpdateimagesInput = {
+    set?: string[]
+    push?: string | string[]
   }
 
   export type ProjectUpdateOneRequiredWithoutChatsNestedInput = {
@@ -7407,6 +7446,7 @@ export namespace Prisma {
     id?: string
     prompt: string
     response: string
+    images?: ChatCreateimagesInput | string[]
     createdAt?: Date | string
   }
 
@@ -7414,6 +7454,7 @@ export namespace Prisma {
     id?: string
     prompt: string
     response: string
+    images?: ChatCreateimagesInput | string[]
     createdAt?: Date | string
   }
 
@@ -7478,6 +7519,7 @@ export namespace Prisma {
     projectId?: StringFilter<"Chat"> | string
     prompt?: StringFilter<"Chat"> | string
     response?: StringFilter<"Chat"> | string
+    images?: StringNullableListFilter<"Chat">
     createdAt?: DateTimeFilter<"Chat"> | Date | string
   }
 
@@ -7563,6 +7605,7 @@ export namespace Prisma {
     id?: string
     prompt: string
     response: string
+    images?: ChatCreateimagesInput | string[]
     createdAt?: Date | string
   }
 
@@ -7570,6 +7613,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
+    images?: ChatUpdateimagesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7577,6 +7621,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
+    images?: ChatUpdateimagesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 
@@ -7584,6 +7629,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
+    images?: ChatUpdateimagesInput | string[]
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
 

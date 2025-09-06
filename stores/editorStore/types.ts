@@ -84,10 +84,10 @@ export interface StoreState {
   addFile: (path: string, content: string) => void
   addFileItem: (item: FileItemFlat) => void
   executeSteps: (steps: BuildStep[]) => void
-  processPrompt: (prompt: string) => void;
+  processPrompt: (prompt: string, images?: string[]) => void;
   setShellCommand: (command: string) => void;
   setMessages: (messages: string | string[]) => void;
-  processFollowupPrompts: (prompt: string) => void;
+  processFollowupPrompts: (prompt: string, images?: string[]) => void;
   setPreviewUrl: (url: string) => void;
   setDevServerProcess: (proc: WebContainerProcess) => void
   handleShellCommand: (command: string) => Promise<void>

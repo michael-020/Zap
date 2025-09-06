@@ -48,6 +48,7 @@ model Chat {
   project   Project  @relation(fields: [projectId], references: [id])
   prompt    String
   response  String
+  images    String[]
   createdAt DateTime @default(now())
 }
 

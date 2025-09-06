@@ -1,13 +1,14 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
-import { ArrowUp, Loader2, LoaderPinwheel } from 'lucide-react'
+import { ChangeEvent, useEffect, useRef, useState } from "react"
+import { ArrowUp, ImageIcon, Loader2, LoaderPinwheel, X } from 'lucide-react'
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
 import Navbar from "./navbar"
+import toast from "react-hot-toast"
 
 interface ProjectInitializerProps {
   onSubmitAction: (description: string) => void
@@ -20,7 +21,49 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
   const { processPrompt } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session, status } = useSession()
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from((e.target as HTMLInputElement).files || []);
+    
+    if (files.length === 0) return;
+
+    // Validate all files are images
+    const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
+    if (invalidFiles.length > 0) {
+      toast.error("Please select only image files");
+      return;
+    }
+
+    // Check if adding these files would exceed a reasonable limit (e.g., 10 images)
+    if (imagePreviews.length + files.length > 10) {
+      toast.error("Maximum 10 images allowed");
+      return;
+    }
+
+    // Process each file
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Clear the input so the same files can be selected again if needed
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const removeAllImages = () => {
+    setImagePreviews([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
   
   useEffect(() => {
     if(status === "loading") return
@@ -72,7 +115,7 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
     setIsLoading(true)
     
     try {
-      processPrompt(description)
+      processPrompt(description, imagePreviews)
       
       onSubmitAction(description.trim())
 
@@ -83,16 +126,16 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
     }
   }
 
-   const handleFormSubmit = (e: React.FormEvent) => {
-      e.preventDefault()
-      handleSubmit()
-    }
+  const handleFormSubmit = (e: React.FormEvent) => {
+    e.preventDefault()
+    handleSubmit()
+  }
    
-   if(!session){
-     return <div className="h-screen bg-black flex items-center justify-center">
-       <Loader2 className="size-14 animate-spin text-neutral-200" />
-     </div>
-   }
+  if(!session){
+    return <div className="h-screen bg-black flex items-center justify-center">
+      <Loader2 className="size-14 animate-spin text-neutral-200" />
+    </div>
+  }
 
   return (
     <div className="relative min-h-screen bg-black">
@@ -114,6 +157,44 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
               </h2>
             </div>
 
+            {/* Image Previews */}
+            {imagePreviews.length > 0 && (
+              <div className="space-y-4">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-lg font-semibold text-white">
+                    Selected Images ({imagePreviews.length})
+                  </h3>
+                  <button
+                    type="button"
+                    onClick={removeAllImages}
+                    className="text-sm text-neutral-400 hover:text-red-400 transition-colors"
+                  >
+                    Remove All
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                  {imagePreviews.map((preview, index) => (
+                    <div key={index} className="relative group">
+                      <div className="aspect-square rounded-lg overflow-hidden bg-neutral-800">
+                        <img
+                          src={preview}
+                          alt={`Preview ${index + 1}`}
+                          className="w-full h-full object-cover"
+                        />
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => removeImage(index)}
+                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                      >
+                        <X className="w-4 h-4" />
+                      </button>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             {/* Input Section */}
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
@@ -129,6 +210,27 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                   maxHeight="16rem"
                   required
                 />
+
+                {/* File Input and Gallery Icon */}
+                <div className="absolute bottom-4 right-16 flex items-center justify-center gap-2">
+                  <label htmlFor="fileInput" className="cursor-pointer relative">
+                    <ImageIcon className="w-6 h-6 text-neutral-300 hover:text-neutral-400" />
+                    {imagePreviews.length > 0 && (
+                      <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+                        {imagePreviews.length}
+                      </span>
+                    )}
+                  </label>
+                  <input
+                    id="fileInput"
+                    type="file"
+                    multiple
+                    accept="image/*"
+                    className="hidden"
+                    ref={fileInputRef}
+                    onChange={handleImageChange}
+                  />
+                </div>
 
                 {/* Submit Button */}
                 <button

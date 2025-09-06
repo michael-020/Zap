@@ -110,11 +110,10 @@ export function StatusPanel() {
         {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images }]) => (
           <div key={promptIndex} className="space-y-3">
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
-              <div className="text-white">
-                Image:- {images && images[0]}
+              <div className="flex gap-2">
                 {images && images.map((image: string) => {
-                  return <div key={promptIndex}>
-                    <img src={image} alt="prompt-image" />
+                  return <div key={image} className="rounded-md">
+                    <img src={image} alt="prompt-image" crossOrigin="anonymous" />
                   </div>
                 })}
               </div>

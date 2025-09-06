@@ -770,115 +770,97 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
     
     processChatData: (chatData) => {
-  const { 
-    setBuildSteps, 
-    addFile, 
-    addFileItem, 
-    setMessages, 
-    setShellCommand,
-    resetUserEditedFiles,
-    clearBuildSteps 
-  } = get()
+      const { 
+        setBuildSteps, 
+        addFile, 
+        addFileItem, 
+        setMessages, 
+        setShellCommand,
+        resetUserEditedFiles,
+        clearBuildSteps 
+      } = get()
 
-  // Reset store state
-  clearBuildSteps()
-  resetUserEditedFiles()
+      // Reset store state
+      clearBuildSteps()
+      resetUserEditedFiles()
+    
+      const allSteps: BuildStep[] = []
+      const allMessages: string[] = []
 
-  const allSteps: BuildStep[] = []
-  const allMessages: string[] = []
-
-  chatData.forEach((chat, promptIndex) => {
-    const images: string[] = []  // Initialize an array to store image URLs
-
-    // Extract images using a regex (looking for <img> tags and getting the src)
-    const imageRegex = /<img[^>]+src="([^"]+)"/g
-    let imageMatch
-    while ((imageMatch = imageRegex.exec(chat.response)) !== null) {
-      const imageUrl = imageMatch[1]
-      images.push(imageUrl)  // Collect all image URLs
-    }
-
-    // Add the prompt and images to the inputPrompts
-    set((state) => ({
-      inputPrompts: [
-        ...state.inputPrompts,
-        {
-          prompt: chat.prompt,
-          images: images,
+      chatData.forEach((chat, promptIndex) => {
+        set((state) => ({
+          inputPrompts: [...state.inputPrompts, chat.prompt]
+        }))
+    
+        const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g
+        let match
+        const promptSteps: BuildStep[] = []
+    
+        while ((match = actionRegex.exec(chat.response)) !== null) {
+          const [, type, filePath, content] = match
+          const code = content.trim()
+    
+          if (type === "file" && filePath) {
+            const step: BuildStep = {
+              id: crypto.randomUUID(),
+              title: getTitleFromFile(filePath),
+              description: getDescriptionFromFile(filePath),
+              type: BuildStepType.CreateFile,
+              status: statusType.Completed,
+              code,
+              path: filePath,
+            }
+    
+            addFile(filePath, code)
+    
+            addFileItem({
+              name: filePath.split("/").pop() || filePath,
+              path: filePath,
+              type: "file",
+              content: code
+            })
+    
+            promptSteps.push(step)
+            allSteps.push(step)
+            get().executeSteps([step])
+          }
+    
+          if (type === "shell") {
+            const step: BuildStep = {
+              id: crypto.randomUUID(),
+              title: "Run shell command",
+              description: code,
+              type: BuildStepType.RunScript,
+              status: statusType.InProgress,
+              code,
+            }
+    
+            setShellCommand(code)
+    
+            promptSteps.push(step)
+            allSteps.push(step)
+            get().executeSteps([step])
+          }
         }
-      ]
-    }))
-
-    const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g
-    let match
-    const promptSteps: BuildStep[] = []
-  
-    while ((match = actionRegex.exec(chat.response)) !== null) {
-      const [, type, filePath, content] = match
-      const code = content.trim()
-
-      if (type === "file" && filePath) {
-        const step: BuildStep = {
-          id: crypto.randomUUID(),
-          title: getTitleFromFile(filePath),
-          description: getDescriptionFromFile(filePath),
-          type: BuildStepType.CreateFile,
-          status: statusType.Completed,
-          code,
-          path: filePath,
-        }
-
-        addFile(filePath, code)
-
-        addFileItem({
-          name: filePath.split("/").pop() || filePath,
-          path: filePath,
-          type: "file",
-          content: code
+      
+        set((state) => {
+          const newMap = new Map(state.promptStepsMap)
+          newMap.set(promptIndex, {
+            prompt: chat.prompt,
+            steps: promptSteps,
+            images: chat.images
+          })
+          return { promptStepsMap: newMap }
         })
-
-        promptSteps.push(step)
-        allSteps.push(step)
-        get().executeSteps([step])
-      }
-
-      if (type === "shell") {
-        const step: BuildStep = {
-          id: crypto.randomUUID(),
-          title: "Run shell command",
-          description: code,
-          type: BuildStepType.RunScript,
-          status: statusType.InProgress,
-          code,
-        }
-
-        setShellCommand(code)
-
-        promptSteps.push(step)
-        allSteps.push(step)
-        get().executeSteps([step])
+    
+        allMessages.push(chat.response)
+      })
+      
+      setBuildSteps(allSteps)
+      setMessages(allMessages)
+    
+      if (chatData.length > 0) {
+        set({ projectId: chatData[0].projectId })
       }
     }
-
-    // Store the steps for each prompt
-    set((state) => {
-      const newMap = new Map(state.promptStepsMap)
-      newMap.set(promptIndex, {
-        prompt: chat.prompt,
-        steps: promptSteps
-      })
-      return { promptStepsMap: newMap }
-    })
-
-    allMessages.push(chat.response)
-  })
-
-  setBuildSteps(allSteps)
-  setMessages(allMessages)
-
-  if (chatData.length > 0) {
-    set({ projectId: chatData[0].projectId })
-  }
-}
-
 }))

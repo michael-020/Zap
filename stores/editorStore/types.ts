@@ -46,6 +46,7 @@ interface ChatData {
   projectId: string
   prompt: string
   response: string
+  images?: string[]
   createdAt: string
 }
 

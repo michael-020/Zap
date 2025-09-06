@@ -53,7 +53,7 @@ export async function POST(req: NextRequest){
     ]
     
     const completion = await openai.chat.completions.create({
-        model: "gemini-2.5-flash",
+        model: "gemini-2.5-pro",
         messages: formatedMessages,
         stream: true,
         max_completion_tokens: 800000

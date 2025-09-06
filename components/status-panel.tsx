@@ -107,9 +107,17 @@ export function StatusPanel() {
     <div className="h-[calc(100vh-60px)] flex flex-col overflow-x-hidden">
 
       <div className="flex-1 overflow-x-hidden flex-wrap p-4 space-y-4 custom-scrollbar">
-        {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps }]) => (
+        {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images }]) => (
           <div key={promptIndex} className="space-y-3">
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
+              <div className="text-white">
+                Image:- {images && images[0]}
+                {images && images.map((image: string) => {
+                  return <div key={promptIndex}>
+                    <img src={image} alt="prompt-image" />
+                  </div>
+                })}
+              </div>
               <div className="bg-neutral-700 rounded-lg rounded-tr-none p-3 max-w-[80%] ml-auto">
                 <p className="text-sm text-white break-words">
                   {prompt}

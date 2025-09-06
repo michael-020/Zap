@@ -36,8 +36,9 @@ export type FileItemFlat = {
 }
 
 export interface PromptStepMapping {
-    prompt: string
-    steps: BuildStep[]
+  prompt: string
+  images?: string[]
+  steps: BuildStep[]
 }
 
 interface ChatData {
@@ -64,7 +65,7 @@ export interface StoreState {
   shellCommands: string[]
   webcontainer: WebContainer | null;
   messages: string[]
-  inputPrompts: string[]
+  inputPrompts: (string | { prompt: string; images: string[] })[]
   promptStepsMap: Map<number, PromptStepMapping>
   previewUrl: string
   devServerProcess: WebContainerProcess | null

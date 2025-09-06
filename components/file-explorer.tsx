@@ -142,7 +142,6 @@ export function FileExplorer() {
     })
 
     webcontainer?.mount(mountStructure)
-    console.log("Fileitems: ", fileItems)
   }, [fileItems, webcontainer])
 
   return (

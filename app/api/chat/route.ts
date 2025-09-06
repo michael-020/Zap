@@ -123,8 +123,6 @@ export async function POST(req: NextRequest){
 
     const formattedMessages = formatMessagesWithImages(messages, prompt, images);
     
-    console.log("Formatted messages:", JSON.stringify(formattedMessages, null, 2));
-    
     const completion = await openai.chat.completions.create({
         model: "gemini-2.5-pro",
         messages: formattedMessages,

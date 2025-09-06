@@ -1,25 +1,68 @@
 "use client"
 
-import { useEffect, useRef, useState } from "react"
+import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
-import { Clock, AlertCircle, Loader2, Check, Copy, ArrowUp } from 'lucide-react'
+import { Clock, AlertCircle, Loader2, Check, Copy, ArrowUp, ImageIcon, X } from 'lucide-react'
 import { BuildStepType, statusType } from "@/stores/editorStore/types"
 import { TextArea } from "./text-area"
+import toast from "react-hot-toast"
+import Image from "next/image"
 
 export function StatusPanel() {
   const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap } = useEditorStore()
   const [prompt, setPrompt] = useState("")
   const bottomRef = useRef<HTMLDivElement>(null)
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null)
+  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+    const files = Array.from((e.target as HTMLInputElement).files || []);
+    
+    if (files.length === 0) return;
+
+    // Validate all files are images
+    const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
+    if (invalidFiles.length > 0) {
+      toast.error("Please select only image files");
+      return;
+    }
+
+    // Check if adding these files would exceed a reasonable limit (e.g., 10 images)
+    if (imagePreviews.length + files.length > 10) {
+      toast.error("Maximum 10 images allowed");
+      return;
+    }
+
+    // Process each file
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreviews(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+
+    // Clear the input so the same files can be selected again if needed
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+
+  const removeImage = (indexToRemove: number) => {
+    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+  };
+
+  const removeAllImages = () => {
+    setImagePreviews([]);
+    if (fileInputRef.current) fileInputRef.current.value = "";
+  };
   
   const handleSubmit = () => {
     if (!prompt.trim()) return
     
-    processFollowupPrompts(
-      prompt
-    );
+    processFollowupPrompts(prompt, imagePreviews);
     
-    setPrompt("") 
+    setPrompt("")
+    setImagePreviews([]) // Clear images after submit
   }
 
   const handleFormSubmit = async (e: React.FormEvent) => {
@@ -134,6 +177,48 @@ export function StatusPanel() {
         )}
       </div>
 
+      {/* Image Previews Section */}
+      {imagePreviews.length > 0 && (
+        <div className="border-t border-neutral-800 p-3 bg-neutral-950">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <h4 className="text-sm font-medium text-white">
+                Selected Images ({imagePreviews.length})
+              </h4>
+              <button
+                type="button"
+                onClick={removeAllImages}
+                className="text-xs text-neutral-400 hover:text-red-400 transition-colors"
+              >
+                Remove All
+              </button>
+            </div>
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
+              {imagePreviews.map((preview, index) => (
+                <div key={index} className="relative group">
+                  <div className="aspect-square rounded-md overflow-hidden bg-neutral-800">
+                    <Image
+                      src={preview}
+                      alt={`Preview ${index + 1}`}
+                      width={80}
+                      height={80}
+                      className="w-full h-full object-cover"
+                    />
+                  </div>
+                  <button
+                    type="button"
+                    onClick={() => removeImage(index)}
+                    className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
       <div className="border-t border-neutral-800 p-2 bg-neutral-950">
         <form onSubmit={handleFormSubmit} className="flex gap-2 relative">
           <TextArea
@@ -143,10 +228,33 @@ export function StatusPanel() {
             onEnterSubmit={handleSubmit}
             placeholder="Ask a follow up..."
             height="4rem"
-            className="text-[1rem] pl-4 pt-2"
+            className="text-[1rem] pl-4 pt-2 pr-20" // Add right padding for icons
             maxHeight="16rem"
             required
           />
+
+          {/* File Input and Gallery Icon */}
+          <div className="absolute bottom-3 right-14 flex items-center justify-center">
+            <label htmlFor="followupFileInput" className="cursor-pointer relative">
+              <ImageIcon className="w-5 h-5 text-neutral-400 hover:text-neutral-300 transition-colors" />
+              {imagePreviews.length > 0 && (
+                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
+                  {imagePreviews.length}
+                </span>
+              )}
+            </label>
+            <input
+              id="followupFileInput"
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+            />
+          </div>
+
+          {/* Submit Button */}
           <button
             type="submit"
             disabled={!prompt.trim() || isProcessingFollowups}

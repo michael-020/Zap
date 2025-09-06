@@ -9,6 +9,7 @@ import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
 import Navbar from "./navbar"
 import toast from "react-hot-toast"
+import Image from "next/image"
 
 interface ProjectInitializerProps {
   onSubmitAction: (description: string) => void
@@ -176,7 +177,7 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
                       <div className="aspect-square rounded-lg overflow-hidden bg-neutral-800">
-                        <img
+                        <Image
                           src={preview}
                           alt={`Preview ${index + 1}`}
                           className="w-full h-full object-cover"

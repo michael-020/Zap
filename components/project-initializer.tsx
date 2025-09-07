@@ -167,27 +167,27 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                   <button
                     type="button"
                     onClick={removeAllImages}
-                    className="text-sm text-neutral-400 hover:text-red-400 transition-colors"
+                    className="text-sm text-neutral-400 hover:text-neutral-500 transition-colors"
                   >
                     Remove All
                   </button>
                 </div>
-                <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+                <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-8 gap-4">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
-                      <div className="aspect-square rounded-lg overflow-hidden bg-neutral-800">
+                      <div className="aspect-square size-20 rounded-sm overflow-hidden bg-neutral-800">
                         <img
                           src={preview}
                           alt={`Preview ${index + 1}`}
-                          className="w-full h-full object-cover"
+                          className="object-cover size-20"
                         />
                       </div>
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
+                        className="absolute -top-2 -right-2 bg-neutral-700 hover:bg-neutral-800 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
                       >
-                        <X className="w-4 h-4" />
+                        <X className="size-4" />
                       </button>
                     </div>
                   ))}
@@ -212,14 +212,9 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                 />
 
                 {/* File Input and Gallery Icon */}
-                <div className="absolute bottom-4 right-16 flex items-center justify-center gap-2">
+                <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">
                   <label htmlFor="fileInput" className="cursor-pointer relative">
-                    <ImageIcon className="w-6 h-6 text-neutral-300 hover:text-neutral-400" />
-                    {imagePreviews.length > 0 && (
-                      <span className="absolute -top-2 -right-2 bg-blue-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                        {imagePreviews.length}
-                      </span>
-                    )}
+                    <ImageIcon className="w-6 h-6 text-neutral-500 hover:text-neutral-400" />
                   </label>
                   <input
                     id="fileInput"

@@ -1,0 +1,36 @@
+import { X } from "lucide-react"
+import { createPortal } from "react-dom"
+
+interface ImageModalProps {
+  isOpen: boolean
+  imageSrc: string
+  onClose: () => void
+}
+
+export function ImageModal({ isOpen, imageSrc, onClose }: ImageModalProps) {
+  if (!isOpen) return null
+
+  return createPortal(
+    <div
+      className="fixed inset-0 bg-black md:p-40 bg-opacity-80 flex items-center justify-center z-50"
+      onClick={onClose}
+    >
+      <div className="relative max-w-[90vw] max-h-[90vh]">
+        <button
+          onClick={onClose}
+          className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+        >
+          <X className="w-8 h-8" />
+        </button>
+        <img
+          src={imageSrc}
+          alt="Full size image"
+          className="object-contain"
+          onClick={(e) => e.stopPropagation()} // Prevent closing modal when clicking on image itself
+          crossOrigin="anonymous"
+        />
+      </div>
+    </div>,
+    document.body 
+  );
+}

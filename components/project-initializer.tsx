@@ -9,6 +9,7 @@ import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
 import Navbar from "./navbar"
 import toast from "react-hot-toast"
+import { ImageModal } from "./image-modal"
 
 interface ProjectInitializerProps {
   onSubmitAction: (description: string) => void
@@ -24,6 +25,18 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session, status } = useSession()
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalImageSrc, setModalImageSrc] = useState("")
+
+  const openImageModal = (imageSrc: string) => {
+    setModalImageSrc(imageSrc)
+    setIsModalOpen(true)
+  }
+
+  const closeImageModal = () => {
+    setIsModalOpen(false)
+    setModalImageSrc("")
+  }
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from((e.target as HTMLInputElement).files || []);
@@ -175,13 +188,13 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                 <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-8 gap-4">
                   {imagePreviews.map((preview, index) => (
                     <div key={index} className="relative group">
-                      <div className="aspect-square size-20 rounded-sm overflow-hidden bg-neutral-800">
+                      <button onClick={() => openImageModal(preview)} className="aspect-square size-20 rounded-sm overflow-hidden bg-neutral-800">
                         <img
                           src={preview}
                           alt={`Preview ${index + 1}`}
                           className="object-cover size-20"
                         />
-                      </div>
+                      </button>
                       <button
                         type="button"
                         onClick={() => removeImage(index)}
@@ -256,6 +269,11 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
         isOpen={sidebarVisible}
         setIsOpenAction={handleSidebarClose}
         onMouseLeaveAction={handleSidebarMouseLeave}
+      />
+      <ImageModal
+        isOpen={isModalOpen}
+        imageSrc={modalImageSrc}
+        onClose={closeImageModal}
       />
     </div>
   )

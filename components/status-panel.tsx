@@ -6,7 +6,7 @@ import { Clock, AlertCircle, Loader2, Check, Copy, ArrowUp, ImageIcon, X } from 
 import { BuildStepType, statusType } from "@/stores/editorStore/types"
 import { TextArea } from "./text-area"
 import toast from "react-hot-toast"
-import Image from "next/image"
+import { ImageModal } from "./image-modal"
 
 export function StatusPanel() {
   const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap } = useEditorStore()
@@ -15,6 +15,18 @@ export function StatusPanel() {
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null)
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false)
+  const [modalImageSrc, setModalImageSrc] = useState("")
+
+  const openImageModal = (imageSrc: string) => {
+    setModalImageSrc(imageSrc)
+    setIsModalOpen(true)
+  }
+
+  const closeImageModal = () => {
+    setIsModalOpen(false)
+    setModalImageSrc("")
+  }
 
   const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from((e.target as HTMLInputElement).files || []);
@@ -105,16 +117,26 @@ export function StatusPanel() {
 
   return (
     <div className="h-[calc(100vh-60px)] flex flex-col overflow-x-hidden">
-
       <div className="flex-1 overflow-x-hidden flex-wrap p-4 space-y-4 custom-scrollbar">
         {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images }]) => (
           <div key={promptIndex} className="space-y-3">
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
               <div className="grid grid-cols-3 gap-2">
-                {images && images.map((image: string) => {
-                  return <div key={image} className="rounded-sm aspect-square ">
-                    <img src={image} alt="prompt-image" crossOrigin="anonymous" className="object-cover aspect-square rounded-md" />
-                  </div>
+                {images && images.map((image: string, index: number) => {
+                  return (
+                    <div 
+                      key={`${image}-${index}`} 
+                      className="rounded-sm aspect-square cursor-pointer hover:opacity-80 transition-opacity"
+                      onClick={() => openImageModal(image)}
+                    >
+                      <img 
+                        src={image} 
+                        alt="prompt-image" 
+                        crossOrigin="anonymous" 
+                        className="object-cover aspect-square rounded-md" 
+                      />
+                    </div>
+                  )
                 })}
               </div>
               <div className="bg-neutral-700 rounded-lg rounded-tr-none p-3 max-w-[80%] ml-auto">
@@ -203,18 +225,23 @@ export function StatusPanel() {
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
               {imagePreviews.map((preview, index) => (
                 <div key={index} className="relative group">
-                  <div className="aspect-square rounded-md overflow-hidden bg-neutral-800">
-                    <Image
+                  <div 
+                    className="aspect-square rounded-md overflow-hidden bg-neutral-800 cursor-pointer hover:opacity-80 transition-opacity"
+                    onClick={() => openImageModal(preview)}
+                  >
+                    <img
                       src={preview}
                       alt={`Preview ${index + 1}`}
-                      width={80}
-                      height={80}
                       className="w-full h-full object-cover"
+                      crossOrigin="anonymous" 
                     />
                   </div>
                   <button
                     type="button"
-                    onClick={() => removeImage(index)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      removeImage(index);
+                    }}
                     className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
                   >
                     <X className="w-3 h-3" />
@@ -281,6 +308,13 @@ export function StatusPanel() {
           </button>
         </form>
       </div>
+
+      {/* Image Modal */}
+      <ImageModal
+        isOpen={isModalOpen}
+        imageSrc={modalImageSrc}
+        onClose={closeImageModal}
+      />
     </div>
   )
 }

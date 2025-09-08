@@ -2,8 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
-import { authOptions } from "../auth/[...nextauth]/route";
 import cloudinary from "@/lib/server/cloudinary";
+import { authOptions } from "@/lib/server/authOptions";
 
 const chatSchema = z.object({
   prompt: z.string(),

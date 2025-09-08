@@ -1,11 +1,21 @@
 import { prisma } from '@/lib/prisma';
+import { authOptions } from '@/lib/server/authOptions';
+import { getServerSession } from 'next-auth';
 import { NextRequest, NextResponse } from 'next/server';
 
 export async function GET(
   req: NextRequest,
   { params }: { params: Promise<{ projectId: string }> }
  ) {
-   const { projectId } = await params
+  const session = await getServerSession(authOptions)
+  if(!session || !session.user){
+      return NextResponse.json(
+          { msg: "You are not authorised to access this endpoint" },
+          { status: 401}
+      )
+  }
+  
+  const { projectId } = await params
   try{
     if(!projectId){
       return NextResponse.json(

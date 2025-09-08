@@ -2,8 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { BASE_PROMPT } from "@/lib/prompts";
 import { basePrompt as reactBasePrompt } from "@/defaults/react";
 import { z } from "zod";
-import { authOptions } from "../auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/server/authOptions";
 
 const templateSchema = z.object({
   prompt: 

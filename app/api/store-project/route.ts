@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
+import { authOptions } from "@/lib/server/authOptions";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import { authOptions } from "../auth/[...nextauth]/route";
 import { z } from "zod";
 
 export const projectSchema = z.object({

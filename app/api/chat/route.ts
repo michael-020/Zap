@@ -3,8 +3,8 @@ import { openai } from "@/lib/server/openai";
 import { NextRequest, NextResponse } from "next/server";
 import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { z } from "zod";
-import { authOptions } from "../auth/[...nextauth]/route";
 import { getServerSession } from "next-auth";
+import { authOptions } from "@/lib/server/authOptions";
 
 export const chatStreamSchema = z.object({
   messages: z.array(

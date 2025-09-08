@@ -1,8 +1,8 @@
 import OpenAI from "openai";
-import { GEMINI_API_KEY } from "../config";
+import { API_KEY } from "../config";
 
 const openai = new OpenAI({
-    apiKey: GEMINI_API_KEY,
+    apiKey: API_KEY,
     baseURL: "https://generativelanguage.googleapis.com/v1beta/openai/"
 });
 

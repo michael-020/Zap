@@ -160,7 +160,6 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
       <div className="flex items-center justify-center min-h-screen px-6 pb-20">
         <div className="w-full max-w-3xl mx-auto">
           <form onSubmit={handleFormSubmit} className="space-y-8">
-            {/* Hero Text */}
             <div className="text-center space-y-2">
               <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
                 Start with a sentence.
@@ -170,7 +169,6 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
               </h2>
             </div>
 
-            {/* Image Previews */}
             {imagePreviews.length > 0 && (
               <div className="space-y-4">
                 <div className="flex items-center justify-between">
@@ -208,7 +206,6 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
               </div>
             )}
 
-            {/* Input Section */}
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative">
@@ -224,7 +221,6 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                   required
                 />
 
-                {/* File Input and Gallery Icon */}
                 <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">
                   <label htmlFor="fileInput" className="cursor-pointer relative">
                     <ImageIcon className="w-6 h-6 text-neutral-500 hover:text-neutral-400" />
@@ -240,7 +236,6 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                   />
                 </div>
 
-                {/* Submit Button */}
                 <button
                   type="submit"
                   disabled={!description.trim() || isLoading}

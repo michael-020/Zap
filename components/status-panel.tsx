@@ -158,9 +158,6 @@ export function StatusPanel() {
               </button>
             </div>
 
-
-            
-            {/* Render Build Steps for this prompt */}
             {steps.length > 0 && (
               <div className="space-y-2 ml-2 bg-neutral-900 px-3 p-2 rounded-lg">
                 {steps.filter(step => step.shouldExecute !== false).map((step) => (
@@ -206,7 +203,6 @@ export function StatusPanel() {
         )}
       </div>
 
-      {/* Image Previews Section */}
       {imagePreviews.length > 0 && (
         <div className="border-t border-neutral-800 p-3 bg-neutral-950">
           <div className="space-y-3">
@@ -262,12 +258,11 @@ export function StatusPanel() {
             onEnterSubmit={handleSubmit}
             placeholder="Ask a follow up..."
             height="4rem"
-            className="text-[1rem] pl-4 pt-2 pr-20" // Add right padding for icons
+            className="text-[1rem] pl-4 pt-2 pr-20" 
             maxHeight="16rem"
             required
           />
 
-          {/* File Input and Gallery Icon */}
           <div className="absolute bottom-3 right-14 flex items-center justify-center">
             <label htmlFor="followupFileInput" className="cursor-pointer relative">
               <ImageIcon className="w-5 h-5 text-neutral-400 hover:text-neutral-300 transition-colors" />
@@ -288,7 +283,6 @@ export function StatusPanel() {
             />
           </div>
 
-          {/* Submit Button */}
           <button
             type="submit"
             disabled={!prompt.trim() || isProcessingFollowups}

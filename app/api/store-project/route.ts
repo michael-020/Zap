@@ -27,21 +27,7 @@ export async function POST(req: NextRequest) {
         )
       }
       const { prompt } = validatedSchema.data
-      
 
-      // const user = await prisma.user.findUnique({
-      //     where: {
-      //         email: session.user.email
-      //     }
-      // })
-
-      // if(!user){
-      //     return NextResponse.json(
-      //         { msg: "User not found" },
-      //         { status: 403 }
-      //     )
-      // }
-      console.log("user: ", session.user)
       const newProject = await prisma.project.create({
           data: {
               name: prompt,

@@ -17,7 +17,8 @@ export const chatStreamSchema = z.object({
     role: z.enum(["user", "assistant", "system"]),
     content: z.string().min(1)
   }),
-  images: z.array(z.string()).optional()
+  images: z.array(z.string()).optional(),
+  url: z.string()
 });
 
 // Helper function to create image content objects
@@ -96,7 +97,17 @@ export async function POST(req: NextRequest){
       )
     }
     
-    const { messages, prompt, images } = validatedSchema.data
+    const { messages, prompt, images, url } = validatedSchema.data
+
+    console.log("url: ", url)
+    
+    if(url.replace(/\n/g, '').trim() === "not a url".toLowerCase()){
+      console.log(url)
+    }
+    else {
+      console.log("it is a url")
+    }
+
 
     // Validate images if provided
     if (images && images.length > 0) {

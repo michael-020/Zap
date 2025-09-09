@@ -318,6 +318,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
     processPrompt: async (prompt, images) => {
       set({ isProcessing: true, isInitialising: true })
+      let url = ""
       const currentPromptIndex = get().inputPrompts.length
       try {
         set(state => ({
@@ -341,7 +342,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             content: prompt
           }
         })
-
+        url = res.data.url.content
         const parsedSteps = parseXml(res.data.uiPrompts[0]).map((x: BuildStep) => ({
           ...x,
           status: statusType.InProgress
@@ -378,7 +379,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           role: "user",
           content: m
         }))
-
+        console.log("url in fe: ", url)
         const response = await fetch("/api/chat", {
           method: "POST",
           headers: {
@@ -390,7 +391,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               content: prompt
             },
             messages: formattedMessages,
-            images
+            images,
+            url: url
           })
         });
 

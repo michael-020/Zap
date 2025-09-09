@@ -79,7 +79,7 @@ export default function Navbar({
                 <motion.span 
                   className="text-sm font-semibold"
                   animate={{ 
-                    rotate: dropdownOpen ? 180 : 0,
+                    rotate: dropdownOpen ? 360 : 0,
                     transition: { duration: 0.3, ease: "easeInOut" }
                   }}
                 >

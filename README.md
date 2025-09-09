@@ -1,36 +1,64 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mirror ✨
+
+"Mirror" is a revolutionary minimal site builder that brings your development environment directly into the browser! 🚀 Craft beautiful websites with an integrated code editor, live preview, and AI assistance, all without any local setup. Imagine the power of tools like Bolt or V0, now in your hands. ✨
+
+## Key Features
+
+*   **In-Browser Development Environment**: 🖥️ Spin up full coding projects directly in your browser using cutting-edge WebContainer technology – no local dependencies or installations required!
+*   **Intuitive Code Editor & Project Management**: ✍️ Edit, organize, and manage your files within a powerful, integrated editor. Start new projects or seamlessly resume existing ones, with your progress always saved.
+*   **Secure User Authentication**: 🔐 Log in effortlessly with Google OAuth. Manage your sessions and access personalized project spaces.
+*   **AI-Assisted Development**: 🤖 Boost your productivity with intelligent AI assistance. Generate code, get suggestions, and interact with your project through a built-in chat interface.
+*   **Cloud Asset Management**: ☁️ Easily upload and manage your site's images and media files with integrated Cloudinary support.
+*   **Live Preview Capability**: 👀 See your changes instantly with a real-time live preview of your website as you code.
+
+## Technologies Used
+
+### Backend / Fullstack
+
+*   [Next.js](https://nextjs.org/) (App Router)
+*   [NextAuth.js](https://next-auth.js.org/) (Google OAuth)
+*   [WebContainer](https://webcontainers.io/) (for in-browser sandboxing)
+*   [Cloudinary](https://cloudinary.com/) (Asset Management)
+
+### Frontend
+
+*   [React](https://react.dev/)
+*   [Tailwind CSS](https://tailwindcss.com/)
+*   [react-hot-toast](https://react-hot-toast.com/) (Notifications)
 
 ## Getting Started
 
-First, run the development server:
+Follow these steps to get "Mirror" up and running on your local machine for development and testing purposes.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
-```
+1.  **Clone the repository:**
+    ```bash
+    git clone https://github.com/your-username/mirror.git
+    cd mirror
+    ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2.  **Install dependencies:**
+    ```bash
+    npm install
+    # or yarn install
+    # or pnpm install
+    ```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3.  **Configure Environment Variables:**
+    Create a `.env.local` file in the root of your project. You will need to define the following environment variables (refer to the provided `.env.example` for structure and guidance):
+    *   `NEXTAUTH_SECRET`
+    *   `GOOGLE_CLIENT_ID`
+    *   `GOOGLE_CLIENT_SECRET`
+    *   `CLOUDINARY_CLOUD_NAME`
+    *   `CLOUDINARY_API_KEY`
+    *   `CLOUDINARY_API_SECRET`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+    Obtain your Google OAuth credentials from the Google Cloud Console and your Cloudinary credentials from your Cloudinary dashboard. `NEXTAUTH_SECRET` can be a randomly generated string.
 
-## Learn More
+4.  **Run the development server:**
+    ```bash
+    npm run dev
+    # or yarn dev
+    # or pnpm dev
+    ```
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+    Open [http://localhost:3000](http://localhost:3000) in your browser to see the application.

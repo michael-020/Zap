@@ -35,13 +35,14 @@ export async function POST(req: NextRequest) {
         const prompt = validatedSchema.data.prompt
 
         const response = await openai.chat.completions.create({
-            model: "gemini-2.0-flash",
+            model: "gemini-2.5-flash",
             messages: [
                 {
                     role: "system",
-                    content: `Read the prompt and observe it carefully and understand it well, if it appears to have a link, url, domain then respond by extracting the link, 
-                    url or domain, like if the prompt is "I want to build something like mikexdev.in or https://mikexdev.in so help me provide its starter code" then respond
-                     with "https://mikexdev.in" only respond with this and not anything else. If the prompt does not include any of that just respond with "not a url"`,
+                    content: `Read the prompt and observe it carefully and understand it well, if it appears to have a link, url, domain (including ones without protocols like 'mikexdev.in'), then respond by extracting the link, 
+                            url or domain, like if the prompt is "I want to build something like mikexdev.in or https://mikexdev.in so help me provide its starter code" then respond
+                            with "https://mikexdev.in" only respond with this and not anything else. If the prompt does not include any of that just respond with "not a url"`
+
                 },
                 prompt
             ],

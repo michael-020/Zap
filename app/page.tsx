@@ -1,5 +1,5 @@
+import { authOptions } from '@/lib/server/authOptions'
 import { getServerSession } from 'next-auth'
-import { authOptions } from './api/auth/[...nextauth]/route'
 import { redirect } from 'next/navigation'
 
 export default async function Landing() {

@@ -5,6 +5,10 @@ import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/server/authOptions";
+import axios from "axios";
+import puppeteer from 'puppeteer';
+import fs from 'fs';
+import path from 'path';
 
 export const chatStreamSchema = z.object({
   messages: z.array(
@@ -20,6 +24,12 @@ export const chatStreamSchema = z.object({
   images: z.array(z.string()).optional(),
   url: z.string()
 });
+
+function generateUniqueFilename() {
+  const now = new Date();
+  const timestamp = now.toISOString().replace(/[:.-]/g, '_');  // Format to 'YYYY-MM-DDTHH_MM_SS'
+  return `screenshot_${timestamp}.png`;
+}
 
 // Helper function to create image content objects
 function createImageContent(images: string[]) {
@@ -102,71 +112,138 @@ export async function POST(req: NextRequest){
     console.log("url: ", url)
     
     if(url.replace(/\n/g, '').trim() === "not a url".toLowerCase()){
-      console.log(url)
-    }
-    else {
-      console.log("it is a url")
-    }
+      // Validate images if provided
+      if (images && images.length > 0) {
+        const invalidImages = images.filter(image => {
+          // Basic validation for base64 data URLs
+          return !image.startsWith('data:image/') || !image.includes('base64,');
+        });
+        
+        if (invalidImages.length > 0) {
+          return NextResponse.json(
+            { msg: "Invalid image format. Images must be base64 data URLs." },
+            { status: 400 }
+          );
+        }
+        
+        // Optional: Check image count limit
+        if (images.length > 10) {
+          return NextResponse.json(
+            { msg: "Too many images. Maximum 10 images allowed." },
+            { status: 400 }
+          );
+        }
+      }
 
-
-    // Validate images if provided
-    if (images && images.length > 0) {
-      const invalidImages = images.filter(image => {
-        // Basic validation for base64 data URLs
-        return !image.startsWith('data:image/') || !image.includes('base64,');
+      const formattedMessages = formatMessagesWithImages(messages, prompt, images);
+      
+      const completion = await openai.chat.completions.create({
+          model: "gemini-2.5-pro",
+          messages: formattedMessages,
+          stream: true,
+          max_completion_tokens: 800_000
       });
       
-      if (invalidImages.length > 0) {
-        return NextResponse.json(
-          { msg: "Invalid image format. Images must be base64 data URLs." },
-          { status: 400 }
-        );
-      }
-      
-      // Optional: Check image count limit
-      if (images.length > 10) {
-        return NextResponse.json(
-          { msg: "Too many images. Maximum 10 images allowed." },
-          { status: 400 }
-        );
+      const encoder = new TextEncoder();
+      const stream = new ReadableStream({
+          async start(controller) {
+              try {
+                for await (const chunk of completion) {
+                  const content = chunk.choices[0].delta.content;
+                  if (content) {
+                    console.log("Chunk content:", content);
+                    controller.enqueue(encoder.encode(content));
+                  }
+                }
+              } catch (streamError) {
+                console.error("Error in stream:", streamError);
+                controller.error(streamError);
+              } finally {
+                controller.close();
+              }
+          }
+      });
+
+      return new Response(stream, {
+          headers: {
+              "Content-Type": "text/plain",
+              "Transfer-Encoding": "chunked"
+          }
+      });
+    }
+    else {
+      try {
+        // Check if the URL starts with 'https://', if not, add it
+        let correctUrl = url
+        if (!url.startsWith("https://")) {
+          correctUrl = `https://${url}`;
+        }
+
+        const res = await axios.get(correctUrl);
+
+        // If the URL returns a 404, handle that
+        if (res.status === 404) {
+          console.log("URL not found:", res.data);
+          return NextResponse.json(
+            { msg: "Url not found" },
+            { status: 404 }
+          );
+        }
+
+        // console.log("Response data:", res.data);
+        const browser = await puppeteer.launch({
+          headless: false,
+        });
+        const page = await browser.newPage();
+
+        await page.goto(correctUrl);
+        const ss = await page.screenshot({
+          fullPage: true,
+        });
+
+        const filename = generateUniqueFilename();
+
+        const filePath = path.join(process.cwd(), 'public/screenshots', filename);
+
+         // Write the screenshot to the file system
+        fs.writeFileSync(filePath, ss);
+
+        console.log("Screenshot saved at:", filePath);
+
+        return NextResponse.json({
+          msg: "chatting",
+          filePath 
+        });
+      } catch (error) {
+        console.error("Error while fetching URL:", error);
+
+        // Check for network-related errors (like ENOTFOUND)
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          (error as { code?: string }).code === 'ENOTFOUND'
+        ) {
+          return NextResponse.json(
+            { msg: `URL not found (DNS resolution error)` },
+            { status: 404 }
+          );
+        }
+
+        // Handle other potential errors (timeouts, connection errors, etc.)
+        if (
+          typeof error === "object" &&
+          error !== null &&
+          "code" in error &&
+          (error as { code?: string }).code === 'ECONNABORTED'
+        ) {
+          return NextResponse.json(
+            { msg: "Request Timeout: Unable to reach the URL" },
+            { status: 408 }
+          );
+        }
       }
     }
-
-    const formattedMessages = formatMessagesWithImages(messages, prompt, images);
-    
-    const completion = await openai.chat.completions.create({
-        model: "gemini-2.5-pro",
-        messages: formattedMessages,
-        stream: true,
-        max_completion_tokens: 800_000
-    });
-    
-    const encoder = new TextEncoder();
-    const stream = new ReadableStream({
-        async start(controller) {
-            try {
-              for await (const chunk of completion) {
-                const content = chunk.choices[0].delta.content;
-                if (content) {
-                  console.log("Chunk content:", content);
-                  controller.enqueue(encoder.encode(content));
-                }
-              }
-            } catch (streamError) {
-              console.error("Error in stream:", streamError);
-              controller.error(streamError);
-            } finally {
-              controller.close();
-            }
-        }
-    });
-
-    return new Response(stream, {
-        headers: {
-            "Content-Type": "text/plain",
-            "Transfer-Encoding": "chunked"
-        }
-    });
   } catch (error) {
       console.error("Error while chatting: ", error);
       

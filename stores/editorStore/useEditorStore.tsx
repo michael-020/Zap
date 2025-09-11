@@ -373,6 +373,15 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       } finally {
         set({ isInitialising: false })
       }
+      if(url !== "not a url".toLowerCase()){
+        try {
+          const res = await axiosInstance.post("/api/get-images", { url })
+          images = [res.data.images]
+          console.log("images: ", images)
+        } catch (error) {
+          console.error("Error while getting images: ", error)
+        }
+      }
 
       try {
         const formattedMessages = get().messages.map(m => ({
@@ -392,7 +401,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             },
             messages: formattedMessages,
             images,
-            url: url
           })
         });
 

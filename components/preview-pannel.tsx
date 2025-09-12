@@ -36,7 +36,7 @@ export function PreviewPanel() {
     }, [])
     
     return (
-        <div className="h-[calc(100vh-4rem)] overflow-x-hidden"> 
+        <div className="h-[calc(100vh-4rem)] overflow-x-hidden pb-10"> 
             {!previewUrl ? 
                 <div className="h-full w-full items-center justify-center flex flex-col gap-4"> 
                     <Loader2 className="animate-spin size-10" />

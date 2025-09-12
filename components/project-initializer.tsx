@@ -16,6 +16,53 @@ interface ProjectInitializerProps {
   onSubmitAction: (description: string) => void
 }
 
+// Helper function to convert image to WebP
+async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
+  return new Promise((resolve, reject) => {
+    const canvas = document.createElement('canvas');
+    const ctx = canvas.getContext('2d');
+    const img = new Image();
+    
+    img.onload = () => {
+      // Calculate new dimensions (optional: resize for optimization)
+      const maxWidth = 1920; // Max width for uploaded images
+      const maxHeight = 1080; // Max height for uploaded images
+      
+      let { width, height } = img;
+      
+      if (width > maxWidth) {
+        height = (height * maxWidth) / width;
+        width = maxWidth;
+      }
+      
+      if (height > maxHeight) {
+        width = (width * maxHeight) / height;
+        height = maxHeight;
+      }
+      
+      canvas.width = width;
+      canvas.height = height;
+      
+      // Draw and convert to WebP
+      ctx?.drawImage(img, 0, 0, width, height);
+      
+      canvas.toBlob((blob) => {
+        if (blob) {
+          const webpFile = new File([blob], `${file.name.split('.')[0]}.webp`, {
+            type: 'image/webp'
+          });
+          resolve(webpFile);
+        } else {
+          reject(new Error('Failed to convert image to WebP'));
+        }
+      }, 'image/webp', quality);
+    };
+    
+    img.onerror = () => reject(new Error('Failed to load image'));
+    img.src = URL.createObjectURL(file);
+  });
+}
+
 export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) {
   const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
@@ -24,10 +71,12 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
+  const [webpFiles, setWebpFiles] = useState<File[]>([]);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { data: session, status } = useSession()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
+  const [isProcessingImages, setIsProcessingImages] = useState(false)
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -39,7 +88,7 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
     setModalImageSrc("")
   }
 
-  const handleImageChange = (e: ChangeEvent<HTMLInputElement>) => {
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     const files = Array.from((e.target as HTMLInputElement).files || []);
     
     if (files.length === 0) return;
@@ -57,27 +106,85 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
       return;
     }
 
-    // Process each file
-    files.forEach(file => {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setImagePreviews(prev => [...prev, reader.result as string]);
-      };
-      reader.readAsDataURL(file);
-    });
+    setIsProcessingImages(true);
+
+    try {
+      // Process each file
+      const newPreviews: string[] = [];
+      const newWebpFiles: File[] = [];
+
+      for (const file of files) {
+        // Create preview URL for display
+        const previewUrl = URL.createObjectURL(file);
+        newPreviews.push(previewUrl);
+
+        try {
+          // Convert to WebP if not already WebP
+          let webpFile: File;
+          if (file.type === 'image/webp') {
+            webpFile = file;
+          } else {
+            webpFile = await convertToWebP(file);
+          }
+          newWebpFiles.push(webpFile);
+        } catch (error) {
+          console.error('Error converting image to WebP:', error);
+          toast.error(`Failed to process image: ${file.name}`);
+          // Fallback: use original file
+          newWebpFiles.push(file);
+        }
+      }
+
+      setImagePreviews(prev => [...prev, ...newPreviews]);
+      setWebpFiles(prev => [...prev, ...newWebpFiles]);
+
+    } catch (error) {
+      console.error('Error processing images:', error);
+      toast.error('Failed to process some images');
+    } finally {
+      setIsProcessingImages(false);
+    }
 
     // Clear the input so the same files can be selected again if needed
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const removeImage = (indexToRemove: number) => {
-    setImagePreviews(prev => prev.filter((_, index) => index !== indexToRemove));
+    setImagePreviews(prev => {
+      const newPreviews = prev.filter((_, index) => index !== indexToRemove);
+      // Clean up object URL to prevent memory leaks
+      const removedUrl = prev[indexToRemove];
+      if (removedUrl && removedUrl.startsWith('blob:')) {
+        URL.revokeObjectURL(removedUrl);
+      }
+      return newPreviews;
+    });
+    setWebpFiles(prev => prev.filter((_, index) => index !== indexToRemove));
   };
 
   const removeAllImages = () => {
+    // Clean up all object URLs to prevent memory leaks
+    imagePreviews.forEach(url => {
+      if (url.startsWith('blob:')) {
+        URL.revokeObjectURL(url);
+      }
+    });
+    
     setImagePreviews([]);
+    setWebpFiles([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  // Clean up object URLs when component unmounts
+  useEffect(() => {
+    return () => {
+      imagePreviews.forEach(url => {
+        if (url.startsWith('blob:')) {
+          URL.revokeObjectURL(url);
+        }
+      });
+    };
+  }, []);
   
   useEffect(() => {
     if(status === "loading") return
@@ -129,7 +236,8 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
     setIsLoading(true)
     
     try {
-      processPrompt(description, imagePreviews)
+      // Pass WebP files instead of base64 strings
+      processPrompt(description, webpFiles)
       
       onSubmitAction(description.trim())
 
@@ -175,6 +283,11 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                 <div className="flex items-center justify-between">
                   <h3 className="text-lg font-semibold text-white">
                     Selected Images ({imagePreviews.length})
+                    {isProcessingImages && (
+                      <span className="ml-2 text-sm text-neutral-400">
+                        Processing...
+                      </span>
+                    )}
                   </h3>
                   <button
                     type="button"
@@ -224,7 +337,11 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
 
                 <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">
                   <label htmlFor="fileInput" className="cursor-pointer relative">
-                    <ImageIcon className="w-6 h-6 text-neutral-500 hover:text-neutral-400" />
+                    <ImageIcon className={`w-6 h-6 transition-colors ${
+                      isProcessingImages 
+                        ? 'text-blue-400 animate-pulse' 
+                        : 'text-neutral-500 hover:text-neutral-400'
+                    }`} />
                   </label>
                   <input
                     id="fileInput"
@@ -234,14 +351,15 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
                     className="hidden"
                     ref={fileInputRef}
                     onChange={handleImageChange}
+                    disabled={isProcessingImages}
                   />
                 </div>
 
                 <button
                   type="submit"
-                  disabled={!description.trim() || isLoading}
+                  disabled={!description.trim() || isLoading || isProcessingImages}
                   className={`absolute bottom-4 right-4 p-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                    description.trim() && !isLoading
+                    description.trim() && !isLoading && !isProcessingImages
                       ? "bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5 hover:scale-105"
                       : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
                   }`}

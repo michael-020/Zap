@@ -17,26 +17,72 @@ export const chatStreamSchema = z.object({
     role: z.enum(["user", "assistant", "system"]),
     content: z.string().min(1)
   }),
-  images: z.array(z.string()).optional(),
+  // Updated to accept either base64 data URLs or File objects/Blobs
+  images: z.array(
+    z.union([
+      z.string(), // For base64 data URLs (backward compatibility)
+      z.instanceof(File), // For WebP File objects
+      z.object({ // For WebP blob data with metadata
+        data: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)),
+        type: z.string(),
+        name: z.string().optional()
+      })
+    ])
+  ).optional(),
 });
 
+// Helper function to convert WebP images to base64 for OpenAI API
+async function convertWebPToBase64(imageData: File | ArrayBuffer | Uint8Array, mimeType: string = 'image/webp'): Promise<string> {
+  let buffer: ArrayBuffer;
+  
+  if (imageData instanceof File) {
+    buffer = await imageData.arrayBuffer();
+  } else if (imageData instanceof Uint8Array) {
+    buffer = imageData.buffer as ArrayBuffer;
+  } else {
+    buffer = imageData;
+  }
+  
+  const base64 = Buffer.from(buffer).toString('base64');
+  return `data:${mimeType};base64,${base64}`;
+}
+
 // Helper function to create image content objects
-function createImageContent(images: string[]) {
-  return images.map(image => ({
-    type: "image_url" as const,
-    image_url: {
-      url: image,
-      detail: "high" as const
-    }
-  }));
+async function createImageContent(images: (string | File | { data: ArrayBuffer | Uint8Array, type: string, name?: string })[]): Promise<Array<{ type: "image_url"; image_url: { url: string; detail: "high" } }>> {
+  const imageContents = await Promise.all(
+    images.map(async (image) => {
+      let imageUrl: string;
+      
+      if (typeof image === 'string') {
+        // Already base64 data URL
+        imageUrl = image;
+      } else if (image instanceof File) {
+        // Convert WebP File to base64
+        imageUrl = await convertWebPToBase64(image, image.type);
+      } else {
+        // Convert WebP buffer to base64
+        imageUrl = await convertWebPToBase64(image.data, image.type);
+      }
+      
+      return {
+        type: "image_url" as const,
+        image_url: {
+          url: imageUrl,
+          detail: "high" as const
+        }
+      };
+    })
+  );
+  
+  return imageContents;
 }
 
 // Helper function to format messages with images
-function formatMessagesWithImages(
+async function formatMessagesWithImages(
   messages: Array<{ role: "user" | "assistant" | "system"; content: string }>,
   prompt: { role: "user" | "assistant" | "system"; content: string },
-  images?: string[]
-): ChatCompletionMessageParam[] {
+  images?: (string | File | { data: ArrayBuffer | Uint8Array, type: string, name?: string })[]
+): Promise<ChatCompletionMessageParam[]> {
   
   const inputMessages: ChatCompletionMessageParam[] = messages.map((msg) => ({
     role: msg.role,
@@ -46,6 +92,8 @@ function formatMessagesWithImages(
   let finalPrompt: ChatCompletionMessageParam;
   
   if (images && images.length > 0) {
+    const imageContents = await createImageContent(images);
+    
     finalPrompt = {
       role: "user",
       content: [
@@ -53,7 +101,7 @@ function formatMessagesWithImages(
           type: "text",
           text: prompt.content
         },
-        ...createImageContent(images)
+        ...imageContents
       ]
     };
   } else {
@@ -83,7 +131,33 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    const validatedSchema = chatStreamSchema.safeParse(await req.json());
+    // Parse FormData for WebP file uploads or JSON for base64
+    let parsedData;
+    const contentType = req.headers.get('content-type') || '';
+    
+    if (contentType.includes('multipart/form-data')) {
+      // Handle WebP file uploads
+      const formData = await req.formData();
+      const messagesStr = formData.get('messages') as string;
+      const promptStr = formData.get('prompt') as string;
+      
+      const messages = JSON.parse(messagesStr);
+      const prompt = JSON.parse(promptStr);
+      
+      const images: File[] = [];
+      for (const [key, value] of formData.entries()) {
+        if (key.startsWith('image_') && value instanceof File) {
+          images.push(value);
+        }
+      }
+      
+      parsedData = { messages, prompt, images };
+    } else {
+      // Handle JSON with base64 images (backward compatibility)
+      parsedData = await req.json();
+    }
+    
+    const validatedSchema = chatStreamSchema.safeParse(parsedData);
     if (!validatedSchema.success) {
       console.error("Validation error:", validatedSchema.error);
       return NextResponse.json(
@@ -94,63 +168,77 @@ export async function POST(req: NextRequest) {
     
     const { messages, prompt, images } = validatedSchema.data;
     
-      // Handle non-URL case (existing logic)
-      if (images && images.length > 0) {
-        const invalidImages = images.filter(image => {
-          return !image.startsWith('data:image/') || !image.includes('base64,');
-        });
-        
-        if (invalidImages.length > 0) {
-          return NextResponse.json(
-            { msg: "Invalid image format. Images must be base64 data URLs." },
-            { status: 400 }
-          );
-        }
-        
-        if (images.length > 10) {
-          return NextResponse.json(
-            { msg: "Too many images. Maximum 10 images allowed." },
-            { status: 400 }
-          );
+    // Validate images
+    if (images && images.length > 0) {
+      // Check for base64 images (backward compatibility)
+      const base64Images = images.filter(img => typeof img === 'string');
+      const invalidBase64Images = base64Images.filter(image => {
+        return !image.startsWith('data:image/') || !image.includes('base64,');
+      });
+      
+      if (invalidBase64Images.length > 0) {
+        return NextResponse.json(
+          { msg: "Invalid image format. Base64 images must be data URLs." },
+          { status: 400 }
+        );
+      }
+      
+      // Check for WebP files
+      const fileImages = images.filter(img => img instanceof File);
+      const invalidWebPImages = fileImages.filter(file => {
+        return !['image/webp', 'image/jpeg', 'image/png'].includes(file.type);
+      });
+      
+      if (invalidWebPImages.length > 0) {
+        return NextResponse.json(
+          { msg: "Invalid image format. Only WebP, JPEG, and PNG images are supported." },
+          { status: 400 }
+        );
+      }
+      
+      if (images.length > 10) {
+        return NextResponse.json(
+          { msg: "Too many images. Maximum 10 images allowed." },
+          { status: 400 }
+        );
+      }
+    }
+
+    const formattedMessages = await formatMessagesWithImages(messages, prompt, images);
+    
+    const completion = await openai.chat.completions.create({
+      model: "gemini-2.5-pro",
+      messages: formattedMessages,
+      stream: true,
+      max_completion_tokens: 100_000
+    });
+    
+    const encoder = new TextEncoder();
+    const stream = new ReadableStream({
+      async start(controller) {
+        try {
+          for await (const chunk of completion) {
+            const content = chunk.choices[0].delta.content;
+            if (content) {
+              console.log("Chunk content:", content);
+              controller.enqueue(encoder.encode(content));
+            }
+          }
+        } catch (streamError) {
+          console.error("Error in stream:", streamError);
+          controller.error(streamError);
+        } finally {
+          controller.close();
         }
       }
+    });
 
-      const formattedMessages = formatMessagesWithImages(messages, prompt, images);
-      
-      const completion = await openai.chat.completions.create({
-        model: "gemini-2.5-pro",
-        messages: formattedMessages,
-        stream: true,
-        max_completion_tokens: 100_000
-      });
-      
-      const encoder = new TextEncoder();
-      const stream = new ReadableStream({
-        async start(controller) {
-          try {
-            for await (const chunk of completion) {
-              const content = chunk.choices[0].delta.content;
-              if (content) {
-                console.log("Chunk content:", content);
-                controller.enqueue(encoder.encode(content));
-              }
-            }
-          } catch (streamError) {
-            console.error("Error in stream:", streamError);
-            controller.error(streamError);
-          } finally {
-            controller.close();
-          }
-        }
-      });
-
-      return new Response(stream, {
-        headers: {
-          "Content-Type": "text/plain",
-          "Transfer-Encoding": "chunked"
-        }
-      });
-    
+    return new Response(stream, {
+      headers: {
+        "Content-Type": "text/plain",
+        "Transfer-Encoding": "chunked"
+      }
+    });
     
   } catch (error) {
     console.error("Error while chatting: ", error);

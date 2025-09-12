@@ -317,265 +317,307 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     processPrompt: async (prompt, images) => {
-      set({ isProcessing: true, isInitialising: true })
-      let url = ""
-      const currentPromptIndex = get().inputPrompts.length
-      try {
-        set(state => ({
-          inputPrompts: [
-            ...state.inputPrompts,
-            prompt
-          ]
-        }))
+  set({ isProcessing: true, isInitialising: true })
+  let url = ""
+  const currentPromptIndex = get().inputPrompts.length
+  try {
+    set(state => ({
+      inputPrompts: [
+        ...state.inputPrompts,
+        prompt
+      ]
+    }))
 
-        set(state => ({
-          promptStepsMap: new Map(state.promptStepsMap).set(currentPromptIndex, {
-            prompt,
-            steps: [],
-            images
-          })
-        }))
+    set(state => ({
+      promptStepsMap: new Map(state.promptStepsMap).set(currentPromptIndex, {
+        prompt,
+        steps: [],
+        images: images || [] // Store File objects temporarily
+      })
+    }))
 
-        const res = await axiosInstance.post("/api/template", { 
-          prompt: {
-            role: "user",
-            content: prompt
-          }
-        })
-        url = res.data.url.content
-        const parsedSteps = parseXml(res.data.uiPrompts[0]).map((x: BuildStep) => ({
-          ...x,
-          status: statusType.InProgress
-        }))
-
-        set(state => {
-          const newMap = new Map(state.promptStepsMap)
-          const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
-          newMap.set(currentPromptIndex, {
-            ...existing,
-            steps: [...existing.steps, ...parsedSteps]
-          })
-          return { promptStepsMap: newMap }
-        })
-
-        get().setBuildSteps(parsedSteps)
-        get().executeSteps(parsedSteps.filter(step => step.shouldExecute !== false))
-
-        get().setMessages(res.data.prompts)
-
-        const projectRes = await axiosInstance.post("/api/store-project", { prompt });
-        set({ projectId: projectRes.data.projectId });
-      } catch (err) {
-        console.error("Error during initialisation:", err)
-        toast.error("Error while initialising project")
-        set({ isInitialising: false })
-        return;
-      } finally {
-        set({ isInitialising: false })
+    const res = await axiosInstance.post("/api/template", { 
+      prompt: {
+        role: "user",
+        content: prompt
       }
-      if(url !== "not a url".toLowerCase()){
-        try {
-          const res = await axiosInstance.post("/api/get-images", { url })
-          images = [res.data.images]
-          console.log("images: ", images)
-        } catch (error) {
-          console.error("Error while getting images: ", error)
+    })
+    url = res.data.url.content
+    const parsedSteps = parseXml(res.data.uiPrompts[0]).map((x: BuildStep) => ({
+      ...x,
+      status: statusType.InProgress
+    }))
+
+    set(state => {
+      const newMap = new Map(state.promptStepsMap)
+      const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
+      newMap.set(currentPromptIndex, {
+        ...existing,
+        steps: [...existing.steps, ...parsedSteps]
+      })
+      return { promptStepsMap: newMap }
+    })
+
+    get().setBuildSteps(parsedSteps)
+    get().executeSteps(parsedSteps.filter(step => step.shouldExecute !== false))
+
+    get().setMessages(res.data.prompts)
+
+    const projectRes = await axiosInstance.post("/api/store-project", { prompt });
+    set({ projectId: projectRes.data.projectId });
+  } catch (err) {
+    console.error("Error during initialisation:", err)
+    toast.error("Error while initialising project")
+    set({ isInitialising: false })
+    return;
+  } finally {
+    set({ isInitialising: false })
+  }
+  
+  if(url !== "not a url".toLowerCase()){
+    try {
+      const res = await axiosInstance.post("/api/get-images", { url })
+      images = [res.data.images]
+      console.log("images: ", images)
+    } catch (error) {
+      console.error("Error while getting images: ", error)
+    }
+  }
+
+  try {
+    const formattedMessages = get().messages.map(m => ({
+      role: "user",
+      content: m
+    }))
+    
+    console.log("url in fe: ", url)
+    
+    const requestOptions: RequestInit = {
+      method: "POST"
+    };
+
+    if (images && images.length > 0 && images[0] instanceof File) {
+      // Send as FormData for WebP files
+      const formData = new FormData();
+      formData.append('messages', JSON.stringify(formattedMessages));
+      formData.append('prompt', JSON.stringify({
+        role: "user",
+        content: prompt
+      }));
+      
+      // Append each WebP file
+      images.forEach((file, index) => {
+        if (file instanceof File) {
+          formData.append(`image_${index}`, file);
         }
-      }
-
-      try {
-        const formattedMessages = get().messages.map(m => ({
+      });
+      
+      requestOptions.body = formData;
+      // Don't set Content-Type header - let browser set it with boundary
+    } else {
+      // Send as JSON for base64 images (backward compatibility)
+      requestOptions.headers = {
+        "Content-Type": "application/json"
+      };
+      requestOptions.body = JSON.stringify({
+        prompt: {
           role: "user",
-          content: m
-        }))
-        console.log("url in fe: ", url)
-        const response = await fetch("/api/chat", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json"
-          },
-          body: JSON.stringify({
-            prompt: {
-              role: "user",
-              content: prompt
-            },
-            messages: formattedMessages,
-            images,
-          })
+          content: prompt
+        },
+        messages: formattedMessages,
+        images: images || [],
+      });
+    }
+
+    const response = await fetch("/api/chat", requestOptions);
+
+    if (!response.ok || !response.body) {
+      toast.error("Failed to stream chat response")
+      return
+    }
+
+    const reader = response.body.getReader();
+    const decoder = new TextDecoder();
+    let done = false;
+    let buffer = "";
+    let fullResponse = "";
+    // Separate map for tracking file completion - this one uses objects
+    const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
+
+    while (!done) {
+      const { value, done: readerDone } = await reader.read();
+      done = readerDone;
+
+      if (value) {
+        const chunk = decoder.decode(value);
+        buffer += chunk;
+        fullResponse += chunk;
+
+        // Process streaming content for files that are still streaming
+        fileCompletionTracker.forEach((fileData, filePath) => {
+          if (!fileData.isComplete && !get().userEditedFiles.has(filePath)) {
+            // Only stream if file is still marked as streaming
+            if (get().streamingFiles.get(filePath)) {
+              // Limit chunk size to avoid overwhelming the editor
+              const chunkSize = Math.min(chunk.length, 100)
+              const limitedChunk = chunk.substring(0, chunkSize)
+              get().streamFileContent(filePath, limitedChunk);
+            }
+          }
         });
 
-        if (!response.ok || !response.body) {
-          toast.error("Failed to stream chat response")
-          return
-        }
+        // Process complete actions
+        let match;
+        const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g;
 
-        const reader = response.body.getReader();
-        const decoder = new TextDecoder();
-        let done = false;
-        let buffer = "";
-        let fullResponse = "";
-        // Separate map for tracking file completion - this one uses objects
-        const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
+        while ((match = actionRegex.exec(buffer)) !== null) {
+          const [, type, filePath, content] = match;
+          buffer = buffer.slice(actionRegex.lastIndex);
 
-        while (!done) {
-          const { value, done: readerDone } = await reader.read();
-          done = readerDone;
+          const code = content.trim();
 
-          if (value) {
-            const chunk = decoder.decode(value);
-            buffer += chunk;
-            fullResponse += chunk;
-
-            // Process streaming content for files that are still streaming
-            fileCompletionTracker.forEach((fileData, filePath) => {
-              if (!fileData.isComplete && !get().userEditedFiles.has(filePath)) {
-                // Only stream if file is still marked as streaming
-                if (get().streamingFiles.get(filePath)) {
-                  // Limit chunk size to avoid overwhelming the editor
-                  const chunkSize = Math.min(chunk.length, 100)
-                  const limitedChunk = chunk.substring(0, chunkSize)
-                  get().streamFileContent(filePath, limitedChunk);
-                }
-              }
-            });
-
-            // Process complete actions
-            let match;
-            const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g;
-
-            while ((match = actionRegex.exec(buffer)) !== null) {
-              const [, type, filePath, content] = match;
-              buffer = buffer.slice(actionRegex.lastIndex);
-
-              const code = content.trim();
-
-              if (type === "file" && filePath) {
-                // Mark file as complete in our tracker
-                if (fileCompletionTracker.has(filePath)) {
-                  fileCompletionTracker.get(filePath)!.isComplete = true;
-                }
-
-                // Complete the file streaming
-                get().completeFileStreaming(filePath);
-
-                const step: BuildStep = {
-                  id: crypto.randomUUID(),
-                  title: getTitleFromFile(filePath),
-                  description: getDescriptionFromFile(filePath),
-                  type: BuildStepType.CreateFile,
-                  status: statusType.InProgress,
-                  code,
-                  path: filePath,
-                };
-
-                // Set final content
-                get().addFile(filePath, code);
-
-                set(state => {
-                  const newMap = new Map(state.promptStepsMap)
-                  const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
-                  newMap.set(currentPromptIndex, {
-                    ...existing,
-                    steps: [...existing.steps, step]
-                  })
-                  return { promptStepsMap: newMap }
-                })
-
-                get().setBuildSteps([step]);
-                get().setSelectedFile(step.path as string);
-                get().executeSteps([step]); 
-              }
-
-              if (type === "shell") {
-                const step: BuildStep = {
-                  id: crypto.randomUUID(),
-                  title: "Run shell command",
-                  description: code,
-                  type: BuildStepType.RunScript,
-                  status: statusType.InProgress,
-                  code,
-                };
-
-                set(state => {
-                  const newMap = new Map(state.promptStepsMap)
-                  const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
-                  newMap.set(currentPromptIndex, {
-                    ...existing,
-                    steps: [...existing.steps, step]
-                  })
-                  return { promptStepsMap: newMap }
-                })
-
-                get().setBuildSteps([step]);
-                get().executeSteps([step]);
-              }
+          if (type === "file" && filePath) {
+            // Mark file as complete in our tracker
+            if (fileCompletionTracker.has(filePath)) {
+              fileCompletionTracker.get(filePath)!.isComplete = true;
             }
 
-            // Check for new incomplete file actions
-            const incompleteActionRegex = /<boltAction\s+type="file"\s+filePath="([^"]*)">/g;
-            let incompleteMatch;
-            while ((incompleteMatch = incompleteActionRegex.exec(buffer)) !== null) {
-              const [, filePath] = incompleteMatch;
-              
-              if (!fileCompletionTracker.has(filePath)) {
-                // Initialize file for streaming
-                get().addFile(filePath, "");
-                get().setSelectedFile(filePath);
+            // Complete the file streaming
+            get().completeFileStreaming(filePath);
 
-                const step: BuildStep = {
-                  id: crypto.randomUUID(),
-                  title: getTitleFromFile(filePath),
-                  description: getDescriptionFromFile(filePath),
-                  type: BuildStepType.CreateFile,
-                  status: statusType.InProgress,
-                  code: "",
-                  path: filePath,
-                };
+            const step: BuildStep = {
+              id: crypto.randomUUID(),
+              title: getTitleFromFile(filePath),
+              description: getDescriptionFromFile(filePath),
+              type: BuildStepType.CreateFile,
+              status: statusType.InProgress,
+              code,
+              path: filePath,
+            };
 
-                // Add to completion tracker
-                fileCompletionTracker.set(filePath, { 
-                  step, 
-                  content: "", 
-                  isComplete: false 
-                });
-                
-                // Mark file as streaming in the store
-                set(state => ({
-                  streamingFiles: new Map(state.streamingFiles).set(filePath, true)
-                }));
-                
-                get().setBuildSteps([step]);
-              }
-            }
+            // Set final content
+            get().addFile(filePath, code);
+
+            set(state => {
+              const newMap = new Map(state.promptStepsMap)
+              const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
+              newMap.set(currentPromptIndex, {
+                ...existing,
+                steps: [...existing.steps, step]
+              })
+              return { promptStepsMap: newMap }
+            })
+
+            get().setBuildSteps([step]);
+            get().setSelectedFile(step.path as string);
+            get().executeSteps([step]); 
+          }
+
+          if (type === "shell") {
+            const step: BuildStep = {
+              id: crypto.randomUUID(),
+              title: "Run shell command",
+              description: code,
+              type: BuildStepType.RunScript,
+              status: statusType.InProgress,
+              code,
+            };
+
+            set(state => {
+              const newMap = new Map(state.promptStepsMap)
+              const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
+              newMap.set(currentPromptIndex, {
+                ...existing,
+                steps: [...existing.steps, step]
+              })
+              return { promptStepsMap: newMap }
+            })
+
+            get().setBuildSteps([step]);
+            get().executeSteps([step]);
           }
         }
 
-        // Mark all files as no longer streaming
-        fileCompletionTracker.forEach((_, filePath) => {
-          get().completeFileStreaming(filePath);
-        });
+        // Check for new incomplete file actions
+        const incompleteActionRegex = /<boltAction\s+type="file"\s+filePath="([^"]*)">/g;
+        let incompleteMatch;
+        while ((incompleteMatch = incompleteActionRegex.exec(buffer)) !== null) {
+          const [, filePath] = incompleteMatch;
+          
+          if (!fileCompletionTracker.has(filePath)) {
+            // Initialize file for streaming
+            get().addFile(filePath, "");
+            get().setSelectedFile(filePath);
 
-        get().setMessages(fullResponse);
-      } catch (err) {
-        console.error("Error during build:", err)
-        toast.error("Error while building project")
-        set({ isProcessing: false })
-        return;
-      } finally {
-        set({ isProcessing: false })
+            const step: BuildStep = {
+              id: crypto.randomUUID(),
+              title: getTitleFromFile(filePath),
+              description: getDescriptionFromFile(filePath),
+              type: BuildStepType.CreateFile,
+              status: statusType.InProgress,
+              code: "",
+              path: filePath,
+            };
+
+            // Add to completion tracker
+            fileCompletionTracker.set(filePath, { 
+              step, 
+              content: "", 
+              isComplete: false 
+            });
+            
+            // Mark file as streaming in the store
+            set(state => ({
+              streamingFiles: new Map(state.streamingFiles).set(filePath, true)
+            }));
+            
+            get().setBuildSteps([step]);
+          }
+        }
       }
+    }
 
-      try {
-        await axiosInstance.post("/api/store-chats", {
-          prompt,
-          response: get().messages,
-          projectId: get().projectId,
-          images
+    // Mark all files as no longer streaming
+    fileCompletionTracker.forEach((_, filePath) => {
+      get().completeFileStreaming(filePath);
+    });
+
+    get().setMessages(fullResponse);
+  } catch (err) {
+    console.error("Error during build:", err)
+    toast.error("Error while building project")
+    set({ isProcessing: false })
+    return;
+  } finally {
+    set({ isProcessing: false })
+  }
+
+  try {
+    // Convert File objects to base64 for storage if needed
+    let imagesToStore = images;
+    if (images && images.length > 0 && images[0] instanceof File) {
+      imagesToStore = await Promise.all(
+        images.map(async (fileOrString: string | File) => {
+          if (fileOrString instanceof File) {
+            const buffer = await fileOrString.arrayBuffer();
+            const base64 = Buffer.from(buffer).toString('base64');
+            return `data:${fileOrString.type};base64,${base64}`;
+          }
+          return fileOrString;
         })
-      } catch (error) {
-        console.error("Error while storing chats: ", error)
-      }
-    },
+      );
+    }
+
+    await axiosInstance.post("/api/store-chats", {
+      prompt,
+      response: get().messages,
+      projectId: get().projectId,
+      images: imagesToStore
+    })
+  } catch (error) {
+    console.error("Error while storing chats: ", error)
+  }
+},
 
     processFollowupPrompts: async (prompt, images) => {
       set({ isProcessingFollowups: true });

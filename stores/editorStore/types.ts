@@ -35,9 +35,10 @@ export type FileItemFlat = {
   content: string // Make content required since we're consolidating
 }
 
+// Updated to support both File objects and base64 strings
 export interface PromptStepMapping {
   prompt: string
-  images?: string[]
+  images?: (File | string)[] // Support both WebP Files and base64 strings
   steps: BuildStep[]
 }
 
@@ -46,7 +47,7 @@ interface ChatData {
   projectId: string
   prompt: string
   response: string
-  images?: string[]
+  images?: string[] // Always stored as base64 strings in database
   createdAt: string
 }
 
@@ -66,7 +67,7 @@ export interface StoreState {
   shellCommands: string[]
   webcontainer: WebContainer | null;
   messages: string[]
-  inputPrompts: (string | { prompt: string; images: string[] })[]
+  inputPrompts: (string | { prompt: string; images: (File | string)[] })[]
   promptStepsMap: Map<number, PromptStepMapping>
   previewUrl: string
   devServerProcess: WebContainerProcess | null
@@ -86,10 +87,12 @@ export interface StoreState {
   addFile: (path: string, content: string) => void
   addFileItem: (item: FileItemFlat) => void
   executeSteps: (steps: BuildStep[]) => void
-  processPrompt: (prompt: string, images?: string[]) => void;
+  // Updated to support both File objects and base64 strings
+  processPrompt: (prompt: string, images?: (File | string)[]) => void;
   setShellCommand: (command: string) => void;
   setMessages: (messages: string | string[]) => void;
-  processFollowupPrompts: (prompt: string, images?: string[]) => void;
+  // Updated to support both File objects and base64 strings
+  processFollowupPrompts: (prompt: string, images?: (File | string)[]) => void;
   setPreviewUrl: (url: string) => void;
   setDevServerProcess: (proc: WebContainerProcess) => void
   handleShellCommand: (command: string) => Promise<void>

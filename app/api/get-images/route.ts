@@ -1,14 +1,14 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server"
-import path from "path";
+// import path from "path";
 import puppeteer, { Page } from "puppeteer";
-import fs from 'fs';
+// import fs from 'fs';
 
-function generateUniqueFilename() {
-  const now = new Date();
-  const timestamp = now.toISOString().replace(/[:.-]/g, '_');
-  return `screenshot_${timestamp}.png`;
-}
+// function generateUniqueFilename() {
+//   const now = new Date();
+//   const timestamp = now.toISOString().replace(/[:.-]/g, '_');
+//   return `screenshot_${timestamp}.png`;
+// }
 
 async function takeFullPageScreenshot(page: Page, url: string) {
   try {
@@ -182,19 +182,19 @@ export async function POST(req: NextRequest) {
         // Take the improved screenshot
         const screenshot = await takeFullPageScreenshot(page, correctUrl);
 
-        const filename = generateUniqueFilename();
-        const filePath = path.join(process.cwd(), 'public/screenshots', filename);
+        // const filename = generateUniqueFilename();
+        // const filePath = path.join(process.cwd(), 'public/screenshots', filename);
         
-        // Ensure the screenshots directory exists
-        const screenshotsDir = path.join(process.cwd(), 'public/screenshots');
-        if (!fs.existsSync(screenshotsDir)) {
-          fs.mkdirSync(screenshotsDir, { recursive: true });
-        }
+        // // Ensure the screenshots directory exists
+        // const screenshotsDir = path.join(process.cwd(), 'public/screenshots');
+        // if (!fs.existsSync(screenshotsDir)) {
+        //   fs.mkdirSync(screenshotsDir, { recursive: true });
+        // }
         
-        // Write the screenshot to the file system
-        fs.writeFileSync(filePath, screenshot, 'base64');
+        // // Write the screenshot to the file system
+        // fs.writeFileSync(filePath, screenshot, 'base64');
         
-        console.log("Screenshot saved at:", filePath);
+        // console.log("Screenshot saved at:", filePath);
 
         // FIXED: Convert base64 buffer to proper data URL string
         const screenshotDataUrl = `data:image/png;base64,${screenshot}`;

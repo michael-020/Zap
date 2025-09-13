@@ -377,7 +377,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   if(url !== "not a url".toLowerCase()){
     try {
       const res = await axiosInstance.post("/api/get-images", { url })
-      images = [res.data.images]
+      images?.push(res.data.images)
       console.log("images: ", images)
     } catch (error) {
       console.error("Error while getting images: ", error)

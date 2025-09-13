@@ -1,14 +1,6 @@
 import axios from "axios";
 import { NextRequest, NextResponse } from "next/server"
-// import path from "path";
 import puppeteer, { Page } from "puppeteer";
-// import fs from 'fs';
-
-// function generateUniqueFilename() {
-//   const now = new Date();
-//   const timestamp = now.toISOString().replace(/[:.-]/g, '_');
-//   return `screenshot_${timestamp}.png`;
-// }
 
 async function takeFullPageScreenshot(page: Page, url: string) {
   try {
@@ -22,7 +14,7 @@ async function takeFullPageScreenshot(page: Page, url: string) {
     // Navigate to the page with extended timeout and wait for network idle
     await page.goto(url, {
       waitUntil: ['networkidle0', 'domcontentloaded'],
-      timeout: 60000
+      timeout: 300000
     });
 
     // Wait for initial page load
@@ -181,20 +173,6 @@ export async function POST(req: NextRequest) {
 
         // Take the improved screenshot
         const screenshot = await takeFullPageScreenshot(page, correctUrl);
-
-        // const filename = generateUniqueFilename();
-        // const filePath = path.join(process.cwd(), 'public/screenshots', filename);
-        
-        // // Ensure the screenshots directory exists
-        // const screenshotsDir = path.join(process.cwd(), 'public/screenshots');
-        // if (!fs.existsSync(screenshotsDir)) {
-        //   fs.mkdirSync(screenshotsDir, { recursive: true });
-        // }
-        
-        // // Write the screenshot to the file system
-        // fs.writeFileSync(filePath, screenshot, 'base64');
-        
-        // console.log("Screenshot saved at:", filePath);
 
         // FIXED: Convert base64 buffer to proper data URL string
         const screenshotDataUrl = `data:image/png;base64,${screenshot}`;

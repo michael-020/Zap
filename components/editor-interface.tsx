@@ -23,8 +23,11 @@ export function EditorInterface({
   const { data: session, status } = useSession()
   const [isOpen, setIsOpen] = useState(false);
   const [isHovered, setIsHovered] = useState(false);
+  const [leftPanelWidth, setLeftPanelWidth] = useState(25) 
+  const [isResizing, setIsResizing] = useState(false)
+  const resizerRef = useRef<HTMLDivElement>(null)
   
-   const sidebarVisible = isOpen || isHovered;
+  const sidebarVisible = isOpen || isHovered;
   
   useEffect(() => {
     if(status === "loading") return
@@ -61,6 +64,40 @@ export function EditorInterface({
     document.addEventListener("mousemove", onMouseMove);
     return () => document.removeEventListener("mousemove", onMouseMove);
   }, [isHovered]);
+
+  useEffect(() => {
+    const handleMouseMove = (e: MouseEvent) => {
+      if (!isResizing) return
+      
+      const containerWidth = window.innerWidth
+      const newWidth = (e.clientX / containerWidth) * 100
+      const clampedWidth = Math.max(15, Math.min(50, newWidth))
+      setLeftPanelWidth(clampedWidth)
+    }
+
+    const handleMouseUp = () => {
+      setIsResizing(false)
+      document.body.style.cursor = 'default'
+      document.body.style.userSelect = 'auto'
+    }
+
+    if (isResizing) {
+      document.body.style.cursor = 'col-resize'
+      document.body.style.userSelect = 'none'
+      document.addEventListener('mousemove', handleMouseMove)
+      document.addEventListener('mouseup', handleMouseUp)
+    }
+
+    return () => {
+      document.removeEventListener('mousemove', handleMouseMove)
+      document.removeEventListener('mouseup', handleMouseUp)
+    }
+  }, [isResizing])
+
+  const handleResizerMouseDown = (e: React.MouseEvent) => {
+    e.preventDefault()
+    setIsResizing(true)
+  }
  
   const handleSidebarMouseLeave = () => {
     setIsHovered(false);
@@ -87,12 +124,21 @@ export function EditorInterface({
         showBackButton={true}
       />
 
-      <div className="grid grid-cols-12 gap-0 fixed top-[60px] h-[calc(100vh-60px)] w-screen">
-        <div className="col-span-3 bg-neutral-950 border-r border-neutral-800">
+      <div className="flex fixed top-[60px] h-[calc(100vh-60px)] w-screen">
+        <div 
+          className="bg-neutral-950 border-r border-neutral-800 flex-shrink-0"
+          style={{ width: `${leftPanelWidth}%` }}
+        >
           <StatusPanel />
         </div>
-      
-        <div className="col-span-9 bg-neutral-900">
+        <div
+          ref={resizerRef}
+          className="w-0.5 bg-neutral-800 hover:bg-neutral-700 cursor-col-resize flex justify-center flex-shrink-0 transition-colors duration-150 relative group"
+          onMouseDown={handleResizerMouseDown}
+        >
+          <div className="absolute w-1.5 h-6 inset-y-0 top-1/2 -translate-y-1/2 bg-neutral-600 group-hover:bg-neutral-500 rounded-md transition-opacity duration-150" />
+        </div>
+        <div className="bg-neutral-900 flex-1 min-w-0">
           <EditorWorkspace />
         </div>
       </div>

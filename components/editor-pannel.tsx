@@ -3,7 +3,6 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import Editor from '@monaco-editor/react';
-import { useWebContainer } from "@/hooks/useWebContainer";
 import dynamic from 'next/dynamic';
 
 const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
@@ -36,7 +35,6 @@ const getLanguageFromPath = (filePath: string): string => {
 }
 
 export function EditorPanel({ filePath }: EditorPanelProps) {
-  useWebContainer()
   const { fileItems, updateFileContent, streamingFiles, userEditedFiles } = useEditorStore()
   const [editorValue, setEditorValue] = useState("")
   const isUserEditingRef = useRef(false)

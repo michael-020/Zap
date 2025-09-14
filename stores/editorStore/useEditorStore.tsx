@@ -4,7 +4,6 @@ import { axiosInstance } from "@/lib/axios"
 import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import toast from "react-hot-toast"
-import { useWebContainer } from "@/hooks/useWebContainer"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -16,6 +15,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   webcontainer: null,
   messages: [],
   isInitialising: false,
+  isInitialisingWebContainer: false,
   isProcessing: false,
   isProcessingFollowups: false,
   inputPrompts: [],
@@ -318,12 +318,13 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     processPrompt: async (prompt, images) => {
+      get().setUpWebContainer()
+
       set({ isInitialising: true })
       let url = ""
       let hasErrorOccured = false
       const currentPromptIndex = get().inputPrompts.length
       try {
-        useWebContainer()
         set(state => ({
           inputPrompts: [
             ...state.inputPrompts,
@@ -833,7 +834,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       }
     },
     
-    processChatData: (chatData) => {
+    processChatData: async (chatData) => {
       const { 
         setBuildSteps, 
         addFile, 
@@ -841,13 +842,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         setMessages, 
         setShellCommand,
         resetUserEditedFiles,
-        clearBuildSteps 
+        clearBuildSteps,
+        setUpWebContainer
       } = get()
-
+      
+      setUpWebContainer()
       // Reset store state
       clearBuildSteps()
       resetUserEditedFiles()
-      useWebContainer()
     
       const allSteps: BuildStep[] = []
       const allMessages: string[] = []
@@ -927,5 +929,28 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       if (chatData.length > 0) {
         set({ projectId: chatData[0].projectId })
       }
+    },
+
+    setUpWebContainer: async () => {
+      const {
+        setWebcontainer,
+        webcontainer
+      } = get()
+      if (webcontainer) {
+        return;
+      }
+
+      set({ isInitialisingWebContainer: true })
+      console.log("initialising web container")
+      try {
+        const webContainerInstance = await WebContainer.boot();
+        setWebcontainer(webContainerInstance);
+        console.log("web container initialised")
+      } catch (error) {
+        console.error("Error while initialisint web container: ", error)
+      } finally {
+        set({ isInitialisingWebContainer: false })
+      }
+      
     }
-}))
+  }))

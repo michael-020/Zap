@@ -31,5 +31,5 @@ export default function ChatSessionPage() {
     fetchProject()
   }, [projectId, processChatData])
 
-  return <EditorInterface shouldInitialize={false} onBack={handleBackToInitializer} />
+  return <EditorInterface shouldInitialize={true} onBack={handleBackToInitializer} />
 }

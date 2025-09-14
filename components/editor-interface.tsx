@@ -18,7 +18,7 @@ export function EditorInterface({
   onBack?: () => void,
   shouldInitialize?: boolean
 }) {
-  const { setSelectedFile, fileItems, isInitialising } = useEditorStore()
+  const { setSelectedFile, fileItems, isInitialising, isInitialisingWebContainer } = useEditorStore()
   const hasSelectedInitialFile = useRef(false)
   const { data: session, status } = useSession()
   const [isOpen, setIsOpen] = useState(false);
@@ -97,7 +97,7 @@ export function EditorInterface({
         </div>
       </div>
 
-      {shouldInitialize && isInitialising && <InitLoadingModal />}
+      {shouldInitialize && (isInitialising || isInitialisingWebContainer) && <InitLoadingModal message={`${isInitialisingWebContainer ? "Initialising Environment..." : "Initialising project..."}`} />}
       <RightSidebar
         isOpen={sidebarVisible}
         setIsOpenAction={handleSidebarClose}

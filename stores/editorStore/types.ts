@@ -56,6 +56,7 @@ export interface StoreState {
   buildSteps: BuildStep[]
   isBuilding: boolean
   isInitialising: boolean,
+  isInitialisingWebContainer: boolean,
   isProcessing: boolean,
   isProcessingFollowups: boolean,
   projectId: string,
@@ -101,4 +102,5 @@ export interface StoreState {
   resetUserEditedFiles: () => void;
   processChatData: (chatData: ChatData[]) => void;
   clearPromptStepsMap: () => void;
+  setUpWebContainer: () => void;
 }

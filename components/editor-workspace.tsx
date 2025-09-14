@@ -7,10 +7,15 @@ import { EditorPanel } from "./editor-pannel"
 import { PreviewPanel } from "./preview-pannel"
 import { EditorErrorBoundary } from "./editor-error-boundary"
 import { FileExplorer } from "./file-explorer"
+import { EditorWorkspaceSkeletons } from "./editor-workspace-skeletons"
 
 export function EditorWorkspace() {
-  const { selectedFile } = useEditorStore()
+  const { selectedFile, fileItems } = useEditorStore()
   const [activeTab, setActiveTab] = useState<"code" | "preview">("code")
+
+  if (!fileItems || fileItems.length === 0) {
+    return <EditorWorkspaceSkeletons />
+  }
 
   if (!selectedFile) {
     return (

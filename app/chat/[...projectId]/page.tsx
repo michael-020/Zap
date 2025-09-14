@@ -12,8 +12,8 @@ export default function ChatSessionPage() {
   const { processChatData, clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap } = useEditorStore()
   const router = useRouter()
   
-  const handleBackToInitializer = () => {
-    router.push("/chat")
+  const handleBackToInitializer = async () => {
+    await router.push("/chat")
     clearBuildSteps()
     setFileItems([])
     setSelectedFile(null)

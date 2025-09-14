@@ -15,8 +15,8 @@ export default function ChatPage() {
     setShowMainInterface(true)
   }
 
-  const handleBackToInitializer = () => {
-    router.push("/chat")
+  const handleBackToInitializer = async () => {
+    await router.push("/chat")
     setShowMainInterface(false)
     clearBuildSteps()
     setFileItems([])

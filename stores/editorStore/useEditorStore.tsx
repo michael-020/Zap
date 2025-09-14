@@ -845,7 +845,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         clearBuildSteps,
         setUpWebContainer
       } = get()
-      
+      await new Promise(r => setTimeout(r, 3000))
       setUpWebContainer()
       // Reset store state
       clearBuildSteps()

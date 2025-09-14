@@ -97,7 +97,7 @@ export function EditorInterface({
         </div>
       </div>
 
-      {shouldInitialize && !isInitialising && <InitLoadingModal />}
+      {shouldInitialize && isInitialising && <InitLoadingModal />}
       <RightSidebar
         isOpen={sidebarVisible}
         setIsOpenAction={handleSidebarClose}

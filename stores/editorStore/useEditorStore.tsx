@@ -4,6 +4,7 @@ import { axiosInstance } from "@/lib/axios"
 import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import toast from "react-hot-toast"
+import { useWebContainer } from "@/hooks/useWebContainer"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -322,6 +323,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       let hasErrorOccured = false
       const currentPromptIndex = get().inputPrompts.length
       try {
+        useWebContainer()
         set(state => ({
           inputPrompts: [
             ...state.inputPrompts,
@@ -845,6 +847,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       // Reset store state
       clearBuildSteps()
       resetUserEditedFiles()
+      useWebContainer()
     
       const allSteps: BuildStep[] = []
       const allMessages: string[] = []

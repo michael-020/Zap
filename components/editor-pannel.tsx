@@ -3,7 +3,10 @@
 import { useEffect, useState, useRef, useCallback } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import Editor from '@monaco-editor/react';
-import * as monaco from "monaco-editor"
+import { useWebContainer } from "@/hooks/useWebContainer";
+import dynamic from 'next/dynamic';
+
+const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
 interface EditorPanelProps {
   filePath: string
@@ -33,11 +36,13 @@ const getLanguageFromPath = (filePath: string): string => {
 }
 
 export function EditorPanel({ filePath }: EditorPanelProps) {
+  useWebContainer()
   const { fileItems, updateFileContent, streamingFiles, userEditedFiles } = useEditorStore()
   const [editorValue, setEditorValue] = useState("")
   const isUserEditingRef = useRef(false)
   const lastStreamedContentRef = useRef("")
-  const editorRef = useRef<monaco.editor.IStandaloneCodeEditor | null>(null)
+  const editorRef = useRef<any | null>(null)
+  const monacoRef = useRef<any>(null)
   const currentFilePathRef = useRef<string>(filePath)
   const modelDisposalTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
@@ -47,9 +52,9 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
 
   // Clean up old models to prevent memory leaks and conflicts
   const cleanupOldModels = useCallback(() => {
-    if (typeof window !== 'undefined' && monaco?.editor) {
-      const allModels = monaco.editor.getModels()
-      allModels.forEach(model => {
+    if (typeof window !== 'undefined' && monacoRef.current) {
+      const allModels = monacoRef.current.editor.getModels()
+      allModels.forEach((model: any) => {
         const modelUri = model.uri.toString()
         const modelPath = modelUri.replace('file:///', '')
         
@@ -128,8 +133,9 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     return () => clearTimeout(timeoutId)
   }, [filePath, updateFileContent])
 
-  const handleEditorMount = useCallback((editor: monaco.editor.IStandaloneCodeEditor, monacoInstance: typeof monaco) => {
+  const handleEditorMount = useCallback((editor: any, monacoInstance: any) => {
     editorRef.current = editor
+    monacoRef.current = monacoInstance
     
     // Disable TypeScript diagnostics to prevent file not found errors
     monacoInstance.languages.typescript.typescriptDefaults.setDiagnosticsOptions({

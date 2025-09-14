@@ -471,7 +471,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
             // Process complete actions
             let match;
-            const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g;
+            const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g;
 
             while ((match = actionRegex.exec(buffer)) !== null) {
               const [, type, filePath, content] = match;
@@ -542,7 +542,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             }
 
             // Check for new incomplete file actions
-            const incompleteActionRegex = /<boltAction\s+type="file"\s+filePath="([^"]*)">/g;
+            const incompleteActionRegex = /<mirrorAction\s+type="file"\s+filePath="([^"]*)">/g;
             let incompleteMatch;
             while ((incompleteMatch = incompleteActionRegex.exec(buffer)) !== null) {
               const [, filePath] = incompleteMatch;
@@ -706,7 +706,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
             // Process complete actions
             let match;
-            const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g;
+            const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g;
 
             while ((match = actionRegex.exec(buffer)) !== null) {
               const [, type, filePath, content] = match;
@@ -777,7 +777,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             }
 
             // Check for new incomplete file actions
-            const incompleteActionRegex = /<boltAction\s+type="file"\s+filePath="([^"]*)">/g;
+            const incompleteActionRegex = /<mirrorAction\s+type="file"\s+filePath="([^"]*)">/g;
             let incompleteMatch;
             while ((incompleteMatch = incompleteActionRegex.exec(buffer)) !== null) {
               const [, filePath] = incompleteMatch;
@@ -859,7 +859,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           inputPrompts: [...state.inputPrompts, chat.prompt]
         }))
     
-        const actionRegex = /<boltAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/boltAction>/g
+        const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g
         let match
         const promptSteps: BuildStep[] = []
     

@@ -1,6 +1,6 @@
 # Mirror ✨
 
-"Mirror" is a revolutionary minimal site builder that brings your development environment directly into the browser! 🚀 Craft beautiful websites with an integrated code editor, live preview, and AI assistance, all without any local setup. Imagine the power of tools like Bolt or V0, now in your hands. ✨
+"Mirror" is a revolutionary minimal site builder that brings your development environment directly into the browser! 🚀 Craft beautiful websites with an integrated code editor, live preview, and AI assistance, all without any local setup. ✨
 
 ## Key Features
 

@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 
 export const metadata: Metadata = {
   title: "Mirror",
-  description: "A minimal site builder with a code editor and live preview — inspired by Bolt, v0, and Lovable.",
+  description: "A minimal site builder with a code editor and live preview.",
 };
 
 export default function RootLayout({

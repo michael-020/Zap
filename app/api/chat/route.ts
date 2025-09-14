@@ -210,7 +210,7 @@ export async function POST(req: NextRequest) {
       model: "gemini-2.5-pro",
       messages: formattedMessages,
       stream: true,
-      max_completion_tokens: 100_000
+      max_completion_tokens: 800_000
     });
     
     const encoder = new TextEncoder();
@@ -220,7 +220,7 @@ export async function POST(req: NextRequest) {
           for await (const chunk of completion) {
             const content = chunk.choices[0].delta.content;
             if (content) {
-              console.log("Chunk content:", content);
+              console.log(content);
               controller.enqueue(encoder.encode(content));
             }
           }

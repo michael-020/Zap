@@ -8,8 +8,8 @@ import { BuildStepType, statusType } from "@/stores/editorStore/types"
 import { TextArea } from "./text-area"
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
+import { StatusPanelSkeletons } from "./status-pannle-skeletons"
 
-// Helper function to convert image to WebP (same as in ProjectInitializer)
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -17,9 +17,8 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
     const img = new Image();
     
     img.onload = () => {
-      // Calculate new dimensions (optional: resize for optimization)
-      const maxWidth = 1920; // Max width for uploaded images
-      const maxHeight = 1080; // Max height for uploaded images
+      const maxWidth = 1920;
+      const maxHeight = 1080;
       
       let { width, height } = img;
       
@@ -36,7 +35,6 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
       canvas.width = width;
       canvas.height = height;
       
-      // Draw and convert to WebP
       ctx?.drawImage(img, 0, 0, width, height);
       
       canvas.toBlob((blob) => {
@@ -99,17 +97,14 @@ export function StatusPanel() {
     setIsProcessingImages(true);
 
     try {
-      // Process each file
       const newPreviews: string[] = [];
       const newWebpFiles: File[] = [];
 
       for (const file of files) {
-        // Create preview URL for display
         const previewUrl = URL.createObjectURL(file);
         newPreviews.push(previewUrl);
 
         try {
-          // Convert to WebP if not already WebP
           let webpFile: File;
           if (file.type === 'image/webp') {
             webpFile = file;
@@ -120,7 +115,6 @@ export function StatusPanel() {
         } catch (error) {
           console.error('Error converting image to WebP:', error);
           toast.error(`Failed to process image: ${file.name}`);
-          // Fallback: use original file
           newWebpFiles.push(file);
         }
       }
@@ -135,14 +129,12 @@ export function StatusPanel() {
       setIsProcessingImages(false);
     }
 
-    // Clear the input so the same files can be selected again if needed
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
   const removeImage = (indexToRemove: number) => {
     setImagePreviews(prev => {
       const newPreviews = prev.filter((_, index) => index !== indexToRemove);
-      // Clean up object URL to prevent memory leaks
       const removedUrl = prev[indexToRemove];
       if (removedUrl && removedUrl.startsWith('blob:')) {
         URL.revokeObjectURL(removedUrl);
@@ -153,7 +145,6 @@ export function StatusPanel() {
   };
 
   const removeAllImages = () => {
-    // Clean up all object URLs to prevent memory leaks
     imagePreviews.forEach(url => {
       if (url.startsWith('blob:')) {
         URL.revokeObjectURL(url);
@@ -165,7 +156,6 @@ export function StatusPanel() {
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
 
-  // Clean up object URLs when component unmounts
   useEffect(() => {
     return () => {
       imagePreviews.forEach(url => {
@@ -179,11 +169,9 @@ export function StatusPanel() {
   const handleSubmit = () => {
     if (!prompt.trim()) return
     
-    // Pass WebP files instead of base64 strings
     processFollowupPrompts(prompt, webpFiles);
     
     setPrompt("")
-    // Clean up object URLs before clearing
     imagePreviews.forEach(url => {
       if (url.startsWith('blob:')) {
         URL.revokeObjectURL(url);
@@ -230,6 +218,9 @@ export function StatusPanel() {
     }
   }, [promptStepsMap])
 
+  if (!promptStepsMap || promptStepsMap.size === 0) {
+    return <StatusPanelSkeletons />
+  }
 
   return (
     <div className="h-[calc(100vh-60px)] flex flex-col overflow-x-hidden">
@@ -239,7 +230,6 @@ export function StatusPanel() {
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
               <div className="grid grid-cols-3 gap-2">
                 {images && images.map((image: string | File, index: number) => {
-                  // Handle both File objects and base64 strings
                   let imageSrc: string;
                   if (typeof image === 'string') {
                     imageSrc = image;
@@ -322,7 +312,7 @@ export function StatusPanel() {
         {isProcessing && (
           <div className="flex items-center gap-2 text-sm text-blue-400 mt-4 p-3 bg-blue-900/20 rounded-lg">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>Processing changes...</span>
+            <span>Thinking...</span>
           </div>
         )}
       </div>

@@ -9,7 +9,7 @@ import { EditorErrorBoundary } from "./editor-error-boundary"
 import { FileExplorer } from "./file-explorer"
 import { EditorWorkspaceSkeletons } from "./editor-workspace-skeletons"
 
-export function EditorWorkspace() {
+export function EditorWorkspace({ isFullscreen, setIsFullscreen }: { isFullscreen: boolean, setIsFullscreen: (value: boolean) => void }) {
   const { selectedFile, fileItems } = useEditorStore()
   const [activeTab, setActiveTab] = useState<"code" | "preview">("code")
 
@@ -30,7 +30,7 @@ export function EditorWorkspace() {
 
   return (
     <div className="flex flex-col h-[calc(100vh-3rem)]">
-      <CodeEditorTabs activeTab={activeTab} onTabChange={setActiveTab} />
+      <CodeEditorTabs isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} activeTab={activeTab} onTabChange={setActiveTab} />
       <div className="flex-1 overflow-hidden">
         {activeTab === "code" ? (
           <div className="h-full flex">

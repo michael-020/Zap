@@ -87,7 +87,7 @@ export default function RightSidebar({
         </button>
       </div>
 
-      <div className="p-4 space-y-4 overflow-y-auto overflow-x-hidden h-[calc(100%-56px)]">
+      <div className="p-4 space-y-4 overflow-y-auto custom-sidebar overflow-x-hidden h-[calc(100%-56px)]">
         {loading ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div

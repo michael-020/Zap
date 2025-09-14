@@ -1,15 +1,17 @@
 "use client"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
-import { Code, Download, Eye } from "lucide-react"
+import { Code, Download, Eye, Fullscreen } from "lucide-react"
 import JSZip from "jszip"
 import { saveAs } from "file-saver"
 
 interface CodeEditorTabsProps {
   activeTab: "code" | "preview"
   onTabChange: (tab: "code" | "preview") => void
+  isFullscreen: boolean
+  setIsFullscreen: (value: boolean) => void
 }
 
-export function CodeEditorTabs({ activeTab, onTabChange }: CodeEditorTabsProps) {
+export function CodeEditorTabs({ activeTab, onTabChange, isFullscreen, setIsFullscreen }: CodeEditorTabsProps) {
   const { fileItems } = useEditorStore()
 
   const handleDownloadZip = async () => {
@@ -57,6 +59,14 @@ export function CodeEditorTabs({ activeTab, onTabChange }: CodeEditorTabsProps) 
         title="Download as ZIP"
       >
         <Download className="size-4" />
+      </button>
+
+      <button
+        onClick={() => setIsFullscreen(!isFullscreen)}
+        className="px-3 py-1 text-xs bg-neutral-800 text-neutral-200 rounded hover:bg-neutral-700 transition-colors flex items-center"
+        title="Fullscreen"
+      >
+        <Fullscreen className="size-4" />
       </button>
     </div>
   )

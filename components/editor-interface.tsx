@@ -26,6 +26,7 @@ export function EditorInterface({
   const [leftPanelWidth, setLeftPanelWidth] = useState(25) 
   const [isResizing, setIsResizing] = useState(false)
   const resizerRef = useRef<HTMLDivElement>(null)
+  const [isFullscreen, setIsFullscreen] = useState(false)
   
   const sidebarVisible = isOpen || isHovered;
   
@@ -125,12 +126,14 @@ export function EditorInterface({
       />
 
       <div className="flex fixed top-[60px] h-[calc(100vh-60px)] w-screen">
-        <div 
+        {!isFullscreen && (
+          <div 
           className="bg-neutral-950 border-r border-neutral-800 flex-shrink-0"
           style={{ width: `${leftPanelWidth}%` }}
-        >
+          >
           <StatusPanel />
         </div>
+        )}
         <div
           ref={resizerRef}
           className="w-0.5 bg-neutral-800 hover:bg-neutral-700 cursor-col-resize flex justify-center flex-shrink-0 transition-colors duration-150 relative group"
@@ -139,7 +142,7 @@ export function EditorInterface({
           <div className="absolute w-1.5 h-6 inset-y-0 top-1/2 -translate-y-1/2 bg-neutral-600 group-hover:bg-neutral-500 rounded-md transition-opacity duration-150" />
         </div>
         <div className="bg-neutral-900 flex-1 min-w-0">
-          <EditorWorkspace />
+          <EditorWorkspace isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} />
         </div>
       </div>
 

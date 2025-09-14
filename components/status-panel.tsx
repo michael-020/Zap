@@ -8,7 +8,7 @@ import { BuildStepType, statusType } from "@/stores/editorStore/types"
 import { TextArea } from "./text-area"
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
-import { StatusPanelSkeletons } from "./status-pannle-skeletons"
+import { StatusPanelSkeletons } from "./status-pannel-skeletons"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {

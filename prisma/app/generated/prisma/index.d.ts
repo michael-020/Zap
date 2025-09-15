@@ -4139,6 +4139,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     name: string | null
+    previewUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4147,6 +4148,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     name: string | null
+    previewUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
   }
@@ -4155,6 +4157,7 @@ export namespace Prisma {
     id: number
     userId: number
     name: number
+    previewUrl: number
     createdAt: number
     updatedAt: number
     _all: number
@@ -4165,6 +4168,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     name?: true
+    previewUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4173,6 +4177,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     name?: true
+    previewUrl?: true
     createdAt?: true
     updatedAt?: true
   }
@@ -4181,6 +4186,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     name?: true
+    previewUrl?: true
     createdAt?: true
     updatedAt?: true
     _all?: true
@@ -4262,6 +4268,7 @@ export namespace Prisma {
     id: string
     userId: string
     name: string
+    previewUrl: string | null
     createdAt: Date
     updatedAt: Date
     _count: ProjectCountAggregateOutputType | null
@@ -4287,6 +4294,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     name?: boolean
+    previewUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4298,6 +4306,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     name?: boolean
+    previewUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
     user?: boolean | UserDefaultArgs<ExtArgs>
@@ -4308,11 +4317,12 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     name?: boolean
+    previewUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "previewUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     chats?: boolean | Project$chatsArgs<ExtArgs>
@@ -4332,6 +4342,7 @@ export namespace Prisma {
       id: string
       userId: string
       name: string
+      previewUrl: string | null
       createdAt: Date
       updatedAt: Date
     }, ExtArgs["result"]["project"]>
@@ -4732,6 +4743,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Project", 'String'>
     readonly userId: FieldRef<"Project", 'String'>
     readonly name: FieldRef<"Project", 'String'>
+    readonly previewUrl: FieldRef<"Project", 'String'>
     readonly createdAt: FieldRef<"Project", 'DateTime'>
     readonly updatedAt: FieldRef<"Project", 'DateTime'>
   }
@@ -6171,6 +6183,7 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     name: 'name',
+    previewUrl: 'previewUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
   };
@@ -6439,6 +6452,7 @@ export namespace Prisma {
     id?: StringFilter<"Project"> | string
     userId?: StringFilter<"Project"> | string
     name?: StringFilter<"Project"> | string
+    previewUrl?: StringNullableFilter<"Project"> | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -6449,6 +6463,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    previewUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     user?: UserOrderByWithRelationInput
@@ -6462,6 +6477,7 @@ export namespace Prisma {
     NOT?: ProjectWhereInput | ProjectWhereInput[]
     userId?: StringFilter<"Project"> | string
     name?: StringFilter<"Project"> | string
+    previewUrl?: StringNullableFilter<"Project"> | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
     user?: XOR<UserScalarRelationFilter, UserWhereInput>
@@ -6472,6 +6488,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    previewUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
     _count?: ProjectCountOrderByAggregateInput
@@ -6486,6 +6503,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Project"> | string
     userId?: StringWithAggregatesFilter<"Project"> | string
     name?: StringWithAggregatesFilter<"Project"> | string
+    previewUrl?: StringNullableWithAggregatesFilter<"Project"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
   }
@@ -6718,6 +6736,7 @@ export namespace Prisma {
   export type ProjectCreateInput = {
     id?: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutProjectInput
@@ -6728,6 +6747,7 @@ export namespace Prisma {
     id?: string
     userId: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     chats?: ChatUncheckedCreateNestedManyWithoutProjectInput
@@ -6736,6 +6756,7 @@ export namespace Prisma {
   export type ProjectUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutProjectNestedInput
@@ -6746,6 +6767,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     chats?: ChatUncheckedUpdateManyWithoutProjectNestedInput
@@ -6755,6 +6777,7 @@ export namespace Prisma {
     id?: string
     userId: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -6762,6 +6785,7 @@ export namespace Prisma {
   export type ProjectUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -6770,6 +6794,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7047,6 +7072,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    previewUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7055,6 +7081,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    previewUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7063,6 +7090,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    previewUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
   }
@@ -7371,6 +7399,7 @@ export namespace Prisma {
   export type ProjectCreateWithoutUserInput = {
     id?: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     chats?: ChatCreateNestedManyWithoutProjectInput
@@ -7379,6 +7408,7 @@ export namespace Prisma {
   export type ProjectUncheckedCreateWithoutUserInput = {
     id?: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     chats?: ChatUncheckedCreateNestedManyWithoutProjectInput
@@ -7417,6 +7447,7 @@ export namespace Prisma {
     id?: StringFilter<"Project"> | string
     userId?: StringFilter<"Project"> | string
     name?: StringFilter<"Project"> | string
+    previewUrl?: StringNullableFilter<"Project"> | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
   }
@@ -7526,6 +7557,7 @@ export namespace Prisma {
   export type ProjectCreateWithoutChatsInput = {
     id?: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
     user: UserCreateNestedOneWithoutProjectInput
@@ -7535,6 +7567,7 @@ export namespace Prisma {
     id?: string
     userId: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7558,6 +7591,7 @@ export namespace Prisma {
   export type ProjectUpdateWithoutChatsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     user?: UserUpdateOneRequiredWithoutProjectNestedInput
@@ -7567,6 +7601,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }
@@ -7574,6 +7609,7 @@ export namespace Prisma {
   export type ProjectCreateManyUserInput = {
     id?: string
     name: string
+    previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
   }
@@ -7581,6 +7617,7 @@ export namespace Prisma {
   export type ProjectUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     chats?: ChatUpdateManyWithoutProjectNestedInput
@@ -7589,6 +7626,7 @@ export namespace Prisma {
   export type ProjectUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     chats?: ChatUncheckedUpdateManyWithoutProjectNestedInput
@@ -7597,6 +7635,7 @@ export namespace Prisma {
   export type ProjectUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
   }

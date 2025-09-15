@@ -33,13 +33,14 @@ model OTP {
 }
 
 model Project {
-  id        String   @id @default(uuid())
-  userId    String
-  user      User     @relation(fields: [userId], references: [id])
-  name      String
-  chats     Chat[]
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id         String   @id @default(uuid())
+  userId     String
+  user       User     @relation(fields: [userId], references: [id])
+  name       String
+  chats      Chat[]
+  previewUrl String?
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
 }
 
 model Chat {
@@ -48,7 +49,7 @@ model Chat {
   project   Project  @relation(fields: [projectId], references: [id])
   prompt    String
   response  String
-  images    String[] 
+  images    String[]
   createdAt DateTime @default(now())
 }
 

@@ -210,8 +210,10 @@ export async function POST(req: NextRequest) {
       model: "gemini-2.5-pro",
       messages: formattedMessages,
       stream: true,
-      max_completion_tokens: 800_000
+      max_completion_tokens: 100_000
     });
+
+    console.log("completion: ", completion);
     
     const encoder = new TextEncoder();
     const stream = new ReadableStream({
@@ -257,7 +259,7 @@ export async function POST(req: NextRequest) {
         );
       }
     }
-    
+
     return NextResponse.json(
       { msg: "Internal Server Error" },
       { status: 500 }

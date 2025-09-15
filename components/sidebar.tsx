@@ -2,7 +2,7 @@
 
 import { useEffect, useRef, useState } from 'react';
 import clsx from 'clsx';
-import { X } from 'lucide-react';
+import { Plus, X } from 'lucide-react';
 import { useRouter } from 'next/navigation';
 
 export interface Chat {
@@ -88,6 +88,16 @@ export default function RightSidebar({
       </div>
 
       <div className="p-4 space-y-4 overflow-y-auto custom-sidebar overflow-x-hidden h-[calc(100%-56px)]">
+        <button
+          className="w-full truncate flex items-center gap-2 bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
+          title="New Project"
+          onClick={() => {
+            router.push(`/chat`)
+            setIsOpenAction(false)
+          }}
+        >
+          <Plus className="size-4" /> <span>New Project</span>
+        </button>
         {loading ? (
           Array.from({ length: 6 }).map((_, index) => (
             <div
@@ -103,7 +113,10 @@ export default function RightSidebar({
               key={chat.id}
               className="w-full truncate bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
               title={chat.name}
-              onClick={() => router.push(`/chat/${chat.id}`)}
+              onClick={() => {
+                router.push(`/chat/${chat.id}`)
+                setIsOpenAction(false)
+              }}
             >
               {chat.name}
             </button>

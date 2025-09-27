@@ -154,6 +154,7 @@ exports.Prisma.ProjectScalarFieldEnum = {
 
 exports.Prisma.ChatScalarFieldEnum = {
   id: 'id',
+  description: 'description',
   projectId: 'projectId',
   prompt: 'prompt',
   response: 'response',

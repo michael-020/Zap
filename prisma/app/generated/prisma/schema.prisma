@@ -44,13 +44,14 @@ model Project {
 }
 
 model Chat {
-  id        String   @id @default(uuid())
-  projectId String
-  project   Project  @relation(fields: [projectId], references: [id])
-  prompt    String
-  response  String
-  images    String[]
-  createdAt DateTime @default(now())
+  id          String   @id @default(uuid())
+  description String?
+  projectId   String
+  project     Project  @relation(fields: [projectId], references: [id])
+  prompt      String
+  response    String
+  images      String[]
+  createdAt   DateTime @default(now())
 }
 
 enum AUTHOPTIONS {

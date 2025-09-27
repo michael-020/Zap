@@ -5158,6 +5158,7 @@ export namespace Prisma {
 
   export type ChatMinAggregateOutputType = {
     id: string | null
+    description: string | null
     projectId: string | null
     prompt: string | null
     response: string | null
@@ -5166,6 +5167,7 @@ export namespace Prisma {
 
   export type ChatMaxAggregateOutputType = {
     id: string | null
+    description: string | null
     projectId: string | null
     prompt: string | null
     response: string | null
@@ -5174,6 +5176,7 @@ export namespace Prisma {
 
   export type ChatCountAggregateOutputType = {
     id: number
+    description: number
     projectId: number
     prompt: number
     response: number
@@ -5185,6 +5188,7 @@ export namespace Prisma {
 
   export type ChatMinAggregateInputType = {
     id?: true
+    description?: true
     projectId?: true
     prompt?: true
     response?: true
@@ -5193,6 +5197,7 @@ export namespace Prisma {
 
   export type ChatMaxAggregateInputType = {
     id?: true
+    description?: true
     projectId?: true
     prompt?: true
     response?: true
@@ -5201,6 +5206,7 @@ export namespace Prisma {
 
   export type ChatCountAggregateInputType = {
     id?: true
+    description?: true
     projectId?: true
     prompt?: true
     response?: true
@@ -5283,6 +5289,7 @@ export namespace Prisma {
 
   export type ChatGroupByOutputType = {
     id: string
+    description: string | null
     projectId: string
     prompt: string
     response: string
@@ -5309,6 +5316,7 @@ export namespace Prisma {
 
   export type ChatSelect<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    description?: boolean
     projectId?: boolean
     prompt?: boolean
     response?: boolean
@@ -5319,6 +5327,7 @@ export namespace Prisma {
 
   export type ChatSelectCreateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
     id?: boolean
+    description?: boolean
     projectId?: boolean
     prompt?: boolean
     response?: boolean
@@ -5330,6 +5339,7 @@ export namespace Prisma {
 
   export type ChatSelectScalar = {
     id?: boolean
+    description?: boolean
     projectId?: boolean
     prompt?: boolean
     response?: boolean
@@ -5337,7 +5347,7 @@ export namespace Prisma {
     createdAt?: boolean
   }
 
-  export type ChatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "projectId" | "prompt" | "response" | "images" | "createdAt", ExtArgs["result"]["chat"]>
+  export type ChatOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "description" | "projectId" | "prompt" | "response" | "images" | "createdAt", ExtArgs["result"]["chat"]>
   export type ChatInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     project?: boolean | ProjectDefaultArgs<ExtArgs>
   }
@@ -5352,6 +5362,7 @@ export namespace Prisma {
     }
     scalars: $Extensions.GetPayloadResult<{
       id: string
+      description: string | null
       projectId: string
       prompt: string
       response: string
@@ -5752,6 +5763,7 @@ export namespace Prisma {
    */
   interface ChatFieldRefs {
     readonly id: FieldRef<"Chat", 'String'>
+    readonly description: FieldRef<"Chat", 'String'>
     readonly projectId: FieldRef<"Chat", 'String'>
     readonly prompt: FieldRef<"Chat", 'String'>
     readonly response: FieldRef<"Chat", 'String'>
@@ -6193,6 +6205,7 @@ export namespace Prisma {
 
   export const ChatScalarFieldEnum: {
     id: 'id',
+    description: 'description',
     projectId: 'projectId',
     prompt: 'prompt',
     response: 'response',
@@ -6513,6 +6526,7 @@ export namespace Prisma {
     OR?: ChatWhereInput[]
     NOT?: ChatWhereInput | ChatWhereInput[]
     id?: StringFilter<"Chat"> | string
+    description?: StringNullableFilter<"Chat"> | string | null
     projectId?: StringFilter<"Chat"> | string
     prompt?: StringFilter<"Chat"> | string
     response?: StringFilter<"Chat"> | string
@@ -6523,6 +6537,7 @@ export namespace Prisma {
 
   export type ChatOrderByWithRelationInput = {
     id?: SortOrder
+    description?: SortOrderInput | SortOrder
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
@@ -6536,6 +6551,7 @@ export namespace Prisma {
     AND?: ChatWhereInput | ChatWhereInput[]
     OR?: ChatWhereInput[]
     NOT?: ChatWhereInput | ChatWhereInput[]
+    description?: StringNullableFilter<"Chat"> | string | null
     projectId?: StringFilter<"Chat"> | string
     prompt?: StringFilter<"Chat"> | string
     response?: StringFilter<"Chat"> | string
@@ -6546,6 +6562,7 @@ export namespace Prisma {
 
   export type ChatOrderByWithAggregationInput = {
     id?: SortOrder
+    description?: SortOrderInput | SortOrder
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
@@ -6561,6 +6578,7 @@ export namespace Prisma {
     OR?: ChatScalarWhereWithAggregatesInput[]
     NOT?: ChatScalarWhereWithAggregatesInput | ChatScalarWhereWithAggregatesInput[]
     id?: StringWithAggregatesFilter<"Chat"> | string
+    description?: StringNullableWithAggregatesFilter<"Chat"> | string | null
     projectId?: StringWithAggregatesFilter<"Chat"> | string
     prompt?: StringWithAggregatesFilter<"Chat"> | string
     response?: StringWithAggregatesFilter<"Chat"> | string
@@ -6801,6 +6819,7 @@ export namespace Prisma {
 
   export type ChatCreateInput = {
     id?: string
+    description?: string | null
     prompt: string
     response: string
     images?: ChatCreateimagesInput | string[]
@@ -6810,6 +6829,7 @@ export namespace Prisma {
 
   export type ChatUncheckedCreateInput = {
     id?: string
+    description?: string | null
     projectId: string
     prompt: string
     response: string
@@ -6819,6 +6839,7 @@ export namespace Prisma {
 
   export type ChatUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
     images?: ChatUpdateimagesInput | string[]
@@ -6828,6 +6849,7 @@ export namespace Prisma {
 
   export type ChatUncheckedUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     projectId?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
@@ -6837,6 +6859,7 @@ export namespace Prisma {
 
   export type ChatCreateManyInput = {
     id?: string
+    description?: string | null
     projectId: string
     prompt: string
     response: string
@@ -6846,6 +6869,7 @@ export namespace Prisma {
 
   export type ChatUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
     images?: ChatUpdateimagesInput | string[]
@@ -6854,6 +6878,7 @@ export namespace Prisma {
 
   export type ChatUncheckedUpdateManyInput = {
     id?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     projectId?: StringFieldUpdateOperationsInput | string
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
@@ -7110,6 +7135,7 @@ export namespace Prisma {
 
   export type ChatCountOrderByAggregateInput = {
     id?: SortOrder
+    description?: SortOrder
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
@@ -7119,6 +7145,7 @@ export namespace Prisma {
 
   export type ChatMaxOrderByAggregateInput = {
     id?: SortOrder
+    description?: SortOrder
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
@@ -7127,6 +7154,7 @@ export namespace Prisma {
 
   export type ChatMinOrderByAggregateInput = {
     id?: SortOrder
+    description?: SortOrder
     projectId?: SortOrder
     prompt?: SortOrder
     response?: SortOrder
@@ -7475,6 +7503,7 @@ export namespace Prisma {
 
   export type ChatCreateWithoutProjectInput = {
     id?: string
+    description?: string | null
     prompt: string
     response: string
     images?: ChatCreateimagesInput | string[]
@@ -7483,6 +7512,7 @@ export namespace Prisma {
 
   export type ChatUncheckedCreateWithoutProjectInput = {
     id?: string
+    description?: string | null
     prompt: string
     response: string
     images?: ChatCreateimagesInput | string[]
@@ -7547,6 +7577,7 @@ export namespace Prisma {
     OR?: ChatScalarWhereInput[]
     NOT?: ChatScalarWhereInput | ChatScalarWhereInput[]
     id?: StringFilter<"Chat"> | string
+    description?: StringNullableFilter<"Chat"> | string | null
     projectId?: StringFilter<"Chat"> | string
     prompt?: StringFilter<"Chat"> | string
     response?: StringFilter<"Chat"> | string
@@ -7642,6 +7673,7 @@ export namespace Prisma {
 
   export type ChatCreateManyProjectInput = {
     id?: string
+    description?: string | null
     prompt: string
     response: string
     images?: ChatCreateimagesInput | string[]
@@ -7650,6 +7682,7 @@ export namespace Prisma {
 
   export type ChatUpdateWithoutProjectInput = {
     id?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
     images?: ChatUpdateimagesInput | string[]
@@ -7658,6 +7691,7 @@ export namespace Prisma {
 
   export type ChatUncheckedUpdateWithoutProjectInput = {
     id?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
     images?: ChatUpdateimagesInput | string[]
@@ -7666,6 +7700,7 @@ export namespace Prisma {
 
   export type ChatUncheckedUpdateManyWithoutProjectInput = {
     id?: StringFieldUpdateOperationsInput | string
+    description?: NullableStringFieldUpdateOperationsInput | string | null
     prompt?: StringFieldUpdateOperationsInput | string
     response?: StringFieldUpdateOperationsInput | string
     images?: ChatUpdateimagesInput | string[]

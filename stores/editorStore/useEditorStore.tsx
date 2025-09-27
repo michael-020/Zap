@@ -107,78 +107,78 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     }),
 
     // Add method to stream file content
-   streamFileContent: (path: string, chunk: string) =>
-    set((state) => {
-      // Don't stream to files that user has edited
-      if (state.userEditedFiles.has(path)) {
-        return state
-      }
-
-      // Only proceed if file is marked as streaming
-      if (!state.streamingFiles.get(path)) {
-        return state
-      }
-
-      // Update the fileItems array
-      const updatedFileItems = state.fileItems.map(item => {
-        if (item.path === path) {
-          const currentContent = item.content || ""
-          return { ...item, content: currentContent + chunk }
-        }
-        return item
-      })
-
-      return {
-        fileItems: updatedFileItems,
-      }
-    }),
-
-     startFileStreaming: (path: string) =>
-    set((state) => ({
-      streamingFiles: new Map(state.streamingFiles).set(path, true)
-    })),
-
-  // Method to reset streaming state when file is complete
-  completeFileStreaming: (path: string) =>
-    set((state) => ({
-      streamingFiles: new Map(state.streamingFiles).set(path, false)
-    })),
-
-  // Reset user edited state (call when starting new build)
-  resetUserEditedFiles: () =>
-    set({ userEditedFiles: new Set() }),
-
-    setFileItems: (items: FileItemFlat[]) => set({ fileItems: items }),
-    
-    // Removed setFiles method since we're not using files array anymore
-
-    addFile: (path: string, content: string = "") => {
+    streamFileContent: (path: string, chunk: string) =>
       set((state) => {
-        // Check if file already exists
-        const existingIndex = state.fileItems.findIndex(item => item.path === path)
-        
-        if (existingIndex >= 0) {
-          // Update existing file
-          const updatedFileItems = [...state.fileItems]
-          updatedFileItems[existingIndex] = {
-            ...updatedFileItems[existingIndex],
-            content
-          }
-          return { fileItems: updatedFileItems }
-        } else {
-          // Add new file
-          const newFileItem: FileItemFlat = {
-            name: path.split("/").pop() || path,
-            path,
-            type: "file",
-            content,
-          }
-          return {
-            fileItems: [...state.fileItems, newFileItem],
-          }
+        // Don't stream to files that user has edited
+        if (state.userEditedFiles.has(path)) {
+          return state
         }
-      })
-    },
+
+        // Only proceed if file is marked as streaming
+        if (!state.streamingFiles.get(path)) {
+          return state
+        }
+
+        // Update the fileItems array
+        const updatedFileItems = state.fileItems.map(item => {
+          if (item.path === path) {
+            const currentContent = item.content || ""
+            return { ...item, content: currentContent + chunk }
+          }
+          return item
+        })
+
+        return {
+          fileItems: updatedFileItems,
+        }
+      }),
+
+    startFileStreaming: (path: string) =>
+      set((state) => ({
+        streamingFiles: new Map(state.streamingFiles).set(path, true)
+      })),
+
+    // Method to reset streaming state when file is complete
+    completeFileStreaming: (path: string) =>
+      set((state) => ({
+        streamingFiles: new Map(state.streamingFiles).set(path, false)
+      })),
+
+    // Reset user edited state (call when starting new build)
+    resetUserEditedFiles: () =>
+      set({ userEditedFiles: new Set() }),
+
+      setFileItems: (items: FileItemFlat[]) => set({ fileItems: items }),
+      
+      // Removed setFiles method since we're not using files array anymore
+
+      addFile: (path: string, content: string = "") => {
+        set((state) => {
+          // Check if file already exists
+          const existingIndex = state.fileItems.findIndex(item => item.path === path)
+          
+          if (existingIndex >= 0) {
+            // Update existing file
+            const updatedFileItems = [...state.fileItems]
+            updatedFileItems[existingIndex] = {
+              ...updatedFileItems[existingIndex],
+              content
+            }
+            return { fileItems: updatedFileItems }
+          } else {
+            // Add new file
+            const newFileItem: FileItemFlat = {
+              name: path.split("/").pop() || path,
+              path,
+              type: "file",
+              content,
+            }
+            return {
+              fileItems: [...state.fileItems, newFileItem],
+            }
+          }
+        })
+      },
 
     addFileItem: (item: FileItemFlat) =>
       set((state) => {

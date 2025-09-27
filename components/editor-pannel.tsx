@@ -103,9 +103,21 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
           if (contentDiff > 50 || file.content !== lastStreamedContentRef.current) {
             setEditorValue(file.content)
             lastStreamedContentRef.current = file.content
+            // Format after content update
+            if (editorRef.current) {
+              setTimeout(() => {
+                editorRef.current.trigger('source', 'editor.action.formatDocument');
+              }, 100)
+            }
           }
         } else {
           setEditorValue(file.content)
+          // Format non-streaming content
+          if (editorRef.current) {
+            setTimeout(() => {
+              editorRef.current.trigger('source', 'editor.action.formatDocument');
+            }, 100)
+          }
         }
       }
     }
@@ -148,9 +160,10 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
       noSuggestionDiagnostics: true,
     })
     
-    // Set initial value
+    // Set initial value and format
     if (file?.content !== undefined) {
       setEditorValue(file.content)
+      editor.trigger('source', 'editor.action.formatDocument');
     }
   }, [file?.content])
 
@@ -242,6 +255,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             links: false,
             colorDecorators: false,
             codeLens: false,
+            autoIndent: "full"
           }}
         />
       </div>

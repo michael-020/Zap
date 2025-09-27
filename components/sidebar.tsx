@@ -10,6 +10,7 @@ export interface Chat {
   message: string;
   userId: string;
   name: string;
+  previewUrl?: string;
   createdAt: Date;
   updatedAt: Date;
 }

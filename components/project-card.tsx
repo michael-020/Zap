@@ -33,15 +33,6 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
         }
     }
 
-    // Get project initials for avatar
-    const getInitials = (name: string) => {
-        return name
-            .split(' ')
-            .map(word => word.charAt(0).toUpperCase())
-            .slice(0, 2)
-            .join('')
-    }
-
     const handleNameClick = (e: React.MouseEvent) => {
         e.stopPropagation()
         router.push(`/chat/${chat.id}`)
@@ -76,27 +67,31 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
     return (
         <>
             <div className="group relative bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-600 transition-all duration-200">
-                {/* Card Header */}
+                {/* Iframe Section */}
+                <div className="w-full h-48 rounded-t-xl bg-neutral-100 dark:bg-neutral-700">
+                    <img
+                        src={chat.previewUrl}
+                        alt="Project Preview"
+                        title="Project Preview"
+                        crossOrigin="anonymous" 
+                        className="rounded-t-xl size-full object-contain"
+                    />
+                </div>
+
+                {/* Card Content */}
                 <div className="p-4">
                     <div className="flex items-start justify-between">
-                        <div className="flex items-center space-x-3 flex-1 min-w-0">
-                            {/* Project Avatar */}
-                            <button onClick={handleNameClick} className="w-10 h-10 bg-neutral-700 rounded-lg flex items-center justify-center text-white font-semibold text-sm flex-shrink-0">
-                                {getInitials(chat.name)}
-                            </button>
-                            
+                        <div className="flex-1 min-w-0">
                             {/* Project Info */}
-                            <div className="flex-1 min-w-0">
-                                <h3 
-                                    className="text-sm font-semibold text-neutral-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
-                                    onClick={handleNameClick}
-                                >
-                                    {chat.name}
-                                </h3>
-                                <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                                    {formatDate(chat.updatedAt?.toString() || chat.createdAt?.toString())}
-                                </p>
-                            </div>
+                            <h3 
+                                className="text-sm font-semibold text-neutral-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
+                                onClick={handleNameClick}
+                            >
+                                {chat.name}
+                            </h3>
+                            <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
+                                {formatDate(chat.updatedAt?.toString() || chat.createdAt?.toString())}
+                            </p>
                         </div>
 
                         {/* Menu Button */}
@@ -137,8 +132,6 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
                         </div>
                     </div>
                 </div>
-
-                
 
                 {/* Hover Effect */}
                 <div className="absolute inset-0 bg-neutral-700/10 opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none" />

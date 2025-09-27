@@ -2,7 +2,7 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server"
 import puppeteer, { Page } from "puppeteer";
 
-async function takeFullPageScreenshot(page: Page, url: string) {
+export async function takeFullPageScreenshot(page: Page, url: string) {
   try {
     // Set viewport to a reasonable size
     await page.setViewport({
@@ -46,7 +46,7 @@ async function takeFullPageScreenshot(page: Page, url: string) {
 }
 
 // Function to auto-scroll and trigger lazy loading
-async function autoScroll(page: Page) {
+export async function autoScroll(page: Page) {
   await page.evaluate(async () => {
     await new Promise<void>((resolve) => {
       let totalHeight = 0;
@@ -71,7 +71,7 @@ async function autoScroll(page: Page) {
 }
 
 // Function to dismiss common popups and modals
-async function dismissPopups(page: Page) {
+export async function dismissPopups(page: Page) {
   try {
     // Common selectors for close buttons, overlays, and popups
     const popupSelectors = [

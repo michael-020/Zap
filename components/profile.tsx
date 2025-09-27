@@ -7,6 +7,7 @@ import Navbar from "./navbar"
 import ProjectCard from "./project-card"
 import ProjectCardSkeleton from "./project-card-skeleton"
 import { useRouter } from "next/navigation"
+import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 
 export function Profile() {
     const [chats, setChats] = useState<Chat[] | null>(null)
@@ -14,8 +15,13 @@ export function Profile() {
     const [isOpen, setIsOpen] = useState(false);
     const [isHovered, setIsHovered] = useState(false);
     const router = useRouter()
+    const { clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap } = useEditorStore()
 
     const handleBackToInitializer = () => {
+        clearBuildSteps()
+        setFileItems([])
+        setSelectedFile(null)
+        clearPromptStepsMap()
         router.push("/chat")
     }
 

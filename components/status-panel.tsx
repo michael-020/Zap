@@ -225,7 +225,7 @@ export function StatusPanel() {
   return (
     <div className="h-[calc(100vh-60px)] flex flex-col overflow-x-hidden">
       <div className="flex-1 overflow-x-hidden flex-wrap p-4 space-y-4 custom-scrollbar">
-        {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images }]) => (
+        {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images, description }]) => (
           <div key={promptIndex} className="space-y-3">
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
               <div className="grid grid-cols-3 gap-2">
@@ -258,6 +258,13 @@ export function StatusPanel() {
                   {prompt}
                 </p>
               </div>
+              {description && (
+                <div className="bg-neutral-900 rounded-lg p-4 border border-neutral-700">
+                  <p className="text-sm text-neutral-400 leading-relaxed">
+                    {description}
+                  </p>
+                </div>
+              )}
               <button
                 onClick={() => handleCopy(prompt, promptIndex)}
                 className="p-1 hover:text-white text-gray-400 transition-colors"

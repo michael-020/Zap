@@ -455,6 +455,10 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         // Separate map for tracking file completion - this one uses objects
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
 
+        const descriptionRegex = /^([\s\S]*?)<mirrorArtifeact/;
+        
+        let description = "";
+        
         while (!done) {
           const { value, done: readerDone } = await reader.read();
           done = readerDone;
@@ -463,6 +467,28 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             const chunk = decoder.decode(value);
             buffer += chunk;
             fullResponse += chunk;
+
+            // Try to extract description if we haven't yet
+            if (!description) {
+              const descMatch = descriptionRegex.exec(buffer);
+              if (descMatch) {
+                description = descMatch[1].trim();
+                // Update promptStepsMap with description
+                set(state => {
+                  const newMap = new Map(state.promptStepsMap);
+                  const existing = newMap.get(currentPromptIndex) || { 
+                    prompt, 
+                    steps: [],
+                    images: images || []
+                  };
+                  newMap.set(currentPromptIndex, {
+                    ...existing,
+                    description
+                  });
+                  return { promptStepsMap: newMap };
+                });
+              }
+            }
 
             // Process streaming content for files that are still streaming
             fileCompletionTracker.forEach((fileData, filePath) => {
@@ -595,7 +621,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
         get().setMessages(fullResponse);
       } catch (err) {
-        console.error("Error during build:", err)
+        console.error("Error during build:", err);
         toast.error("Error while building project")
         set({ isProcessing: false })
         hasErrorOccured = true
@@ -690,6 +716,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         // Separate map for tracking file completion - this one uses objects
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
 
+        // Extract description from the start of the response
+        const descriptionRegex = /^([\s\S]*?)<mirrorArtifeact/;
+        
+        let description = "";
+        
         while (!done) {
           const { value, done: readerDone } = await reader.read();
           done = readerDone;
@@ -698,6 +729,28 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             const chunk = decoder.decode(value);
             buffer += chunk;
             fullResponse += chunk;
+
+            // Try to extract description if we haven't yet
+            if (!description) {
+              const descMatch = descriptionRegex.exec(buffer);
+              if (descMatch) {
+                description = descMatch[1].trim();
+                // Update promptStepsMap with description
+                set(state => {
+                  const newMap = new Map(state.promptStepsMap);
+                  const existing = newMap.get(currentPromptIndex) || { 
+                    prompt, 
+                    steps: [],
+                    images: images || []
+                  };
+                  newMap.set(currentPromptIndex, {
+                    ...existing,
+                    description
+                  });
+                  return { promptStepsMap: newMap };
+                });
+              }
+            }
 
             // Process streaming content for files that are still streaming
             fileCompletionTracker.forEach((fileData, filePath) => {
@@ -851,30 +904,47 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         setShellCommand,
         resetUserEditedFiles,
         clearBuildSteps,
-        setUpWebContainer
+        setUpWebContainer,
+        webcontainer
       } = get()
-      await new Promise(r => setTimeout(r, 3000))
-      setUpWebContainer()
+      
+      if(!webcontainer)
+        setUpWebContainer()
       // Reset store state
       clearBuildSteps()
       resetUserEditedFiles()
-    
+
       const allSteps: BuildStep[] = []
       const allMessages: string[] = []
 
       chatData.forEach((chat, promptIndex) => {
-        set((state) => ({
-          inputPrompts: [...state.inputPrompts, chat.prompt]
-        }))
-    
-        const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g
-        let match
-        const promptSteps: BuildStep[] = []
-    
+        // First, extract any content before the first <mirrorArtifeact> tag
+        const descriptionMatch = chat.response.match(/^([\s\S]*?)(?:<mirrorArtifeact|$)/);
+        const description = descriptionMatch?.[1]?.trim() || "";
+        
+        // Initialize the prompt mapping first with description
+        set((state) => {
+          const newMap = new Map(state.promptStepsMap);
+          newMap.set(promptIndex, {
+            prompt: chat.prompt,
+            steps: [],
+            images: chat.images || [],
+            description // Add description here
+          });
+          return { 
+            promptStepsMap: newMap,
+            inputPrompts: [...state.inputPrompts, chat.prompt]
+          };
+        });
+
+        const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g;
+        let match;
+        const promptSteps: BuildStep[] = [];
+
         while ((match = actionRegex.exec(chat.response)) !== null) {
-          const [, type, filePath, content] = match
-          const code = content.trim()
-    
+          const [, type, filePath, content] = match;
+          const code = content.trim();
+
           if (type === "file" && filePath) {
             const step: BuildStep = {
               id: crypto.randomUUID(),
@@ -884,22 +954,21 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               status: statusType.Completed,
               code,
               path: filePath,
-            }
-    
-            addFile(filePath, code)
-    
+            };
+
+            addFile(filePath, code);
             addFileItem({
               name: filePath.split("/").pop() || filePath,
               path: filePath,
               type: "file",
               content: code
-            })
-    
-            promptSteps.push(step)
-            allSteps.push(step)
+            });
+
+            promptSteps.push(step);
+            allSteps.push(step);
             get().executeSteps([step])
           }
-    
+
           if (type === "shell") {
             const step: BuildStep = {
               id: crypto.randomUUID(),
@@ -908,26 +977,28 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               type: BuildStepType.RunScript,
               status: statusType.InProgress,
               code,
-            }
-    
-            setShellCommand(code)
-    
-            promptSteps.push(step)
-            allSteps.push(step)
+            };
+
+            setShellCommand(code);
+            promptSteps.push(step);
+            allSteps.push(step);
             get().executeSteps([step])
           }
         }
       
+        // Update the prompt mapping with steps after processing
         set((state) => {
-          const newMap = new Map(state.promptStepsMap)
-          newMap.set(promptIndex, {
-            prompt: chat.prompt,
-            steps: promptSteps,
-            images: chat.images
-          })
-          return { promptStepsMap: newMap }
-        })
-    
+          const newMap = new Map(state.promptStepsMap);
+          const existing = newMap.get(promptIndex);
+          if (existing) {
+            newMap.set(promptIndex, {
+              ...existing,
+              steps: promptSteps
+            });
+          }
+          return { promptStepsMap: newMap };
+        });
+
         allMessages.push(chat.response)
       })
       

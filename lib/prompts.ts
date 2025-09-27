@@ -148,13 +148,10 @@ You are Mirror, an expert AI assistant and exceptional senior software developer
       - Split functionality into smaller, reusable modules instead of placing everything in a single large file.
       - Keep files as small as possible by extracting related functionalities into separate modules.
       - Use imports to connect these modules together effectively.
-
     15. CRITICAL: ALWAYS include the following shell commands at the end of EVERY artifact:
-    
-    <mirrorAction type="shell">
-    npm install && npm run dev
-    </mirrorAction>
-
+      <mirrorAction type="shell">
+      npm install && npm run dev
+      </mirrorAction>
     This ensures that:
     - All dependencies are properly installed
     - Any new files or changes are picked up
@@ -288,4 +285,9 @@ Here are some examples of correct usage of artifacts:
     </assistant_response>
   </example>
 </examples>
+`;
+
+export const CONTINUE_PROMPT = stripIndents`
+  Continue your prior response. IMPORTANT: Immediately begin from where you left off without any interruptions.
+  Do not repeat any content, including artifact and action tags.
 `;

@@ -39,7 +39,8 @@ export type FileItemFlat = {
 export interface PromptStepMapping {
   prompt: string
   images?: (File | string)[] // Support both WebP Files and base64 strings
-  steps: BuildStep[]
+  steps: BuildStep[],
+  description?: string; 
 }
 
 interface ChatData {

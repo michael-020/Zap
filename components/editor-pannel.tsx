@@ -1,11 +1,9 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useEffect, useState, useRef, useCallback } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import Editor from '@monaco-editor/react';
-import dynamic from 'next/dynamic';
-
-const MonacoEditor = dynamic(() => import('@monaco-editor/react'), { ssr: false });
 
 interface EditorPanelProps {
   filePath: string
@@ -104,20 +102,12 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             setEditorValue(file.content)
             lastStreamedContentRef.current = file.content
             // Format after content update
-            if (editorRef.current) {
-              setTimeout(() => {
-                editorRef.current.trigger('source', 'editor.action.formatDocument');
-              }, 100)
-            }
+            
           }
         } else {
           setEditorValue(file.content)
           // Format non-streaming content
-          if (editorRef.current) {
-            setTimeout(() => {
-              editorRef.current.trigger('source', 'editor.action.formatDocument');
-            }, 100)
-          }
+          
         }
       }
     }
@@ -163,7 +153,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     // Set initial value and format
     if (file?.content !== undefined) {
       setEditorValue(file.content)
-      editor.trigger('source', 'editor.action.formatDocument');
+
     }
   }, [file?.content])
 

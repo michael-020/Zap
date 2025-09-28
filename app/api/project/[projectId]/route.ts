@@ -3,7 +3,6 @@ import { authOptions } from "@/lib/server/authOptions";
 import { getServerSession } from "next-auth";
 import { NextResponse } from "next/server";
 import puppeteer from "puppeteer";
-import { takeFullPageScreenshot } from "../../get-images/route";
 import cloudinary from "@/lib/server/cloudinary";
 
 export async function DELETE(

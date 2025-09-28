@@ -7,9 +7,10 @@ import { authOptions } from "@/lib/server/authOptions";
 
 const chatSchema = z.object({
   prompt: z.string(),
-  response: z.array(z.string()),
+  response: z.union([z.string(), z.array(z.string())]),
   projectId: z.string(),
   images: z.array(z.string()).optional(),
+  description: z.string().optional()
 });
 
 export async function POST(req: NextRequest) {
@@ -32,7 +33,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const { prompt, response, projectId, images } = validatedSchema.data;
+    const { prompt, response, projectId, images, description } = validatedSchema.data;
 
     let imageUrls: string[] = [];
     if(images){
@@ -47,9 +48,10 @@ export async function POST(req: NextRequest) {
     await prisma.chat.create({
       data: {
         prompt,
-        response: response.join("\n"),
+        response: Array.isArray(response) ? response.join("\n") : response,
         projectId,
-        images: imageUrls
+        images: imageUrls,
+        ...(description ? { description } : {})
       },
     });
 

@@ -49,6 +49,7 @@ interface ChatData {
   prompt: string
   response: string
   images?: string[] // Always stored as base64 strings in database
+  description?: string 
   createdAt: string
 }
 

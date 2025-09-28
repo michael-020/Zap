@@ -330,6 +330,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
       set({ isInitialising: true })
       let url = ""
+      let desc = ""
       let hasErrorOccured = false
       const currentPromptIndex = get().inputPrompts.length
       try {
@@ -614,6 +615,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           }
         }
 
+        desc = description
+
         // Mark all files as no longer streaming
         fileCompletionTracker.forEach((_, filePath) => {
           get().completeFileStreaming(filePath);
@@ -658,7 +661,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             prompt,
             response: get().messages,
             projectId: get().projectId,
-            images: imagesToStore
+            images: imagesToStore,
+            description: desc
           })
         } catch (error) {
           console.error("Error while storing chats: ", error)
@@ -918,9 +922,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       const allMessages: string[] = []
 
       chatData.forEach((chat, promptIndex) => {
-        // First, extract any content before the first <mirrorArtifeact> tag
-        const descriptionMatch = chat.response.match(/^([\s\S]*?)(?:<mirrorArtifeact|$)/);
-        const description = descriptionMatch?.[1]?.trim() || "";
         
         // Initialize the prompt mapping first with description
         set((state) => {
@@ -929,7 +930,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             prompt: chat.prompt,
             steps: [],
             images: chat.images || [],
-            description // Add description here
+            description: chat.description
           });
           return { 
             promptStepsMap: newMap,

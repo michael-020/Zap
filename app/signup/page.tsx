@@ -24,7 +24,7 @@ export default function SignUpPage() {
       redirect("/verify-email")
     }
     if(session){
-      redirect("/home")
+      redirect("/chat")
     }
   }, [session, inputEmail]);
 

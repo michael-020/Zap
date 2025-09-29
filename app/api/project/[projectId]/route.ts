@@ -1,7 +1,7 @@
 import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/server/authOptions";
 import { getServerSession } from "next-auth";
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import puppeteer from "puppeteer";
 import cloudinary from "@/lib/server/cloudinary";
 

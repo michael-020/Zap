@@ -5,7 +5,7 @@ import { redirect } from 'next/navigation'
 export default async function Landing() {
   const session = await getServerSession(authOptions)
   if(session)
-    redirect("/home")
+    redirect("/chat")
 
   return (
     <main className='p-4 space-y-4'>

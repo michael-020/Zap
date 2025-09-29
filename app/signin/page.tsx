@@ -21,7 +21,7 @@ export default function SignInPage() {
 
   useEffect(() => {
     if(session) {
-      redirect("/home");
+      redirect("/chat");
     }
 
     const error = searchParams.get("error");

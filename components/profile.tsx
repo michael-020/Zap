@@ -82,24 +82,26 @@ export function Profile() {
                 showPanelToggle={true} 
                 showBackButton={true}
             />
-            
             <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 {/* Header Section with Selection Toggle */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-white mb-2">
-                            My Projects
+                            My Chats
                         </h1>
                         <p className="text-neutral-300">
-                            Manage and explore your previous projects
+                            Manage and explore your previous Chats
                         </p>
                     </div>
-                    <button
-                        onClick={() => setIsSelectionMode(!isSelectionMode)}
-                        className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
-                    >
-                        {isSelectionMode ? 'Cancel Selection' : 'Select Projects'}
-                    </button>
+                    {/* Only show Select Projects button if there are projects */}
+                    {!isLoading && projects && projects.length > 0 && (
+                        <button
+                            onClick={() => setIsSelectionMode(!isSelectionMode)}
+                            className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
+                        >
+                            {isSelectionMode ? 'Cancel Selection' : 'Select Chats'}
+                        </button>
+                    )}
                 </div>
 
                 {/* Projects Content */}
@@ -123,11 +125,17 @@ export function Profile() {
                             </svg>
                         </div>
                         <h3 className="text-lg font-medium text-white mb-2">
-                            No projects yet
+                            No chats yet
                         </h3>
-                        <p className="text-neutral-400 text-center max-w-sm">
+                        <p className="text-neutral-400 text-center max-w-sm mb-6">
                             Start a new conversation to create your first project
                         </p>
+                        <button
+                            onClick={() => router.push('/chat')}
+                            className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
+                        >
+                            New Chat
+                        </button>
                     </div>
                 )}
             </div>

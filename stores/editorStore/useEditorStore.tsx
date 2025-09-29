@@ -507,6 +507,33 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                     contentToStream = buffer.substring(contentStart, closingIndex);
                   }
                   
+                  // Remove leading/trailing whitespace and normalize indentation
+                  // But only do this once at the start (when fileData.content is empty)
+                  if (fileData.content.length === 0) {
+                    // Remove leading newline and whitespace
+                    contentToStream = contentToStream.replace(/^\s*\n/, '');
+                    
+                    // Find the minimum indentation to remove
+                    const lines = contentToStream.split('\n');
+                    const nonEmptyLines = lines.filter(line => line.trim().length > 0);
+                    
+                    if (nonEmptyLines.length > 0) {
+                      const minIndent = Math.min(
+                        ...nonEmptyLines.map(line => {
+                          const match = line.match(/^(\s*)/);
+                          return match ? match[1].length : 0;
+                        })
+                      );
+                      
+                      // Remove the base indentation from all lines
+                      if (minIndent > 0) {
+                        contentToStream = lines
+                          .map(line => line.substring(minIndent))
+                          .join('\n');
+                      }
+                    }
+                  }
+                  
                   // Only stream the new content that wasn't streamed before
                   const previousLength = fileData.content.length;
                   if (contentToStream.length > previousLength) {
@@ -567,13 +594,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               }
 
               if (type === "shell") {
+                const decodedCode = code.replace(/&amp;/g, '&');
                 const step: BuildStep = {
                   id: crypto.randomUUID(),
                   title: "Run shell command",
-                  description: code,
+                  description: decodedCode, // Use decoded version
                   type: BuildStepType.RunScript,
                   status: statusType.InProgress,
-                  code,
+                  code: decodedCode, // Use decoded version
                 };
 
                 set(state => {
@@ -832,13 +860,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               }
 
               if (type === "shell") {
+                const decodedCode = code.replace(/&amp;/g, '&'); // Add this line to decode HTML entities
                 const step: BuildStep = {
                   id: crypto.randomUUID(),
                   title: "Run shell command",
-                  description: code,
+                  description: decodedCode, // Use decoded version
                   type: BuildStepType.RunScript,
                   status: statusType.InProgress,
-                  code,
+                  code: decodedCode, // Use decoded version
                 };
 
                 set(state => {

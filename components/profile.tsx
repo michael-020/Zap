@@ -8,7 +8,7 @@ import ProjectsList from "./projects-list"
 import ProjectCardSkeleton from "./project-card-skeleton"
 import { useRouter } from "next/navigation"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
-import { Project } from "@/types/project"
+import { Project } from "./project-card"
 
 export function Profile() {
     const [projects, setProjects] = useState<Project[] | null>(null)

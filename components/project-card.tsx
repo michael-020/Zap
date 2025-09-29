@@ -1,14 +1,32 @@
+/* eslint-disable @next/next/no-img-element */
 import { useState } from "react"
-import { Chat } from "./sidebar"
 import { useRouter } from "next/navigation"
 import ProjectModal from "./project-modal"
 
+export interface Project {
+  id: string
+  name: string
+  previewUrl?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userId: string
+}
+
 interface ProjectCardProps {
-    chat: Chat
+    project: Project
+    isSelected?: boolean
+    showCheckbox?: boolean
+    onSelect?: () => void
     onUpdate?: () => void
 }
 
-export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
+export default function ProjectCard({ 
+    project, 
+    isSelected, 
+    showCheckbox,
+    onSelect, 
+    onUpdate 
+}: ProjectCardProps) {
     const [isMenuOpen, setIsMenuOpen] = useState(false)
     const [modalState, setModalState] = useState<{
         isOpen: boolean
@@ -35,7 +53,7 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
 
     const handleNameClick = (e: React.MouseEvent) => {
         e.stopPropagation()
-        router.push(`/chat/${chat.id}`)
+        router.push(`/chat/${project.id}`)
     }
 
     const handleMenuClick = (e: React.MouseEvent) => {
@@ -64,13 +82,35 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
         closeModal()
     }
 
+    // Add a checkbox for selection
+    const handleCheckboxClick = (e: React.MouseEvent) => {
+        e.stopPropagation()
+        onSelect?.()
+    }
+
     return (
         <>
-            <div className="group relative bg-white dark:bg-neutral-800 rounded-xl shadow-sm border border-neutral-200 dark:border-neutral-700 hover:shadow-lg hover:border-neutral-300 dark:hover:border-neutral-600 transition-all duration-200">
+            <div className={`group relative ${isSelected ? 'ring-2 ring-blue-500' : ''}`}>
+                {/* Selection checkbox */}
+                {showCheckbox && (
+                    <div className="absolute top-2 left-2 z-10">
+                        <button
+                            onClick={handleCheckboxClick}
+                            className="w-5 h-5 rounded border border-neutral-600 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 transition-colors"
+                        >
+                            {isSelected && (
+                                <svg className="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
+                                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                                </svg>
+                            )}
+                        </button>
+                    </div>
+                )}
+
                 {/* Iframe Section */}
                 <div className="w-full h-48 rounded-t-xl bg-neutral-100 dark:bg-neutral-700">
                     <img
-                        src={chat.previewUrl}
+                        src={project.previewUrl!}
                         alt="Project Preview"
                         title="Project Preview"
                         crossOrigin="anonymous" 
@@ -87,10 +127,10 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
                                 className="text-sm font-semibold text-neutral-900 dark:text-white truncate hover:text-blue-600 dark:hover:text-blue-400 transition-colors cursor-pointer"
                                 onClick={handleNameClick}
                             >
-                                {chat.name}
+                                {project.name}
                             </h3>
                             <p className="text-xs text-neutral-500 dark:text-neutral-400 mt-1">
-                                {formatDate(chat.updatedAt?.toString() || chat.createdAt?.toString())}
+                                {formatDate(project.updatedAt?.toString() || project.createdAt?.toString())}
                             </p>
                         </div>
 
@@ -142,8 +182,8 @@ export default function ProjectCard({ chat, onUpdate }: ProjectCardProps) {
                 isOpen={modalState.isOpen}
                 onClose={closeModal}
                 mode={modalState.mode}
-                projectId={chat.id}
-                projectName={chat.name}
+                projectId={project.id}
+                projectName={project.name}
                 onSuccess={handleModalSuccess}
             />
         </>

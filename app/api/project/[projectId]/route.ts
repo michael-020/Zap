@@ -6,61 +6,64 @@ import puppeteer from "puppeteer";
 import cloudinary from "@/lib/server/cloudinary";
 
 export async function DELETE(
-    req: NextResponse,
-    { params }: { params: Promise<{ projectId: string }> }
-){
+    req: NextRequest,
+    { params }: { params: { projectId: string } }
+) {
     try {
-        const session = await getServerSession(authOptions)
-        if(!session || !session.user){
+        const session = await getServerSession(authOptions);
+        if (!session || !session.user) {
             return NextResponse.json(
                 { msg: "You are not authorised to access this endpoint" },
-                { status: 401}
-            )
-        }
-
-        const { projectId } = await params
-
-         const project = await prisma.project.findUnique({
-            where: {
-                id: projectId
-            },
-            include: {
-                chats: true 
-            }
-        });
-
-        if (!project) {
-            return NextResponse.json(
-                { msg: "Project not found" },
-                { status: 400 }
+                { status: 401 }
             );
         }
 
-        if (project.chats.length > 0) {
-            await prisma.chat.deleteMany({
-                where: {
-                    projectId
-                }
-            });
-        }
+        // Handle both single and multiple project IDs
+        const projectIds = params.projectId.split(',');
 
-        await prisma.project.delete({
+        // Ensure all projects exist and belong to the user
+        const projects = await prisma.project.findMany({
             where: {
-                id: projectId
+                id: { in: projectIds },
+                userId: session.user.id // Add user check for security
             }
         });
 
-        return NextResponse.json(
-            { msg: "Project deleted successfully" }
-        );
+        const existingProjectIds = projects.map(project => project.id);
+        const notFoundIds = projectIds.filter(id => !existingProjectIds.includes(id));
+
+        if (notFoundIds.length > 0) {
+            return NextResponse.json(
+                { msg: `Projects with IDs ${notFoundIds.join(", ")} not found` },
+                { status: 404 }
+            );
+        }
+
+        // Delete associated chats first
+        await prisma.chat.deleteMany({
+            where: {
+                projectId: { in: existingProjectIds }
+            }
+        });
+
+        // Delete the projects
+        await prisma.project.deleteMany({
+            where: {
+                id: { in: existingProjectIds },
+                userId: session.user.id
+            }
+        });
+
+        return NextResponse.json({ msg: "Projects deleted successfully" });
     } catch (error) {
-        console.error("Error while deleting project", error)
+        console.error("Error while deleting projects:", error);
         return NextResponse.json(
             { msg: "Internal server error" },
             { status: 500 }
-        )
+        );
     }
 }
+
 
 
 export async function PUT(

@@ -6,8 +6,8 @@ interface ProjectModalProps {
     isOpen: boolean
     onClose: () => void
     mode: 'delete' | 'rename'
-    projectId: string
-    projectName: string
+    projectId: string | string[] // Updated to support array of IDs
+    projectName: string | string[] // Updated to support array of names
     onSuccess?: () => void
 }
 
@@ -20,7 +20,7 @@ export default function ProjectModal({
     onSuccess 
 }: ProjectModalProps) {
     const [isLoading, setIsLoading] = useState(false)
-    const [newName, setNewName] = useState(projectName)
+    const [newName, setNewName] = useState(typeof projectName === 'string' ? projectName : '')
     const [mounted, setMounted] = useState(false)
 
     useEffect(() => {
@@ -29,7 +29,9 @@ export default function ProjectModal({
     }, [])
 
     useEffect(() => {
-        setNewName(projectName)
+        if (typeof projectName === 'string') {
+            setNewName(projectName)
+        }
     }, [projectName])
 
     useEffect(() => {
@@ -45,16 +47,17 @@ export default function ProjectModal({
     }, [isOpen])
 
     const handleDelete = async () => {
-        setIsLoading(true)
+        setIsLoading(true);
         try {
-            await axiosInstance.delete(`/api/project/${projectId}`)
-            onSuccess?.()
-            onClose()
+            const projectIds = Array.isArray(projectId) ? projectId : [projectId];
+            await axiosInstance.delete(`/api/project/${projectIds.join(',')}`);
+            onSuccess?.();
+            onClose();
         } catch (error) {
-            console.error("Failed to delete project:", error)
+            console.error("Failed to delete project(s):", error);
             // You can add toast notification here
         } finally {
-            setIsLoading(false)
+            setIsLoading(false);
         }
     }
 
@@ -128,10 +131,18 @@ export default function ProjectModal({
                         <div className="px-6 py-4">
                             {mode === 'delete' ? (
                                 <div>
-                                    <p className="text-neutral-300 mb-4">
-                                        Are you sure you want to delete <span className="font-semibold text-white">{projectName}</span>? 
-                                        This action cannot be undone.
-                                    </p>
+                                    {/* Update the delete confirmation message */}
+                                    {Array.isArray(projectName) ? (
+                                        <p className="text-neutral-300 mb-4">
+                                            Are you sure you want to delete <span className="font-semibold text-white">{projectName.length} selected projects</span>? 
+                                            This action cannot be undone.
+                                        </p>
+                                    ) : (
+                                        <p className="text-neutral-300 mb-4">
+                                            Are you sure you want to delete <span className="font-semibold text-white">{projectName}</span>? 
+                                            This action cannot be undone.
+                                        </p>
+                                    )}
                                     <div className="bg-red-900/20 border border-red-800 rounded-lg p-3">
                                         <div className="flex items-start space-x-2">
                                             <svg className="w-5 h-5 text-red-400 mt-0.5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">

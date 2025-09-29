@@ -27,7 +27,10 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   projectId: "",
 
   setWebcontainer: async (instance: WebContainer) => {
-    set({ webcontainer: instance })
+    if(get().webcontainer)
+      return;
+    else 
+      set({ webcontainer: instance })
     console.log("webcontainer setup")
   },
 
@@ -320,7 +323,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     processPrompt: async (prompt, images) => {
-      get().setUpWebContainer()
+      if(get().webcontainer)
+        get().setUpWebContainer()
 
       set({ isInitialising: true })
       let url = ""

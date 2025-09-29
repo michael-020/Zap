@@ -73,24 +73,24 @@ export default function VerifyEmailPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
+      <div className="bg-neutral-900 rounded-xl border border-neutral-800 shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">Verify Email</h1>
-          <p className="text-gray-600">
+          <h1 className="text-3xl font-bold text-white mb-2">Verify Email</h1>
+          <p className="text-neutral-400">
             {otpSent ? "Enter the OTP sent to your email" : "Verify your email to continue"}
           </p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg">
-            <p className="text-red-600 text-sm font-medium">{error}</p>
+          <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
+            <p className="text-red-400 text-sm font-medium">{error}</p>
           </div>
         )}
 
         <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
               Email Address
             </label>
             <input
@@ -101,13 +101,13 @@ export default function VerifyEmailPage() {
               disabled={otpSent || isLoading}
               required
               placeholder="Enter your email"
-              className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:cursor-not-allowed"
+              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-transparent transition-all duration-200 disabled:bg-neutral-800/50 disabled:cursor-not-allowed placeholder-neutral-500"
             />
           </div>
 
           {otpSent && (
             <div>
-              <label htmlFor="otp" className="block text-sm font-medium text-gray-700 mb-2">
+              <label htmlFor="otp" className="block text-sm font-medium text-neutral-300 mb-2">
                 OTP Code
               </label>
               <input
@@ -118,7 +118,7 @@ export default function VerifyEmailPage() {
                 disabled={isLoading}
                 required
                 placeholder="Enter 6-digit OTP"
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-gray-50 disabled:cursor-not-allowed"
+                className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-transparent transition-all duration-200 disabled:bg-neutral-800/50 disabled:cursor-not-allowed placeholder-neutral-500"
               />
             </div>
           )}
@@ -126,7 +126,7 @@ export default function VerifyEmailPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 disabled:cursor-not-allowed"
+            className="w-full bg-neutral-700 hover:bg-neutral-600 disabled:bg-neutral-800 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -145,9 +145,9 @@ export default function VerifyEmailPage() {
         </form>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-gray-600">
+          <p className="text-sm text-neutral-400">
             Already have an account?{" "}
-            <Link href="/signin" className="font-medium text-blue-600 hover:text-blue-500 transition-colors duration-200">
+            <Link href="/signin" className="font-medium hover:underline text-neutral-300 hover:text-white transition-colors duration-200">
               Sign in
             </Link>
           </p>

@@ -1,13 +1,12 @@
 "use client"
 
-import { axiosInstance } from "@/lib/axios";
 import { useEditorStore } from "@/stores/editorStore/useEditorStore";
 import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 
 
 export function PreviewPanel() {
-    const { webcontainer, previewUrl, setPreviewUrl, projectId } = useEditorStore()
+    const { webcontainer, previewUrl, setPreviewUrl } = useEditorStore()
 
     async function init(){
         if(!webcontainer) {
@@ -29,9 +28,6 @@ export function PreviewPanel() {
         webcontainer!.on('server-ready', (port, url) => {
             console.log("url: ", url)
             setPreviewUrl(url)
-            axiosInstance.put(`/api/project/${projectId}`, {
-                previewUrl: url
-            })
         });
     }
 

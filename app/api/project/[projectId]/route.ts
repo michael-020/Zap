@@ -179,7 +179,7 @@ async function captureIframeScreenshot(iframeUrl: string) {
         encoding: "base64",
         quality: 100
     });
-    console.log("Screenshot: ", screenshot)
+    // console.log("Screenshot: ", screenshot)
     await browser.close();
     return screenshot;
 }

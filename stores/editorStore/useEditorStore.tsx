@@ -223,9 +223,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           webcontainer.on("server-ready", (port, url) => {
             console.log("Dev server ready at:", url)
             setPreviewUrl(url)
-            axiosInstance.put(`/api/project/${get().projectId}`, {
-              previewUrl: url
-            })
           })
         } 
         
@@ -248,9 +245,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           webcontainer.on("server-ready", (port, url) => {
             console.log("Dev server ready at:", url)
             setPreviewUrl(url)
-            axiosInstance.put(`/api/project/${get().projectId}`, {
-              previewUrl: url
-            })
           })
         }
 

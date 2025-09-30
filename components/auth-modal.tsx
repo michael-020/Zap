@@ -2,7 +2,7 @@ import { signIn } from "next-auth/react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { createPortal } from "react-dom";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { X } from "lucide-react";
 
 interface AuthModalProps {
@@ -12,6 +12,7 @@ interface AuthModalProps {
 
 export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
   const [mounted, setMounted] = useState(false);
+  const modalRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
 
   useEffect(() => {
@@ -31,21 +32,41 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
     };
   }, [isOpen]);
 
-  const handleBackdropClick = (e: React.MouseEvent) => {
-    if (e.target === e.currentTarget) {
-      onClose();
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (modalRef.current && !modalRef.current.contains(event.target as Node)) {
+        onClose();
+      }
+    };
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        onClose();
+      }
+    };
+
+    if (isOpen) {
+      document.addEventListener('mousedown', handleClickOutside);
+      document.addEventListener('keydown', handleEscape);
     }
-  };
+
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener('keydown', handleEscape);
+    };
+  }, [isOpen, onClose]);
 
   if (!mounted || !isOpen) return null;
 
   const modalContent = (
     <div 
       className="fixed inset-0 z-50 overflow-y-auto bg-black/80"
-      onClick={handleBackdropClick}
     >
       <div className="min-h-full flex items-center justify-center p-4">
-        <div className="relative w-full max-w-md bg-neutral-900 rounded-xl border border-neutral-800 shadow-xl">
+        <div 
+          ref={modalRef}
+          className="relative w-full max-w-md bg-neutral-900 rounded-xl border border-neutral-800 shadow-xl"
+        >
           {/* Close button */}
           <button
             onClick={onClose}

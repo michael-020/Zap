@@ -6,15 +6,15 @@ import { useEffect } from "react";
 
 
 export function PreviewPanel() {
-    const { webcontainer, previewUrl, setPreviewUrl } = useEditorStore()
+    const { webcontainer, previewUrl, setPreviewUrl, setUpWebContainer } = useEditorStore()
 
     async function init(){
         if(!webcontainer) {
             console.log("return")
-            return
+            setUpWebContainer()
         }
 
-        const installProcess = await webcontainer.spawn('npm', ['install']);
+        const installProcess = await webcontainer!.spawn('npm', ['install']);
         console.log("npm i done")
 
         installProcess.output.pipeTo(new WritableStream({

@@ -4139,6 +4139,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     name: string | null
+    isPublic: boolean | null
     previewUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4148,6 +4149,7 @@ export namespace Prisma {
     id: string | null
     userId: string | null
     name: string | null
+    isPublic: boolean | null
     previewUrl: string | null
     createdAt: Date | null
     updatedAt: Date | null
@@ -4157,6 +4159,7 @@ export namespace Prisma {
     id: number
     userId: number
     name: number
+    isPublic: number
     previewUrl: number
     createdAt: number
     updatedAt: number
@@ -4168,6 +4171,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     name?: true
+    isPublic?: true
     previewUrl?: true
     createdAt?: true
     updatedAt?: true
@@ -4177,6 +4181,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     name?: true
+    isPublic?: true
     previewUrl?: true
     createdAt?: true
     updatedAt?: true
@@ -4186,6 +4191,7 @@ export namespace Prisma {
     id?: true
     userId?: true
     name?: true
+    isPublic?: true
     previewUrl?: true
     createdAt?: true
     updatedAt?: true
@@ -4268,6 +4274,7 @@ export namespace Prisma {
     id: string
     userId: string
     name: string
+    isPublic: boolean
     previewUrl: string | null
     createdAt: Date
     updatedAt: Date
@@ -4294,6 +4301,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     name?: boolean
+    isPublic?: boolean
     previewUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4306,6 +4314,7 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     name?: boolean
+    isPublic?: boolean
     previewUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
@@ -4317,12 +4326,13 @@ export namespace Prisma {
     id?: boolean
     userId?: boolean
     name?: boolean
+    isPublic?: boolean
     previewUrl?: boolean
     createdAt?: boolean
     updatedAt?: boolean
   }
 
-  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "previewUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
+  export type ProjectOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "userId" | "name" | "isPublic" | "previewUrl" | "createdAt" | "updatedAt", ExtArgs["result"]["project"]>
   export type ProjectInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     user?: boolean | UserDefaultArgs<ExtArgs>
     chats?: boolean | Project$chatsArgs<ExtArgs>
@@ -4342,6 +4352,7 @@ export namespace Prisma {
       id: string
       userId: string
       name: string
+      isPublic: boolean
       previewUrl: string | null
       createdAt: Date
       updatedAt: Date
@@ -4743,6 +4754,7 @@ export namespace Prisma {
     readonly id: FieldRef<"Project", 'String'>
     readonly userId: FieldRef<"Project", 'String'>
     readonly name: FieldRef<"Project", 'String'>
+    readonly isPublic: FieldRef<"Project", 'Boolean'>
     readonly previewUrl: FieldRef<"Project", 'String'>
     readonly createdAt: FieldRef<"Project", 'DateTime'>
     readonly updatedAt: FieldRef<"Project", 'DateTime'>
@@ -6195,6 +6207,7 @@ export namespace Prisma {
     id: 'id',
     userId: 'userId',
     name: 'name',
+    isPublic: 'isPublic',
     previewUrl: 'previewUrl',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt'
@@ -6284,6 +6297,13 @@ export namespace Prisma {
    * Reference to a field of type 'DateTime[]'
    */
   export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'DateTime[]'>
+    
+
+
+  /**
+   * Reference to a field of type 'Boolean'
+   */
+  export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>
     
 
 
@@ -6465,6 +6485,7 @@ export namespace Prisma {
     id?: StringFilter<"Project"> | string
     userId?: StringFilter<"Project"> | string
     name?: StringFilter<"Project"> | string
+    isPublic?: BoolFilter<"Project"> | boolean
     previewUrl?: StringNullableFilter<"Project"> | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
@@ -6476,6 +6497,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    isPublic?: SortOrder
     previewUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -6490,6 +6512,7 @@ export namespace Prisma {
     NOT?: ProjectWhereInput | ProjectWhereInput[]
     userId?: StringFilter<"Project"> | string
     name?: StringFilter<"Project"> | string
+    isPublic?: BoolFilter<"Project"> | boolean
     previewUrl?: StringNullableFilter<"Project"> | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
@@ -6501,6 +6524,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    isPublic?: SortOrder
     previewUrl?: SortOrderInput | SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -6516,6 +6540,7 @@ export namespace Prisma {
     id?: StringWithAggregatesFilter<"Project"> | string
     userId?: StringWithAggregatesFilter<"Project"> | string
     name?: StringWithAggregatesFilter<"Project"> | string
+    isPublic?: BoolWithAggregatesFilter<"Project"> | boolean
     previewUrl?: StringNullableWithAggregatesFilter<"Project"> | string | null
     createdAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"Project"> | Date | string
@@ -6754,6 +6779,7 @@ export namespace Prisma {
   export type ProjectCreateInput = {
     id?: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6765,6 +6791,7 @@ export namespace Prisma {
     id?: string
     userId: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6774,6 +6801,7 @@ export namespace Prisma {
   export type ProjectUpdateInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6785,6 +6813,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6795,6 +6824,7 @@ export namespace Prisma {
     id?: string
     userId: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -6803,6 +6833,7 @@ export namespace Prisma {
   export type ProjectUpdateManyMutationInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -6812,6 +6843,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7078,6 +7110,11 @@ export namespace Prisma {
     expiresAt?: SortOrder
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -7097,6 +7134,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    isPublic?: SortOrder
     previewUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7106,6 +7144,7 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    isPublic?: SortOrder
     previewUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
@@ -7115,9 +7154,18 @@ export namespace Prisma {
     id?: SortOrder
     userId?: SortOrder
     name?: SortOrder
+    isPublic?: SortOrder
     previewUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
+  }
+
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -7237,6 +7285,10 @@ export namespace Prisma {
     connectOrCreate?: ChatCreateOrConnectWithoutProjectInput | ChatCreateOrConnectWithoutProjectInput[]
     createMany?: ChatCreateManyProjectInputEnvelope
     connect?: ChatWhereUniqueInput | ChatWhereUniqueInput[]
+  }
+
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
   }
 
   export type UserUpdateOneRequiredWithoutProjectNestedInput = {
@@ -7424,9 +7476,23 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
+  export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type ProjectCreateWithoutUserInput = {
     id?: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7436,6 +7502,7 @@ export namespace Prisma {
   export type ProjectUncheckedCreateWithoutUserInput = {
     id?: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7475,6 +7542,7 @@ export namespace Prisma {
     id?: StringFilter<"Project"> | string
     userId?: StringFilter<"Project"> | string
     name?: StringFilter<"Project"> | string
+    isPublic?: BoolFilter<"Project"> | boolean
     previewUrl?: StringNullableFilter<"Project"> | string | null
     createdAt?: DateTimeFilter<"Project"> | Date | string
     updatedAt?: DateTimeFilter<"Project"> | Date | string
@@ -7588,6 +7656,7 @@ export namespace Prisma {
   export type ProjectCreateWithoutChatsInput = {
     id?: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7598,6 +7667,7 @@ export namespace Prisma {
     id?: string
     userId: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7622,6 +7692,7 @@ export namespace Prisma {
   export type ProjectUpdateWithoutChatsInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7632,6 +7703,7 @@ export namespace Prisma {
     id?: StringFieldUpdateOperationsInput | string
     userId?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7640,6 +7712,7 @@ export namespace Prisma {
   export type ProjectCreateManyUserInput = {
     id?: string
     name: string
+    isPublic?: boolean
     previewUrl?: string | null
     createdAt?: Date | string
     updatedAt?: Date | string
@@ -7648,6 +7721,7 @@ export namespace Prisma {
   export type ProjectUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7657,6 +7731,7 @@ export namespace Prisma {
   export type ProjectUncheckedUpdateWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
@@ -7666,6 +7741,7 @@ export namespace Prisma {
   export type ProjectUncheckedUpdateManyWithoutUserInput = {
     id?: StringFieldUpdateOperationsInput | string
     name?: StringFieldUpdateOperationsInput | string
+    isPublic?: BoolFieldUpdateOperationsInput | boolean
     previewUrl?: NullableStringFieldUpdateOperationsInput | string | null
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string

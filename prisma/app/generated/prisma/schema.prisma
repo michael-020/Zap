@@ -38,6 +38,7 @@ model Project {
   user       User     @relation(fields: [userId], references: [id])
   name       String
   chats      Chat[]
+  isPublic   Boolean  @default(true)
   previewUrl String?
   createdAt  DateTime @default(now())
   updatedAt  DateTime @updatedAt

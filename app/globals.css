@@ -10,6 +10,7 @@ button:disabled {
 
 body{
   overflow-x: hidden;
+  background: #000;
 }
 
 @theme {

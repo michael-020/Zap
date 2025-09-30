@@ -806,12 +806,63 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             // Process streaming content for files that are still streaming
             fileCompletionTracker.forEach((fileData, filePath) => {
               if (!fileData.isComplete && !get().userEditedFiles.has(filePath)) {
-                // Only stream if file is still marked as streaming
-                if (get().streamingFiles.get(filePath)) {
-                  // Limit chunk size to avoid overwhelming the editor
-                  const chunkSize = Math.min(chunk.length, 100)
-                  const limitedChunk = chunk.substring(0, chunkSize)
-                  get().streamFileContent(filePath, limitedChunk);
+                // Extract content between the opening tag and current buffer position
+                const openingTag = `<mirrorAction type="file" filePath="${filePath}">`;
+                const openingIndex = buffer.indexOf(openingTag);
+                
+                if (openingIndex !== -1) {
+                  const contentStart = openingIndex + openingTag.length;
+                  const closingTag = '</mirrorAction>';
+                  const closingIndex = buffer.indexOf(closingTag, contentStart);
+                  
+                  // Extract the content portion
+                  let contentToStream = '';
+                  if (closingIndex === -1) {
+                    // File not complete yet, stream what we have
+                    contentToStream = buffer.substring(contentStart);
+                  } else {
+                    // File complete
+                    contentToStream = buffer.substring(contentStart, closingIndex);
+                  }
+                  
+                  // Remove leading/trailing whitespace and normalize indentation
+                  // But only do this once at the start (when fileData.content is empty)
+                  if (fileData.content.length === 0) {
+                    // Remove leading newline and whitespace
+                    contentToStream = contentToStream.replace(/^\s*\n/, '');
+                    
+                    // Find the minimum indentation to remove
+                    const lines = contentToStream.split('\n');
+                    const nonEmptyLines = lines.filter(line => line.trim().length > 0);
+                    
+                    if (nonEmptyLines.length > 0) {
+                      const minIndent = Math.min(
+                        ...nonEmptyLines.map(line => {
+                          const match = line.match(/^(\s*)/);
+                          return match ? match[1].length : 0;
+                        })
+                      );
+                      
+                      // Remove the base indentation from all lines
+                      if (minIndent > 0) {
+                        contentToStream = lines
+                          .map(line => line.substring(minIndent))
+                          .join('\n');
+                      }
+                    }
+                  }
+                  
+                  // Only stream the new content that wasn't streamed before
+                  const previousLength = fileData.content.length;
+                  if (contentToStream.length > previousLength) {
+                    const newChunk = contentToStream.substring(previousLength);
+                    fileData.content = contentToStream; // Update tracker
+                    
+                    // Stream only actual file content in reasonable chunks
+                    const chunkSize = Math.min(newChunk.length, 100);
+                    const limitedChunk = newChunk.substring(0, chunkSize);
+                    get().streamFileContent(filePath, limitedChunk);
+                  }
                 }
               }
             });
@@ -827,12 +878,10 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               const code = content.trim();
 
               if (type === "file" && filePath) {
-                // Mark file as complete in our tracker
                 if (fileCompletionTracker.has(filePath)) {
                   fileCompletionTracker.get(filePath)!.isComplete = true;
                 }
 
-                // Complete the file streaming
                 get().completeFileStreaming(filePath);
 
                 const step: BuildStep = {
@@ -841,12 +890,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code,
+                  code: formatCodeBlock(code), // Format only on completion
                   path: filePath,
                 };
 
-                // Set final content
-                get().addFile(filePath, code);
+                get().addFile(filePath, formatCodeBlock(code)); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)

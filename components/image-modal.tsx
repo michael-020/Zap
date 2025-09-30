@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 import { X } from "lucide-react"
 import { createPortal } from "react-dom"
 

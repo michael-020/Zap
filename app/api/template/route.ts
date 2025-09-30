@@ -17,14 +17,14 @@ const templateSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions)
+        // const session = await getServerSession(authOptions)
 
-        if(!session || !session.user){
-            return NextResponse.json(
-                { msg: "You are not authorised to access this endpoint" },
-                { status: 401}
-            )
-        }
+        // if(!session || !session.user){
+        //     return NextResponse.json(
+        //         { msg: "You are not authorised to access this endpoint" },
+        //         { status: 401}
+        //     )
+        // }
         const validatedSchema = templateSchema.safeParse(await req.json())
         if(!validatedSchema.success){
             return NextResponse.json(
@@ -39,22 +39,41 @@ export async function POST(req: NextRequest) {
             messages: [
                 {
                     role: "system",
-                    content: `Read the prompt and observe it carefully and understand it well, if it appears to have a link, url, domain (including ones without protocols like 'mikexdev.in'), then respond by extracting the link, 
-                            url or domain, like if the prompt is "I want to build something like mikexdev.in or https://mikexdev.in so help me provide its starter code" then respond
-                            with "https://mikexdev.in" only respond with this and not anything else. If the prompt does not include any of that just respond with "not a url"`
+                    content: `You are tasked with processing the following prompt and extracting information.
+            
+                    First, check if the prompt contains any URL, domain, or link. A valid URL or domain includes anything like 'example.com', 'https://example.com', or 'mikexdev.in'. If such a URL or domain is present, extract it. If no URL is found, respond with "not a url" and generate a relevant title based on the content of the prompt.
 
+                    Secondly, based on the content of the prompt, assign a relevant title that briefly summarizes the core idea. If no URL is present, create a title that describes the main concept of the prompt. For example:
+                    - "Create a Social Media Website" → "Social Media Websitecre"
+                    - "Build a website like netflix.com for streaming" → "A Website Like netflix.com"
+
+                    The format of your response should be:
+                    url: <extracted_url> or "not a url"
+                    title: <assigned_title>`
                 },
                 prompt
             ],
         });
 
-        const url = response.choices[0].message
+        const messageContent = response.choices[0]?.message?.content;
+        if (!messageContent) {
+            throw new Error("Invalid response format from OpenAI");
+        }
+
+        // Split the content into lines and extract url and title
+        const lines = messageContent.split('\n');
+        const url = lines.find(line => line.startsWith('url:'))?.replace('url:', '').trim() || 'not a url';
+        const title = lines.find(line => line.startsWith('title:'))?.replace('title:', '').trim() || 'Untitled';
+
+        console.log('Extracted URL:', url);
+        console.log('Assigned Title:', title);
 
         return NextResponse.json(
             {
                 prompts: [BASE_PROMPT, `Here is an artifact that contains all files of the project visible to you.\nConsider the contents of ALL files in the project.\n\n${reactBasePrompt}\n\nHere is a list of files that exist on the file system but are not being shown to you:\n\n  - .gitignore\n  - package-lock.json\n`],
                 uiPrompts: [reactBasePrompt],
-                url
+                url,
+                title
             },
             { status: 200 }
         )

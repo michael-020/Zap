@@ -17,14 +17,14 @@ const templateSchema = z.object({
 
 export async function POST(req: NextRequest) {
     try {
-        // const session = await getServerSession(authOptions)
+        const session = await getServerSession(authOptions)
 
-        // if(!session || !session.user){
-        //     return NextResponse.json(
-        //         { msg: "You are not authorised to access this endpoint" },
-        //         { status: 401}
-        //     )
-        // }
+        if(!session || !session.user){
+            return NextResponse.json(
+                { msg: "You are not authorised to access this endpoint" },
+                { status: 401}
+            )
+        }
         const validatedSchema = templateSchema.safeParse(await req.json())
         if(!validatedSchema.success){
             return NextResponse.json(
@@ -44,7 +44,7 @@ export async function POST(req: NextRequest) {
                     First, check if the prompt contains any URL, domain, or link. A valid URL or domain includes anything like 'example.com', 'https://example.com', or 'mikexdev.in'. If such a URL or domain is present, extract it. If no URL is found, respond with "not a url" and generate a relevant title based on the content of the prompt.
 
                     Secondly, based on the content of the prompt, assign a relevant title that briefly summarizes the core idea. If no URL is present, create a title that describes the main concept of the prompt. For example:
-                    - "Create a Social Media Website" → "Social Media Websitecre"
+                    - "Create a Social Media Website" → "Social Media Website"
                     - "Build a website like netflix.com for streaming" → "A Website Like netflix.com"
 
                     The format of your response should be:

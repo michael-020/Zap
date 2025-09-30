@@ -55,7 +55,7 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
 }
 
 export function StatusPanel() {
-  const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap } = useEditorStore()
+  const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap, isFetchingImages } = useEditorStore()
   const [prompt, setPrompt] = useState("")
   const bottomRef = useRef<HTMLDivElement>(null)
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null)
@@ -228,7 +228,14 @@ export function StatusPanel() {
         {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images, description }]) => (
           <div key={promptIndex} className="space-y-3">
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
-              <div className="grid grid-cols-3 gap-2">
+              {isFetchingImages ? (
+                    <div 
+                      className="aspect-square bg-neutral-800 size-20 flex items-center justify-center text-center rounded-md animate-pulse relative"
+                    >
+                          <p className="text-xs text-neutral-400">Fetching Images...</p>
+                    </div>
+              ) : (
+                <div className="grid grid-cols-3 gap-2">
                 {images && images.map((image: string | File, index: number) => {
                   let imageSrc: string;
                   if (typeof image === 'string') {
@@ -236,23 +243,26 @@ export function StatusPanel() {
                   } else {
                     imageSrc = URL.createObjectURL(image);
                   }
-                  
+
                   return (
                     <div 
                       key={`${typeof image === 'string' ? image : image.name}-${index}`} 
-                      className="rounded-sm aspect-square cursor-pointer hover:opacity-80 transition-opacity"
+                      className="rounded-sm aspect-square cursor-pointer hover:opacity-80 transition-opacity overflow-hidden"
                       onClick={() => openImageModal(imageSrc)}
                     >
                       <img 
                         src={imageSrc} 
                         alt="prompt-image" 
                         crossOrigin="anonymous" 
-                        className="object-cover aspect-square rounded-md" 
+                        className="scale-200" 
                       />
                     </div>
-                  )
+                  );
                 })}
               </div>
+
+              )}
+              
               <div className="bg-neutral-700 rounded-lg rounded-tr-none p-3 max-w-[80%] ml-auto">
                 <p className="text-sm text-white break-words">
                   {prompt}

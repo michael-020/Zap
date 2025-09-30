@@ -62,7 +62,7 @@ export interface StoreState {
   isProcessing: boolean,
   isProcessingFollowups: boolean,
   projectId: string,
-
+  isFetchingImages: boolean,
   // File system
   fileItems: FileItemFlat[]
   selectedFile: string | null

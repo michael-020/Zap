@@ -24,6 +24,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   devServerProcess: null,
   streamingFiles: new Map(),
   userEditedFiles: new Set(),
+  isFetchingImages: false,
   projectId: "",
 
   setWebcontainer: async (instance: WebContainer) => {
@@ -383,6 +384,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       }
       
       if(url !== "not a url".toLowerCase() && !hasErrorOccured){
+        set({ isFetchingImages: true })
         try {
           const res = await axiosInstance.post("/api/get-images", { url })
           images?.push(res.data.images)
@@ -390,6 +392,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         } catch (error) {
           console.error("Error while getting images: ", error)
           hasErrorOccured = true
+        } finally {
+          set({ isFetchingImages: false })
         }
       }
       set({ isProcessing: true })

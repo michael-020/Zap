@@ -1,8 +1,12 @@
-
-export type authState =  {
-  inputEmail: string;
+export interface authState {
+    inputEmail: string;
+    savedPrompt: string;
+    savedImages: File[];
 }
 
-export type authAction = {
-  setInputEmail: (email: string) => void;
+export interface authAction {
+    setInputEmail: (email: string) => void;
+    setSavedPrompt: (prompt: string) => void;
+    setSavedImages: (images: File[]) => void;
+    clearSavedData: () => void;
 }

@@ -14,6 +14,8 @@ import { ImageModal } from "./image-modal"
 
 interface ProjectInitializerProps {
   onSubmitAction: (description: string) => void
+  initialPrompt?: string;
+  initialImages?: File[];
 }
 
 // Helper function to convert image to WebP
@@ -63,20 +65,62 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   });
 }
 
-export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) {
-  const [description, setDescription] = useState("")
+export function ProjectInitializer({ onSubmitAction, initialPrompt, initialImages }: ProjectInitializerProps) {
+  const [description, setDescription] = useState(initialPrompt || "")
   const [isLoading, setIsLoading] = useState(false)
   const textareaRef = useRef(null)
   const { processPrompt } = useEditorStore()
-  const [isOpen, setIsOpen] = useState(false);
-  const [isHovered, setIsHovered] = useState(false);
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [webpFiles, setWebpFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [isOpen, setIsOpen] = useState(false)
+  const [isHovered, setIsHovered] = useState(false)
+  const [imagePreviews, setImagePreviews] = useState<string[]>([])
+  const [webpFiles, setWebpFiles] = useState<File[]>(initialImages || [])
+  const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session, status } = useSession()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
   const [isProcessingImages, setIsProcessingImages] = useState(false)
+
+  // Initialize previews for initial images
+  useEffect(() => {
+    const setupInitialImages = async () => {
+      if (initialImages && initialImages.length > 0) {
+        const newPreviews: string[] = [];
+        const newWebpFiles: File[] = [];
+
+        for (const file of initialImages) {
+          // Create preview URL for initial images
+          const previewUrl = URL.createObjectURL(file);
+          newPreviews.push(previewUrl);
+
+          try {
+            // Convert to WebP if not already WebP
+            let webpFile: File;
+            if (file.type === 'image/webp') {
+              webpFile = file;
+            } else {
+              webpFile = await convertToWebP(file);
+            }
+            newWebpFiles.push(webpFile);
+          } catch (error) {
+            console.error('Error converting initial image to WebP:', error);
+            newWebpFiles.push(file);
+          }
+        }
+
+        setImagePreviews(newPreviews);
+        setWebpFiles(newWebpFiles);
+      }
+    };
+
+    setupInitialImages();
+  }, [initialImages]);
+
+  // Auto-submit if there's an initial prompt
+  useEffect(() => {
+    if (initialPrompt && initialImages) {
+      handleSubmit();
+    }
+  }, [initialPrompt, initialImages])
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -232,20 +276,18 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
   const sidebarVisible = isOpen || isHovered;
 
   const handleSubmit = () => {
-    if (!description.trim()) return
+    if (!description.trim()) return;
 
-    setIsLoading(true)
+    setIsLoading(true);
     
     try {
-      // Pass WebP files instead of base64 strings
-      processPrompt(description, webpFiles)
-      
-      onSubmitAction(description.trim())
-
+      processPrompt(description, webpFiles);
+      onSubmitAction(description.trim());
     } catch (error) {
-      console.error("Error generating steps:", error)
+      console.error("Error generating steps:", error);
+      toast.error("Failed to process your request");
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 

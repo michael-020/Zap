@@ -4,6 +4,7 @@
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { ArrowUp, ImageIcon, Loader2, LoaderPinwheel, X } from 'lucide-react'
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import { TextArea } from "./text-area"
@@ -14,8 +15,6 @@ import { ImageModal } from "./image-modal"
 
 interface ProjectInitializerProps {
   onSubmitAction: (description: string) => void
-  initialPrompt?: string;
-  initialImages?: File[];
 }
 
 // Helper function to convert image to WebP
@@ -65,29 +64,39 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   });
 }
 
-export function ProjectInitializer({ onSubmitAction, initialPrompt, initialImages }: ProjectInitializerProps) {
-  const [description, setDescription] = useState(initialPrompt || "")
+export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) {
+  const { savedPrompt, savedImages, clearSavedData } = useAuthStore()
+  const [description, setDescription] = useState("")
   const [isLoading, setIsLoading] = useState(false)
   const textareaRef = useRef(null)
   const { processPrompt } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const [webpFiles, setWebpFiles] = useState<File[]>(initialImages || [])
+  const [webpFiles, setWebpFiles] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session, status } = useSession()
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
   const [isProcessingImages, setIsProcessingImages] = useState(false)
+  const [hasInitialized, setHasInitialized] = useState(false)
 
-  // Initialize previews for initial images
+  // Initialize from auth store once
   useEffect(() => {
-    const setupInitialImages = async () => {
-      if (initialImages && initialImages.length > 0) {
+    const setupInitialData = async () => {
+      if (hasInitialized) return;
+      
+      // Set prompt if available
+      if (savedPrompt) {
+        setDescription(savedPrompt);
+      }
+
+      // Setup images if available
+      if (savedImages && savedImages.length > 0) {
         const newPreviews: string[] = [];
         const newWebpFiles: File[] = [];
 
-        for (const file of initialImages) {
+        for (const file of savedImages) {
           // Create preview URL for initial images
           const previewUrl = URL.createObjectURL(file);
           newPreviews.push(previewUrl);
@@ -110,17 +119,22 @@ export function ProjectInitializer({ onSubmitAction, initialPrompt, initialImage
         setImagePreviews(newPreviews);
         setWebpFiles(newWebpFiles);
       }
+
+      setHasInitialized(true);
+
+      // Auto-submit if both prompt and images are present
+      if (savedPrompt && savedImages && savedImages.length > 0) {
+        // Small delay to ensure UI is ready
+        setTimeout(() => {
+          handleSubmit();
+        }, 100);
+      }
     };
 
-    setupInitialImages();
-  }, [initialImages]);
-
-  // Auto-submit if there's an initial prompt
-  useEffect(() => {
-    if (initialPrompt && initialImages) {
-      handleSubmit();
+    if (session && !hasInitialized) {
+      setupInitialData();
     }
-  }, [initialPrompt, initialImages])
+  }, [savedPrompt, savedImages, session, hasInitialized]);
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -283,6 +297,8 @@ export function ProjectInitializer({ onSubmitAction, initialPrompt, initialImage
     try {
       processPrompt(description, webpFiles);
       onSubmitAction(description.trim());
+      // Clear saved data after successful submit
+      clearSavedData();
     } catch (error) {
       console.error("Error generating steps:", error);
       toast.error("Failed to process your request");

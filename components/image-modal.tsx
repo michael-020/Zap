@@ -19,14 +19,14 @@ export function ImageModal({ isOpen, imageSrc, onClose }: ImageModalProps) {
       <div className="relative overflow-y-auto custom-scrollbar w-[90vw] h-[90vh]">
         <button
           onClick={onClose}
-          className="absolute -top-10 right-0 text-white hover:text-gray-300 transition-colors"
+          className="fixed top-4 z-50 right-32 text-white hover:text-gray-300 transition-colors"
         >
-          <X className="w-8 h-8" />
+          <X className="size-8" />
         </button>
         <img
           src={imageSrc}
           alt="Full size image"
-          className="object-contain"
+          className="object-contain z-30"
           onClick={(e) => e.stopPropagation()}
           crossOrigin="anonymous"
         />

@@ -383,7 +383,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         set({ isInitialising: false })
       }
       
-      if(url.trim() !== "not a url".toLowerCase() && !hasErrorOccured){
+      if(url && url.trim() !== "not a url".toLowerCase() && !hasErrorOccured){
         set({ isFetchingImages: true })
         try {
           const res = await axiosInstance.post("/api/get-images", { url })

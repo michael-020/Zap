@@ -269,13 +269,7 @@ export function StatusPanel() {
                   {prompt}
                 </p>
               </div>
-              {description && (
-                <div className="bg-neutral-900 rounded-lg p-4 border border-neutral-700">
-                  <p className="text-sm text-neutral-400 leading-relaxed">
-                    {description}
-                  </p>
-                </div>
-              )}
+              
               <button
                 onClick={() => handleCopy(prompt, promptIndex)}
                 className="p-1 hover:text-white text-gray-400 transition-colors"
@@ -289,6 +283,13 @@ export function StatusPanel() {
                 )}
               </button>
             </div>
+            {description && (
+                <div className="p-4">
+                  <p className="text-sm text-neutral-400 leading-relaxed">
+                    {description}
+                  </p>
+                </div>
+              )}
 
             {steps.length > 0 && (
               <div className="space-y-2 ml-2 bg-neutral-900 px-3 p-2 rounded-lg">

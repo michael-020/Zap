@@ -184,7 +184,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
         </div>
       )}
       
-      <div className="h-full">
+      <div className="h-full pb-4">
         <Editor
           height="100%"
           language={getLanguageFromPath(filePath)}
@@ -245,7 +245,8 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             links: false,
             colorDecorators: false,
             codeLens: false,
-            autoIndent: "full"
+            autoIndent: "full",
+            scrollBeyondLastColumn: 10
           }}
         />
       </div>

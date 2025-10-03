@@ -11,10 +11,15 @@ export function PreviewPanel() {
     async function init(){
         if(!webcontainer) {
             console.log("return")
-            setUpWebContainer()
+            await setUpWebContainer()
         }
 
-        const installProcess = await webcontainer!.spawn('npm', ['install']);
+        if(!webcontainer) {
+            console.log("return")
+            return;
+        }
+
+        const installProcess = await webcontainer.spawn('npm', ['install']);
         console.log("npm i done")
 
         installProcess.output.pipeTo(new WritableStream({
@@ -22,10 +27,10 @@ export function PreviewPanel() {
             }
         }));
 
-        await webcontainer!.spawn('npm', ['run', 'dev']);
+        await webcontainer.spawn('npm', ['run', 'dev']);
         console.log("npm run dev")
 
-        webcontainer!.on('server-ready', (port, url) => {
+        webcontainer.on('server-ready', (port, url) => {
             console.log("url: ", url)
             setPreviewUrl(url)
         });

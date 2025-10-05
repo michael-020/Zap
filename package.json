@@ -13,6 +13,8 @@
     "seed": "tsx prisma/seed.ts"
   },
   "dependencies": {
+    "@ai-sdk/google": "^2.0.17",
+    "@ai-sdk/vercel": "^1.0.20",
     "@google/genai": "^1.10.0",
     "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^6.9.0",

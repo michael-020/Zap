@@ -97,7 +97,7 @@ export default function RightSidebar({
             setIsOpenAction(false)
           }}
         >
-          <Plus className="size-4" /> <span>New Project</span>
+          <Plus className="size-4" /> <span>New Chat</span>
         </button>
         {loading ? (
           Array.from({ length: 6 }).map((_, index) => (

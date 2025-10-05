@@ -1,3 +1,4 @@
+/* eslint-disable @next/next/no-img-element */
 "use client";
 
 import { useSession } from "next-auth/react";
@@ -85,6 +86,7 @@ export default function Landing() {
         }
       });
     };
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {

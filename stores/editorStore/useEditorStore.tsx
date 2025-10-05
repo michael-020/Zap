@@ -25,6 +25,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   streamingFiles: new Map(),
   userEditedFiles: new Set(),
   isFetchingImages: false,
+  isCreatingProject: false,
   projectId: "",
 
   setWebcontainer: async (instance: WebContainer) => {
@@ -320,6 +321,25 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           console.error("Error executing step:", err)
           setStepStatus(step.id, statusType.Error)
         }
+      }
+    },
+
+    createProject: async (prompt) => {
+      if(!get().webcontainer)
+        get().setUpWebContainer()
+      set({ isCreatingProject: true })
+      try {
+        const projectRes = await axiosInstance.post("/api/store-project", { prompt });
+        const projectId = projectRes.data.projectId;
+        set({ projectId });
+        return projectId;
+      } catch (err) {
+        console.error("Error creating project:", err);
+        toast.error("Error creating project");
+        set({ isInitialising: false });
+        return null;
+      } finally {
+        set({ isCreatingProject: false })
       }
     },
 
@@ -684,13 +704,13 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       }
 
       if(!hasErrorOccured){
-        try {
-          const projectRes = await axiosInstance.post("/api/store-project", { prompt });
-          set({ projectId: projectRes.data.projectId });
-        } catch (error) {
-          console.error("Error while storing project: ", error)
-          hasErrorOccured = true
-        }
+        // try {
+        //   const projectRes = await axiosInstance.post("/api/store-project", { prompt });
+        //   set({ projectId: projectRes.data.projectId });
+        // } catch (error) {
+        //   console.error("Error while storing project: ", error)
+        //   hasErrorOccured = true
+        // }
         
         try {
           // Convert File objects to base64 for storage if needed

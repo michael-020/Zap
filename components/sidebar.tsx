@@ -115,7 +115,7 @@ export default function RightSidebar({
               className="w-full truncate bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
               title={chat.name}
               onClick={() => {
-                router.push(`/chat/${chat.id}`)
+                router.push(`/prev-chat/${chat.id}`)
                 setIsOpenAction(false)
               }}
             >

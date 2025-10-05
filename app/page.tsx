@@ -8,6 +8,7 @@ import { ArrowUp, ImageIcon, X } from "lucide-react";
 import AuthModal from "@/components/auth-modal";
 import { useAuthStore } from "@/stores/authStore/useAuthStore";
 import toast from "react-hot-toast";
+import { TextArea } from "@/components/text-area";
 
 // Helper function to convert image to WebP
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
@@ -66,16 +67,6 @@ export default function Landing() {
   const { setSavedPrompt, setSavedImages } = useAuthStore();
   const { data: session } = useSession();
   const router = useRouter();
-
-  // Auto-resize textarea
-  useEffect(() => {
-    const textarea = textareaRef.current;
-    if (textarea) {
-      textarea.style.height = '120px';
-      const scrollHeight = textarea.scrollHeight;
-      textarea.style.height = Math.min(scrollHeight, 256) + 'px'; // max 16rem
-    }
-  }, [prompt]);
 
   // Clean up object URLs on unmount
   useEffect(() => {
@@ -280,13 +271,12 @@ export default function Landing() {
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative">
-              <textarea
+              <TextArea
                 ref={textareaRef}
                 value={prompt}
                 onChange={(e) => setPrompt(e.target.value)}
                 onKeyDown={handleKeyDown}
                 placeholder="Describe the website you want to build..."
-                className="w-full px-6 py-4 pb-16 bg-neutral-900 border border-neutral-800 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-2 focus:ring-neutral-700 focus:border-transparent resize-none min-h-[120px] max-h-[256px]"
               />
               
               <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">

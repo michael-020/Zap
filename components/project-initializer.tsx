@@ -13,11 +13,6 @@ import Navbar from "./navbar"
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 
-interface ProjectInitializerProps {
-  onSubmitAction: (description: string) => void
-}
-
-// Helper function to convert image to WebP
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -64,12 +59,11 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   });
 }
 
-export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) {
+export function ProjectInitializer() {
   const { savedPrompt, savedImages, clearSavedData } = useAuthStore()
   const [description, setDescription] = useState("")
-  const [isLoading, setIsLoading] = useState(false)
   const textareaRef = useRef(null)
-  const { processPrompt } = useEditorStore()
+  const { createProject, isCreatingProject, processPrompt } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
@@ -289,22 +283,13 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
    
   const sidebarVisible = isOpen || isHovered;
 
-  const handleSubmit = () => {
+  const handleSubmit = async () => {
     if (!description.trim()) return;
 
-    setIsLoading(true);
-    
-    try {
-      processPrompt(description, webpFiles);
-      onSubmitAction(description.trim());
-      // Clear saved data after successful submit
-      clearSavedData();
-    } catch (error) {
-      console.error("Error generating steps:", error);
-      toast.error("Failed to process your request");
-    } finally {
-      setIsLoading(false);
-    }
+    const projectId = await createProject(description);
+    clearSavedData();
+    processPrompt(description, webpFiles)
+    redirect(`/chat/${projectId}`)
   }
 
   const handleFormSubmit = (e: React.FormEvent) => {
@@ -416,14 +401,14 @@ export function ProjectInitializer({ onSubmitAction }: ProjectInitializerProps) 
 
                 <button
                   type="submit"
-                  disabled={!description.trim() || isLoading || isProcessingImages}
+                  disabled={!description.trim() || isCreatingProject || isProcessingImages}
                   className={`absolute bottom-4 right-4 p-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                    description.trim() && !isLoading && !isProcessingImages
+                    description.trim() && !isCreatingProject && !isProcessingImages
                       ? "bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5 hover:scale-105"
                       : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
                   }`}
                 >
-                  {!isLoading ? (
+                  {!isCreatingProject ? (
                     <>
                       <ArrowUp className="w-5 h-5" />
                     </>

@@ -63,6 +63,7 @@ export interface StoreState {
   isProcessingFollowups: boolean,
   projectId: string,
   isFetchingImages: boolean,
+  isCreatingProject: boolean;
   // File system
   fileItems: FileItemFlat[]
   selectedFile: string | null
@@ -90,7 +91,7 @@ export interface StoreState {
   addFile: (path: string, content: string) => void
   addFileItem: (item: FileItemFlat) => void
   executeSteps: (steps: BuildStep[]) => void
-  // Updated to support both File objects and base64 strings
+  createProject: (prompt: string, images?: (File | string)[]) => Promise<string | null>;
   processPrompt: (prompt: string, images?: (File | string)[]) => void;
   setShellCommand: (command: string) => void;
   setMessages: (messages: string | string[]) => void;

@@ -53,7 +53,7 @@ export default function ProjectCard({
 
     const handleNameClick = (e: React.MouseEvent) => {
         e.stopPropagation()
-        router.push(`/chat/${project.id}`)
+        router.push(`/prev-chat/${project.id}`)
     }
 
     const handleMenuClick = (e: React.MouseEvent) => {

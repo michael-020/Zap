@@ -17,7 +17,7 @@
     "@monaco-editor/react": "^4.7.0",
     "@prisma/client": "^6.9.0",
     "@webcontainer/api": "^1.6.1",
-    "ai": "^5.0.0-canary.24",
+    "ai": "^5.0.60",
     "axios": "^1.9.0",
     "cloudinary": "^2.7.0",
     "clsx": "^2.1.1",

@@ -324,7 +324,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     processPrompt: async (prompt, images) => {
-      if(get().webcontainer)
+      if(!get().webcontainer)
         get().setUpWebContainer()
 
       set({ isInitialising: true })

@@ -128,6 +128,7 @@ export function ProjectInitializer() {
     if (session && !hasInitialized) {
       setupInitialData();
     }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedPrompt, savedImages, session, hasInitialized]);
 
   const openImageModal = (imageSrc: string) => {

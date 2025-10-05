@@ -33,6 +33,7 @@
     "next-auth": "^4.24.11",
     "openai": "^5.10.1",
     "puppeteer": "^24.19.0",
+    "razorpay": "^2.9.6",
     "react": "^19.0.0",
     "react-dom": "^19.0.0",
     "react-hot-toast": "^2.5.2",

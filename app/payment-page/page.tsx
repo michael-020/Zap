@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
 import { useState } from "react"
@@ -6,19 +5,17 @@ import Script from "next/script"
 import { axiosInstance } from "@/lib/axios" 
 import { Loader2 } from "lucide-react"
 
-declare global {
-    interface Window {
-        Razorpay?: any
-    }
-}
-
-
 const PaymentPage = () => {
     const amount = 100; 
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState(""); 
+    const [razorpayLoaded, setRazorpayLoaded] = useState(false);
 
     const handlePayment = async () => {
+        if (!razorpayLoaded) {
+            setPaymentStatus("Razorpay script not loaded. Please try again.");
+        }
+
         setIsProcessing(true);
         setPaymentStatus("");
 
@@ -56,14 +53,11 @@ const PaymentPage = () => {
                 },
             };
 
-            // Step 4: Open the Razorpay checkout modal
-            const rzp1 = new window.Razorpay(options);
-            
-            rzp1.on('payment.failed', function (response: any){
-                console.error("Payment failed", response);
-                setPaymentStatus(`Payment Failed: ${response.error.description}`);
+            // Step 3: Open the Razorpay checkout modal
+            const rzp1 = new (window as any).Razorpay(options);
+            rzp1.on('payment.failed', function (response: any) {
+                console.log(response.error.description);
             });
-
             rzp1.open();
 
         } catch (error) {
@@ -76,11 +70,9 @@ const PaymentPage = () => {
 
     return (
         <>
-            {/* The Razorpay script is essential for the checkout modal to work */}
             <Script
-                id="razorpay-checkout-js"
                 src="https://checkout.razorpay.com/v1/checkout.js"
-                strategy="lazyOnload"
+                onLoad={() => setRazorpayLoaded(true)} // Ensure Razorpay is loaded
             />
 
             <div className="min-h-screen bg-gray-100 flex items-center justify-center">
@@ -109,12 +101,12 @@ const PaymentPage = () => {
                     <div>
                         <button
                             onClick={handlePayment}
-                            disabled={isProcessing}
+                            disabled={isProcessing || !razorpayLoaded}
                             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-300"
                         >
                             {isProcessing ? (
                                 <>
-                                    <Loader2 className="size-10" />
+                                    <Loader2 className="size-10 animate-spin" />
                                     Processing...
                                 </>
                             ) : (

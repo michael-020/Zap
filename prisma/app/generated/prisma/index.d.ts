@@ -1307,6 +1307,7 @@ export namespace Prisma {
     password: string | null
     provider: $Enums.AUTHOPTIONS | null
     createdAt: Date | null
+    isPremium: boolean | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1315,6 +1316,7 @@ export namespace Prisma {
     password: string | null
     provider: $Enums.AUTHOPTIONS | null
     createdAt: Date | null
+    isPremium: boolean | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1323,6 +1325,7 @@ export namespace Prisma {
     password: number
     provider: number
     createdAt: number
+    isPremium: number
     _all: number
   }
 
@@ -1333,6 +1336,7 @@ export namespace Prisma {
     password?: true
     provider?: true
     createdAt?: true
+    isPremium?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1341,6 +1345,7 @@ export namespace Prisma {
     password?: true
     provider?: true
     createdAt?: true
+    isPremium?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1349,6 +1354,7 @@ export namespace Prisma {
     password?: true
     provider?: true
     createdAt?: true
+    isPremium?: true
     _all?: true
   }
 
@@ -1430,6 +1436,7 @@ export namespace Prisma {
     password: string | null
     provider: $Enums.AUTHOPTIONS
     createdAt: Date
+    isPremium: boolean
     _count: UserCountAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
@@ -1455,6 +1462,7 @@ export namespace Prisma {
     password?: boolean
     provider?: boolean
     createdAt?: boolean
+    isPremium?: boolean
     Project?: boolean | User$ProjectArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
   }, ExtArgs["result"]["user"]>
@@ -1465,6 +1473,7 @@ export namespace Prisma {
     password?: boolean
     provider?: boolean
     createdAt?: boolean
+    isPremium?: boolean
   }, ExtArgs["result"]["user"]>
 
 
@@ -1474,9 +1483,10 @@ export namespace Prisma {
     password?: boolean
     provider?: boolean
     createdAt?: boolean
+    isPremium?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "provider" | "createdAt", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "provider" | "createdAt" | "isPremium", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Project?: boolean | User$ProjectArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1494,6 +1504,7 @@ export namespace Prisma {
       password: string | null
       provider: $Enums.AUTHOPTIONS
       createdAt: Date
+      isPremium: boolean
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -1893,6 +1904,7 @@ export namespace Prisma {
     readonly password: FieldRef<"User", 'String'>
     readonly provider: FieldRef<"User", 'AUTHOPTIONS'>
     readonly createdAt: FieldRef<"User", 'DateTime'>
+    readonly isPremium: FieldRef<"User", 'Boolean'>
   }
     
 
@@ -6176,7 +6188,8 @@ export namespace Prisma {
     email: 'email',
     password: 'password',
     provider: 'provider',
-    createdAt: 'createdAt'
+    createdAt: 'createdAt',
+    isPremium: 'isPremium'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -6333,6 +6346,7 @@ export namespace Prisma {
     password?: StringNullableFilter<"User"> | string | null
     provider?: EnumAUTHOPTIONSFilter<"User"> | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFilter<"User"> | Date | string
+    isPremium?: BoolFilter<"User"> | boolean
     Project?: ProjectListRelationFilter
   }
 
@@ -6342,6 +6356,7 @@ export namespace Prisma {
     password?: SortOrderInput | SortOrder
     provider?: SortOrder
     createdAt?: SortOrder
+    isPremium?: SortOrder
     Project?: ProjectOrderByRelationAggregateInput
   }
 
@@ -6354,6 +6369,7 @@ export namespace Prisma {
     password?: StringNullableFilter<"User"> | string | null
     provider?: EnumAUTHOPTIONSFilter<"User"> | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFilter<"User"> | Date | string
+    isPremium?: BoolFilter<"User"> | boolean
     Project?: ProjectListRelationFilter
   }, "id" | "id" | "email">
 
@@ -6363,6 +6379,7 @@ export namespace Prisma {
     password?: SortOrderInput | SortOrder
     provider?: SortOrder
     createdAt?: SortOrder
+    isPremium?: SortOrder
     _count?: UserCountOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
@@ -6377,6 +6394,7 @@ export namespace Prisma {
     password?: StringNullableWithAggregatesFilter<"User"> | string | null
     provider?: EnumAUTHOPTIONSWithAggregatesFilter<"User"> | $Enums.AUTHOPTIONS
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
+    isPremium?: BoolWithAggregatesFilter<"User"> | boolean
   }
 
   export type AdminWhereInput = {
@@ -6617,6 +6635,7 @@ export namespace Prisma {
     password?: string | null
     provider?: $Enums.AUTHOPTIONS
     createdAt?: Date | string
+    isPremium?: boolean
     Project?: ProjectCreateNestedManyWithoutUserInput
   }
 
@@ -6626,6 +6645,7 @@ export namespace Prisma {
     password?: string | null
     provider?: $Enums.AUTHOPTIONS
     createdAt?: Date | string
+    isPremium?: boolean
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -6635,6 +6655,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     provider?: EnumAUTHOPTIONSFieldUpdateOperationsInput | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isPremium?: BoolFieldUpdateOperationsInput | boolean
     Project?: ProjectUpdateManyWithoutUserNestedInput
   }
 
@@ -6644,6 +6665,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     provider?: EnumAUTHOPTIONSFieldUpdateOperationsInput | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isPremium?: BoolFieldUpdateOperationsInput | boolean
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -6653,6 +6675,7 @@ export namespace Prisma {
     password?: string | null
     provider?: $Enums.AUTHOPTIONS
     createdAt?: Date | string
+    isPremium?: boolean
   }
 
   export type UserUpdateManyMutationInput = {
@@ -6661,6 +6684,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     provider?: EnumAUTHOPTIONSFieldUpdateOperationsInput | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isPremium?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -6669,6 +6693,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     provider?: EnumAUTHOPTIONSFieldUpdateOperationsInput | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isPremium?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type AdminCreateInput = {
@@ -6966,6 +6991,11 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type BoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type ProjectListRelationFilter = {
     every?: ProjectWhereInput
     some?: ProjectWhereInput
@@ -6987,6 +7017,7 @@ export namespace Prisma {
     password?: SortOrder
     provider?: SortOrder
     createdAt?: SortOrder
+    isPremium?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -6995,6 +7026,7 @@ export namespace Prisma {
     password?: SortOrder
     provider?: SortOrder
     createdAt?: SortOrder
+    isPremium?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -7003,6 +7035,7 @@ export namespace Prisma {
     password?: SortOrder
     provider?: SortOrder
     createdAt?: SortOrder
+    isPremium?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -7065,6 +7098,14 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
+  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
+    _count?: NestedIntFilter<$PrismaModel>
+    _min?: NestedBoolFilter<$PrismaModel>
+    _max?: NestedBoolFilter<$PrismaModel>
+  }
+
   export type AdminCountOrderByAggregateInput = {
     id?: SortOrder
     adminId?: SortOrder
@@ -7110,11 +7151,6 @@ export namespace Prisma {
     expiresAt?: SortOrder
   }
 
-  export type BoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type UserScalarRelationFilter = {
     is?: UserWhereInput
     isNot?: UserWhereInput
@@ -7158,14 +7194,6 @@ export namespace Prisma {
     previewUrl?: SortOrder
     createdAt?: SortOrder
     updatedAt?: SortOrder
-  }
-
-  export type BoolWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
-    _count?: NestedIntFilter<$PrismaModel>
-    _min?: NestedBoolFilter<$PrismaModel>
-    _max?: NestedBoolFilter<$PrismaModel>
   }
 
   export type StringNullableListFilter<$PrismaModel = never> = {
@@ -7239,6 +7267,10 @@ export namespace Prisma {
     set?: Date | string
   }
 
+  export type BoolFieldUpdateOperationsInput = {
+    set?: boolean
+  }
+
   export type ProjectUpdateManyWithoutUserNestedInput = {
     create?: XOR<ProjectCreateWithoutUserInput, ProjectUncheckedCreateWithoutUserInput> | ProjectCreateWithoutUserInput[] | ProjectUncheckedCreateWithoutUserInput[]
     connectOrCreate?: ProjectCreateOrConnectWithoutUserInput | ProjectCreateOrConnectWithoutUserInput[]
@@ -7285,10 +7317,6 @@ export namespace Prisma {
     connectOrCreate?: ChatCreateOrConnectWithoutProjectInput | ChatCreateOrConnectWithoutProjectInput[]
     createMany?: ChatCreateManyProjectInputEnvelope
     connect?: ChatWhereUniqueInput | ChatWhereUniqueInput[]
-  }
-
-  export type BoolFieldUpdateOperationsInput = {
-    set?: boolean
   }
 
   export type UserUpdateOneRequiredWithoutProjectNestedInput = {
@@ -7396,6 +7424,11 @@ export namespace Prisma {
     not?: NestedDateTimeFilter<$PrismaModel> | Date | string
   }
 
+  export type NestedBoolFilter<$PrismaModel = never> = {
+    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
+    not?: NestedBoolFilter<$PrismaModel> | boolean
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -7476,11 +7509,6 @@ export namespace Prisma {
     _max?: NestedDateTimeFilter<$PrismaModel>
   }
 
-  export type NestedBoolFilter<$PrismaModel = never> = {
-    equals?: boolean | BooleanFieldRefInput<$PrismaModel>
-    not?: NestedBoolFilter<$PrismaModel> | boolean
-  }
-
   export type NestedBoolWithAggregatesFilter<$PrismaModel = never> = {
     equals?: boolean | BooleanFieldRefInput<$PrismaModel>
     not?: NestedBoolWithAggregatesFilter<$PrismaModel> | boolean
@@ -7554,6 +7582,7 @@ export namespace Prisma {
     password?: string | null
     provider?: $Enums.AUTHOPTIONS
     createdAt?: Date | string
+    isPremium?: boolean
   }
 
   export type UserUncheckedCreateWithoutProjectInput = {
@@ -7562,6 +7591,7 @@ export namespace Prisma {
     password?: string | null
     provider?: $Enums.AUTHOPTIONS
     createdAt?: Date | string
+    isPremium?: boolean
   }
 
   export type UserCreateOrConnectWithoutProjectInput = {
@@ -7614,6 +7644,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     provider?: EnumAUTHOPTIONSFieldUpdateOperationsInput | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isPremium?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type UserUncheckedUpdateWithoutProjectInput = {
@@ -7622,6 +7653,7 @@ export namespace Prisma {
     password?: NullableStringFieldUpdateOperationsInput | string | null
     provider?: EnumAUTHOPTIONSFieldUpdateOperationsInput | $Enums.AUTHOPTIONS
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
+    isPremium?: BoolFieldUpdateOperationsInput | boolean
   }
 
   export type ChatUpsertWithWhereUniqueWithoutProjectInput = {

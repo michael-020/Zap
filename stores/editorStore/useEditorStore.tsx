@@ -4,6 +4,7 @@ import { axiosInstance } from "@/lib/axios"
 import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import toast from "react-hot-toast"
+import { useAuthStore } from "../authStore/useAuthStore"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -735,6 +736,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             images: imagesToStore,
             description: desc
           })
+          useAuthStore.getState().incrementUsage()
         } catch (error) {
           console.error("Error while storing chats: ", error)
         }
@@ -1012,6 +1014,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           projectId: get().projectId,
           images
         })
+        useAuthStore.getState().incrementUsage()
       } catch (error) {
         console.error("Error processing followup prompt:", error);
       } finally {

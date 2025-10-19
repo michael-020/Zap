@@ -38,7 +38,7 @@ export function EditorWorkspace({ isFullscreen, setIsFullscreen }: { isFullscree
             <div className="w-64 border-r border-neutral-800">
               <FileExplorer />
             </div>
-            
+
             {/* Code Editor */}
             <div className="flex-1">
               <EditorErrorBoundary>

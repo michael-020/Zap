@@ -87,7 +87,7 @@ export default function RightSidebar({
           <X />
         </button>
       </div>
-
+        
       <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar overflow-x-hidden h-[calc(100%-56px)]">
         <button
           className="w-full truncate flex items-center gap-2 bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"

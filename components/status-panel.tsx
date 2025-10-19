@@ -290,7 +290,6 @@ export function StatusPanel() {
                   </p>
                 </div>
               )}
-
             {steps.length > 0 && (
               <div className="space-y-2 ml-2 bg-neutral-900 px-3 p-2 rounded-lg">
                 {steps.filter(step => step.shouldExecute !== false).map((step) => (

@@ -5,15 +5,15 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/(.*)', // Apply to all routes
+        source: '/chat(.*)', 
         headers: [
           {
             key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin-allow-popups'
+            value: 'same-origin'
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'unsafe-none'
+            value: 'require-corp'
           }
         ]
       }

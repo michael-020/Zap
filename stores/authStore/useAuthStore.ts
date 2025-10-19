@@ -1,5 +1,6 @@
 import { create } from "zustand"
 import { authAction, authState } from "./types"
+import { axiosInstance } from "@/lib/axios"
 
 export const useAuthStore = create<authState & authAction>((set) => ({
     inputEmail: "",
@@ -28,7 +29,8 @@ export const useAuthStore = create<authState & authAction>((set) => ({
         set({ currentUsage: usage })
     },
 
-    incrementUsage: () => {
+    incrementUsage: async () => {
+        await axiosInstance.put("/api/usage")
         set((state) => ({ currentUsage: state.currentUsage + 1 }))
     },
 

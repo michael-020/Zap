@@ -61,7 +61,7 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
 }
 
 export function ProjectInitializer() {
-  const { savedPrompt, savedImages, clearSavedData, currentUsage, isPremium, setUsage, incrementUsage } = useAuthStore()
+  const { savedPrompt, savedImages, clearSavedData, currentUsage, isPremium, setUsage } = useAuthStore()
   const [description, setDescription] = useState("")
   const textareaRef = useRef(null)
   const { createProject, isCreatingProject, processPrompt } = useEditorStore()
@@ -93,12 +93,10 @@ export function ProjectInitializer() {
     }
   }, [session, isPremium, setUsage])
 
-  // Initialize from auth store once
   useEffect(() => {
     const setupInitialData = async () => {
       if (hasInitialized) return;
       
-      // Set prompt if available
       if (savedPrompt) {
         setDescription(savedPrompt);
       }
@@ -109,12 +107,10 @@ export function ProjectInitializer() {
         const newWebpFiles: File[] = [];
 
         for (const file of savedImages) {
-          // Create preview URL for initial images
           const previewUrl = URL.createObjectURL(file);
           newPreviews.push(previewUrl);
 
           try {
-            // Convert to WebP if not already WebP
             let webpFile: File;
             if (file.type === 'image/webp') {
               webpFile = file;
@@ -134,12 +130,8 @@ export function ProjectInitializer() {
 
       setHasInitialized(true);
 
-      // Auto-submit if both prompt and images are present
       if (savedPrompt && savedImages && savedImages.length > 0) {
-        // Small delay to ensure UI is ready
-        setTimeout(() => {
-          handleSubmit();
-        }, 100);
+        handleSubmit();
       }
     };
 

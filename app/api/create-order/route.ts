@@ -9,6 +9,7 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 })
 
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(req: NextRequest){
     try {
         const session = await getServerSession(authOptions)

@@ -126,6 +126,7 @@ exports.Prisma.UserScalarFieldEnum = {
   password: 'password',
   provider: 'provider',
   createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
   isPremium: 'isPremium'
 };
 
@@ -164,6 +165,13 @@ exports.Prisma.ChatScalarFieldEnum = {
   createdAt: 'createdAt'
 };
 
+exports.Prisma.UsageScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  date: 'date',
+  chatCount: 'chatCount'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -188,7 +196,8 @@ exports.Prisma.ModelName = {
   Admin: 'Admin',
   OTP: 'OTP',
   Project: 'Project',
-  Chat: 'Chat'
+  Chat: 'Chat',
+  Usage: 'Usage'
 };
 
 /**

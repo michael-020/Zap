@@ -17,12 +17,11 @@ export const chatStreamSchema = z.object({
     role: z.enum(["user", "assistant", "system"]),
     content: z.string().min(1)
   }),
-  // Updated to accept either base64 data URLs or File objects/Blobs
   images: z.array(
     z.union([
-      z.string(), // For base64 data URLs (backward compatibility)
-      z.instanceof(File), // For WebP File objects
-      z.object({ // For WebP blob data with metadata
+      z.string(), 
+      z.instanceof(File), 
+      z.object({ 
         data: z.instanceof(ArrayBuffer).or(z.instanceof(Uint8Array)),
         type: z.string(),
         name: z.string().optional()
@@ -31,7 +30,6 @@ export const chatStreamSchema = z.object({
   ).optional(),
 });
 
-// Helper function to convert WebP images to base64 for OpenAI API
 async function convertWebPToBase64(imageData: File | ArrayBuffer | Uint8Array, mimeType: string = 'image/webp'): Promise<string> {
   let buffer: ArrayBuffer;
   
@@ -47,20 +45,16 @@ async function convertWebPToBase64(imageData: File | ArrayBuffer | Uint8Array, m
   return `data:${mimeType};base64,${base64}`;
 }
 
-// Helper function to create image content objects
 async function createImageContent(images: (string | File | { data: ArrayBuffer | Uint8Array, type: string, name?: string })[]): Promise<Array<{ type: "image_url"; image_url: { url: string; detail: "high" } }>> {
   const imageContents = await Promise.all(
     images.map(async (image) => {
       let imageUrl: string;
       
       if (typeof image === 'string') {
-        // Already base64 data URL
         imageUrl = image;
       } else if (image instanceof File) {
-        // Convert WebP File to base64
         imageUrl = await convertWebPToBase64(image, image.type);
       } else {
-        // Convert WebP buffer to base64
         imageUrl = await convertWebPToBase64(image.data, image.type);
       }
       
@@ -77,7 +71,6 @@ async function createImageContent(images: (string | File | { data: ArrayBuffer |
   return imageContents;
 }
 
-// Helper function to format messages with images
 async function formatMessagesWithImages(
   messages: Array<{ role: "user" | "assistant" | "system"; content: string }>,
   prompt: { role: "user" | "assistant" | "system"; content: string },
@@ -131,12 +124,10 @@ export async function POST(req: NextRequest) {
       );
     }
     
-    // Parse FormData for WebP file uploads or JSON for base64
     let parsedData;
     const contentType = req.headers.get('content-type') || '';
     
     if (contentType.includes('multipart/form-data')) {
-      // Handle WebP file uploads
       const formData = await req.formData();
       const messagesStr = formData.get('messages') as string;
       const promptStr = formData.get('prompt') as string;
@@ -153,7 +144,6 @@ export async function POST(req: NextRequest) {
       
       parsedData = { messages, prompt, images };
     } else {
-      // Handle JSON with base64 images (backward compatibility)
       parsedData = await req.json();
     }
     
@@ -168,9 +158,8 @@ export async function POST(req: NextRequest) {
     
     const { messages, prompt, images } = validatedSchema.data;
     
-    // Validate images
+    
     if (images && images.length > 0) {
-      // Check for base64 images (backward compatibility)
       const base64Images = images.filter(img => typeof img === 'string');
       const invalidBase64Images = base64Images.filter(image => {
         return !image.startsWith('data:image/') || !image.includes('base64,');
@@ -183,7 +172,6 @@ export async function POST(req: NextRequest) {
         );
       }
       
-      // Check for WebP files
       const fileImages = images.filter(img => img instanceof File);
       const invalidWebPImages = fileImages.filter(file => {
         return !['image/webp', 'image/jpeg', 'image/png'].includes(file.type);

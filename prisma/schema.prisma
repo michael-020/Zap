@@ -14,8 +14,10 @@ model User {
   password  String?
   provider  AUTHOPTIONS @default(CREDENTIALS)
   createdAt DateTime    @default(now())
+  updatedAt DateTime    @default(now())
   isPremium Boolean     @default(false)
   Project   Project[]
+  Usage     Usage[]
 }
 
 model Admin {
@@ -54,6 +56,14 @@ model Chat {
   response    String
   images      String[]
   createdAt   DateTime @default(now())
+}
+
+model Usage {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  date      DateTime @default(now()) @db.Date
+  chatCount Int      @default(0)  
 }
 
 enum AUTHOPTIONS {

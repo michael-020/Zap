@@ -5,6 +5,7 @@ import { ChatCompletionMessageParam } from "openai/resources/index.mjs";
 import { z } from "zod";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/server/authOptions";
+import { prisma } from "@/lib/prisma";
 
 export const chatStreamSchema = z.object({
   messages: z.array(
@@ -122,6 +123,38 @@ export async function POST(req: NextRequest) {
         { msg: "You are not authorised to access this endpoint" },
         { status: 401 }
       );
+    }
+
+    if (!session.user.isPremium) {
+      const today = new Date().toISOString().split("T")[0]; 
+      const usageRecord = await prisma.usage.findFirst({
+        where: {
+          userId: session.user.id,
+          date: today,
+        },
+      });
+
+      if (usageRecord && usageRecord.chatCount >= 5) {
+        return NextResponse.json(
+          { msg: "Daily chat limit exceeded. Please try again tomorrow." },
+          { status: 429 }
+        );
+      }
+
+      if (usageRecord) {
+        await prisma.usage.update({
+          where: { id: usageRecord.id },
+          data: { chatCount: usageRecord.chatCount + 1 },
+        });
+      } else {
+        await prisma.usage.create({
+          data: {
+            userId: session.user.id,
+            date: today,
+            chatCount: 1,
+          },
+        });
+      }
     }
     
     let parsedData;

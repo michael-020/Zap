@@ -64,6 +64,8 @@ model Usage {
   user      User     @relation(fields: [userId], references: [id])
   date      DateTime @default(now()) @db.Date
   chatCount Int      @default(0)
+
+  @@unique([userId, date])
 }
 
 enum AUTHOPTIONS {

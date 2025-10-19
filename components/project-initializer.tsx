@@ -12,6 +12,7 @@ import RightSidebar from "./sidebar"
 import Navbar from "./navbar"
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
+import { axiosInstance } from "@/lib/axios"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -60,7 +61,7 @@ async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
 }
 
 export function ProjectInitializer() {
-  const { savedPrompt, savedImages, clearSavedData } = useAuthStore()
+  const { savedPrompt, savedImages, clearSavedData, currentUsage, isPremium, setUsage, incrementUsage } = useAuthStore()
   const [description, setDescription] = useState("")
   const textareaRef = useRef(null)
   const { createProject, isCreatingProject, processPrompt } = useEditorStore()
@@ -74,6 +75,23 @@ export function ProjectInitializer() {
   const [modalImageSrc, setModalImageSrc] = useState("")
   const [isProcessingImages, setIsProcessingImages] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
+  const maxUsage = isPremium ? Infinity : 5
+
+  useEffect(() => {
+    if (session && !isPremium) {
+      const fetchUsage = async () => {
+        try {
+          const response = await axiosInstance.get('/api/usage')
+          const data = response.data
+          setUsage(data.currentUsage) 
+        } catch (error) {
+          console.error('Failed to fetch usage:', error)
+        }
+      }
+
+      fetchUsage()
+    }
+  }, [session, isPremium, setUsage])
 
   // Initialize from auth store once
   useEffect(() => {
@@ -287,6 +305,11 @@ export function ProjectInitializer() {
   const handleSubmit = async () => {
     if (!description.trim()) return;
 
+    if (currentUsage >= maxUsage) {
+      toast.error("You have reached your daily chat limit.")
+      return
+    }
+
     const projectId = await createProject(description);
     clearSavedData();
     processPrompt(description, webpFiles)
@@ -303,6 +326,8 @@ export function ProjectInitializer() {
       <Loader2 className="size-14 animate-spin text-neutral-200" />
     </div>
   }
+
+  const usageRemaining = maxUsage - currentUsage
 
   return (
     <div className="relative min-h-screen bg-black">
@@ -399,26 +424,29 @@ export function ProjectInitializer() {
                     disabled={isProcessingImages}
                   />
                 </div>
+                <div className="absolute bottom-4 right-4 p-3 flex items-center justify-center gap-2">
+                  <span className="text-sm text-neutral-400">
+                    {usageRemaining <= 0
+                      ? 'You have reached your daily limit.'
+                      : `Chats left today: ${usageRemaining}`}
+                  </span>
 
-                <button
-                  type="submit"
-                  disabled={!description.trim() || isCreatingProject || isProcessingImages}
-                  className={`absolute bottom-4 right-4 p-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                    description.trim() && !isCreatingProject && !isProcessingImages
-                      ? "bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg hover:shadow-xl hover:shadow-blue-500/25 transform hover:-translate-y-0.5 hover:scale-105"
-                      : "bg-neutral-800 text-neutral-500 cursor-not-allowed"
-                  }`}
-                >
-                  {!isCreatingProject ? (
-                    <>
+                  <button
+                    type="submit"
+                    disabled={usageRemaining <= 0 || !description.trim() || isCreatingProject || isProcessingImages}
+                    className={`p-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+                      usageRemaining <= 0 || !description.trim() || isCreatingProject || isProcessingImages
+                        ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
+                        : 'bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg'
+                    }`}
+                  >
+                    {!isCreatingProject ? (
                       <ArrowUp className="w-5 h-5" />
-                    </>
-                  ) : (
-                    <>
+                    ) : (
                       <LoaderPinwheel className="animate-spin w-5 h-5" />
-                    </>
-                  )}
-                </button>
+                    )}
+                  </button>
+                </div>
               </div>
             </div>
           </form>

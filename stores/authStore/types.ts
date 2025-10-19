@@ -2,6 +2,8 @@ export interface authState {
     inputEmail: string;
     savedPrompt: string;
     savedImages: File[];
+    currentUsage: number;
+    isPremium: boolean;
 }
 
 export interface authAction {
@@ -9,4 +11,8 @@ export interface authAction {
     setSavedPrompt: (prompt: string) => void;
     setSavedImages: (images: File[]) => void;
     clearSavedData: () => void;
+    setUsage: (usage: number) => void;
+    incrementUsage: () => void;
+    resetUsage: () => void;
+    setPremiumStatus: (status: boolean) => void;
 }

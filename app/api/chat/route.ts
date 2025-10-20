@@ -227,7 +227,7 @@ export async function POST(req: NextRequest) {
     const formattedMessages = await formatMessagesWithImages(messages, prompt, images);
     
     const completion = await openai.chat.completions.create({
-      model: "gemini-2.5-pro",
+      model: "gemini-2.5-flash",
       messages: formattedMessages,
       stream: true,
       max_completion_tokens: 100_000

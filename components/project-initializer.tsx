@@ -1,80 +1,24 @@
-/* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { ChangeEvent, useEffect, useRef, useState } from "react"
-import { ArrowUp, ImageIcon, Loader2, LoaderPinwheel, X } from 'lucide-react'
+import { useEffect, useState } from "react"
+import { Loader2 } from 'lucide-react'
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
-import { TextArea } from "./text-area"
 import RightSidebar from "./sidebar"
 import Navbar from "./navbar"
 import toast from "react-hot-toast"
-import { ImageModal } from "./image-modal"
 import { axiosInstance } from "@/lib/axios"
-import AutoResizingTextarea from "./textarea"
-
-async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
-  return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    img.onload = () => {
-      // Calculate new dimensions (optional: resize for optimization)
-      const maxWidth = 1920; // Max width for uploaded images
-      const maxHeight = 1080; // Max height for uploaded images
-      
-      let { width, height } = img;
-      
-      if (width > maxWidth) {
-        height = (height * maxWidth) / width;
-        width = maxWidth;
-      }
-      
-      if (height > maxHeight) {
-        width = (width * maxHeight) / height;
-        height = maxHeight;
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      
-      // Draw and convert to WebP
-      ctx?.drawImage(img, 0, 0, width, height);
-      
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const webpFile = new File([blob], `${file.name.split('.')[0]}.webp`, {
-            type: 'image/webp'
-          });
-          resolve(webpFile);
-        } else {
-          reject(new Error('Failed to convert image to WebP'));
-        }
-      }, 'image/webp', quality);
-    };
-    
-    img.onerror = () => reject(new Error('Failed to load image'));
-    img.src = URL.createObjectURL(file);
-  });
-}
+import { PromptInputPanel } from "./prompt-input-panel"
 
 export function ProjectInitializer() {
   const { savedPrompt, savedImages, clearSavedData, currentUsage, isPremium, setUsage } = useAuthStore()
   const [description, setDescription] = useState("")
-  const textareaRef = useRef(null)
   const { createProject, isCreatingProject, processPrompt } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
-  const [imagePreviews, setImagePreviews] = useState<string[]>([])
-  const [webpFiles, setWebpFiles] = useState<File[]>([])
-  const fileInputRef = useRef<HTMLInputElement>(null)
   const { data: session, status } = useSession()
-  const [isModalOpen, setIsModalOpen] = useState(false)
-  const [modalImageSrc, setModalImageSrc] = useState("")
-  const [isProcessingImages, setIsProcessingImages] = useState(false)
   const [hasInitialized, setHasInitialized] = useState(false)
   const maxUsage = isPremium ? Infinity : 5
 
@@ -102,37 +46,10 @@ export function ProjectInitializer() {
         setDescription(savedPrompt);
       }
 
-      // Setup images if available
-      if (savedImages && savedImages.length > 0) {
-        const newPreviews: string[] = [];
-        const newWebpFiles: File[] = [];
-
-        for (const file of savedImages) {
-          const previewUrl = URL.createObjectURL(file);
-          newPreviews.push(previewUrl);
-
-          try {
-            let webpFile: File;
-            if (file.type === 'image/webp') {
-              webpFile = file;
-            } else {
-              webpFile = await convertToWebP(file);
-            }
-            newWebpFiles.push(webpFile);
-          } catch (error) {
-            console.error('Error converting initial image to WebP:', error);
-            newWebpFiles.push(file);
-          }
-        }
-
-        setImagePreviews(newPreviews);
-        setWebpFiles(newWebpFiles);
-      }
-
       setHasInitialized(true);
 
       if (savedPrompt && savedImages && savedImages.length > 0) {
-        handleSubmit();
+        handleSubmit(savedPrompt, savedImages);
       }
     };
 
@@ -141,115 +58,6 @@ export function ProjectInitializer() {
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [savedPrompt, savedImages, session, hasInitialized]);
-
-  const openImageModal = (imageSrc: string) => {
-    setModalImageSrc(imageSrc)
-    setIsModalOpen(true)
-  }
-
-  const closeImageModal = () => {
-    setIsModalOpen(false)
-    setModalImageSrc("")
-  }
-
-  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from((e.target as HTMLInputElement).files || []);
-    
-    if (files.length === 0) return;
-
-    // Validate all files are images
-    const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
-    if (invalidFiles.length > 0) {
-      toast.error("Please select only image files");
-      return;
-    }
-
-    // Check if adding these files would exceed a reasonable limit (e.g., 10 images)
-    if (imagePreviews.length + files.length > 10) {
-      toast.error("Maximum 10 images allowed");
-      return;
-    }
-
-    setIsProcessingImages(true);
-
-    try {
-      // Process each file
-      const newPreviews: string[] = [];
-      const newWebpFiles: File[] = [];
-
-      for (const file of files) {
-        // Create preview URL for display
-        const previewUrl = URL.createObjectURL(file);
-        newPreviews.push(previewUrl);
-
-        try {
-          // Convert to WebP if not already WebP
-          let webpFile: File;
-          if (file.type === 'image/webp') {
-            webpFile = file;
-          } else {
-            webpFile = await convertToWebP(file);
-          }
-          newWebpFiles.push(webpFile);
-        } catch (error) {
-          console.error('Error converting image to WebP:', error);
-          toast.error(`Failed to process image: ${file.name}`);
-          // Fallback: use original file
-          newWebpFiles.push(file);
-        }
-      }
-
-      setImagePreviews(prev => [...prev, ...newPreviews]);
-      setWebpFiles(prev => [...prev, ...newWebpFiles]);
-
-    } catch (error) {
-      console.error('Error processing images:', error);
-      toast.error('Failed to process some images');
-    } finally {
-      setIsProcessingImages(false);
-    }
-
-    // Clear the input so the same files can be selected again if needed
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const removeImage = (indexToRemove: number) => {
-    setImagePreviews(prev => {
-      const newPreviews = prev.filter((_, index) => index !== indexToRemove);
-      // Clean up object URL to prevent memory leaks
-      const removedUrl = prev[indexToRemove];
-      if (removedUrl && removedUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(removedUrl);
-      }
-      return newPreviews;
-    });
-    setWebpFiles(prev => prev.filter((_, index) => index !== indexToRemove));
-  };
-
-  const removeAllImages = () => {
-    // Clean up all object URLs to prevent memory leaks
-    imagePreviews.forEach(url => {
-      if (url.startsWith('blob:')) {
-        URL.revokeObjectURL(url);
-      }
-    });
-    
-    setImagePreviews([]);
-    setWebpFiles([]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  // Clean up object URLs when component unmounts
-  useEffect(() => {
-    return () => {
-      imagePreviews.forEach(url => {
-        if (url.startsWith('blob:')) {
-          URL.revokeObjectURL(url);
-        }
-      });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   
   useEffect(() => {
     if(status === "loading") return
@@ -257,12 +65,6 @@ export function ProjectInitializer() {
       redirect("/")
     }
   }, [session, status])
-
-  useEffect(() => { 
-    if (textareaRef.current) {
-      (textareaRef.current as HTMLTextAreaElement).focus()
-    }
-  }, [])
 
   useEffect(() => {
     const threshold = 25;
@@ -292,26 +94,20 @@ export function ProjectInitializer() {
     setIsHovered(false);
   };
 
-   
   const sidebarVisible = isOpen || isHovered;
 
-  const handleSubmit = async () => {
-    if (!description.trim()) return;
+  const handleSubmit = async (promptText: string, files: File[]) => {
+    if (!promptText.trim()) return;
 
     if (currentUsage >= maxUsage) {
       toast.error("You have reached your daily chat limit.")
       return
     }
 
-    const projectId = await createProject(description);
+    const projectId = await createProject(promptText);
     clearSavedData();
-    processPrompt(description, webpFiles)
+    processPrompt(promptText, files)
     redirect(`/chat/${projectId}`)
-  }
-
-  const handleFormSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
-    handleSubmit()
   }
    
   if(!session){
@@ -331,7 +127,7 @@ export function ProjectInitializer() {
 
       <div className="flex items-center justify-center min-h-screen px-6 pb-20">
         <div className="w-full max-w-3xl mx-auto">
-          <form onSubmit={handleFormSubmit} className="space-y-8">
+          <div className="space-y-8">
             <div className="text-center space-y-2">
               <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
                 Start with a sentence.
@@ -341,127 +137,29 @@ export function ProjectInitializer() {
               </h2>
             </div>
 
-            {imagePreviews.length > 0 && (
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <h3 className="text-lg font-semibold text-white">
-                    Selected Images ({imagePreviews.length})
-                    {isProcessingImages && (
-                      <span className="ml-2 text-sm text-neutral-400">
-                        Processing...
-                      </span>
-                    )}
-                  </h3>
-                  <button
-                    type="button"
-                    onClick={removeAllImages}
-                    className="text-sm text-neutral-400 hover:text-neutral-500 transition-colors"
-                  >
-                    Remove All
-                  </button>
-                </div>
-                <div className="grid grid-cols-2 sm:grid-cols-5 md:grid-cols-8 gap-4">
-                  {imagePreviews.map((preview, index) => (
-                    <div key={index} className="relative group">
-                      <button onClick={() => openImageModal(preview)} className="aspect-square size-20 rounded-sm overflow-hidden bg-neutral-800">
-                        <img
-                          src={preview}
-                          alt={`Preview ${index + 1}`}
-                          className="object-cover size-20"
-                        />
-                      </button>
-                      <button
-                        type="button"
-                        onClick={() => removeImage(index)}
-                        className="absolute -top-2 -right-2 bg-neutral-700 hover:bg-neutral-800 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      >
-                        <X className="size-4" />
-                      </button>
-                    </div>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            <div className="relative group">
-              <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-              <div className="relative">
-                {/* <TextArea
-                  id="description"
-                  ref={textareaRef}
-                  value={description}
-                  onChange={(e) => setDescription(e.target.value)}
-                  onEnterSubmit={handleSubmit}
-                  placeholder="Describe the website you want to build..."
-                  height="8rem"
-                  maxHeight="16rem"
-                  required
-                /> */}
-                <AutoResizingTextarea 
-                  description={description} 
-                  setDescription={setDescription} 
-                  onEnterSubmit={handleSubmit}
-                  height="8rem"
-                  maxHeight="16rem"
-                  placeholder="Describe the website you want to build..." 
-                />
-
-                <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">
-                  <label htmlFor="fileInput" className="cursor-pointer relative">
-                    <ImageIcon className={`w-6 h-6 transition-colors ${
-                      isProcessingImages 
-                        ? 'text-blue-400 animate-pulse' 
-                        : 'text-neutral-500 hover:text-neutral-400'
-                    }`} />
-                  </label>
-                  <input
-                    id="fileInput"
-                    type="file"
-                    multiple
-                    accept="image/*"
-                    className="hidden"
-                    ref={fileInputRef}
-                    onChange={handleImageChange}
-                    disabled={isProcessingImages}
-                  />
-                </div>
-                <div className="absolute bottom-4 right-4 p-3 flex items-center justify-center gap-2">
-                  <span className="text-sm text-neutral-400">
-                    {usageRemaining <= 0
-                      ? 'You have reached your daily limit.'
-                      : `Chats left today: ${usageRemaining}`}
-                  </span>
-
-                  <button
-                    type="submit"
-                    disabled={usageRemaining <= 0 || !description.trim() || isCreatingProject || isProcessingImages}
-                    className={`p-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
-                      usageRemaining <= 0 || !description.trim() || isCreatingProject || isProcessingImages
-                        ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
-                        : 'bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg'
-                    }`}
-                  >
-                    {!isCreatingProject ? (
-                      <ArrowUp className="w-5 h-5" />
-                    ) : (
-                      <LoaderPinwheel className="animate-spin w-5 h-5" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            </div>
-          </form>
+            <PromptInputPanel
+              description={description}
+              setDescription={setDescription}
+              onSubmit={handleSubmit}
+              isSubmitting={isCreatingProject}
+              disabled={false}
+              placeholder="Describe the website you want to build..."
+              usageInfo={{
+                remaining: usageRemaining,
+                limitReached: usageRemaining <= 0
+              }}
+              textareaHeight="8rem"
+              textareaMaxHeight="16rem"
+              maxImages={10}
+            />
+          </div>
         </div>
       </div>
+      
       <RightSidebar
         isOpen={sidebarVisible}
         setIsOpenAction={handleSidebarClose}
         onMouseLeaveAction={handleSidebarMouseLeave}
-      />
-      <ImageModal
-        isOpen={isModalOpen}
-        imageSrc={modalImageSrc}
-        onClose={closeImageModal}
       />
     </div>
   )

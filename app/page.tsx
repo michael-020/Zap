@@ -8,9 +8,8 @@ import { ArrowUp, ImageIcon, X } from "lucide-react";
 import AuthModal from "@/components/auth-modal";
 import { useAuthStore } from "@/stores/authStore/useAuthStore";
 import toast from "react-hot-toast";
-import { TextArea } from "@/components/text-area";
+import AutoResizingTextarea from "@/components/textarea";
 
-// Helper function to convert image to WebP
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
     const canvas = document.createElement('canvas');
@@ -62,7 +61,6 @@ export default function Landing() {
   const [webpFiles, setWebpFiles] = useState<File[]>([]);
   const [isProcessingImages, setIsProcessingImages] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
   
   const { setSavedPrompt, setSavedImages } = useAuthStore();
   const { data: session } = useSession();
@@ -178,13 +176,6 @@ export default function Landing() {
     router.push("/chat");
   };
 
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === "Enter" && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
   return (
     <main className="min-h-screen bg-neutral-950">
       {/* Navbar */}
@@ -271,12 +262,13 @@ export default function Landing() {
           <div className="relative group">
             <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
             <div className="relative">
-              <TextArea
-                ref={textareaRef}
-                value={prompt}
-                onChange={(e) => setPrompt(e.target.value)}
-                onKeyDown={handleKeyDown}
+              <AutoResizingTextarea
+                description={prompt}
+                setDescription={setPrompt}
                 placeholder="Describe the website you want to build..."
+                maxHeight="16rem"
+                height="8rem"
+                onEnterSubmit={handleSubmit}
               />
               
               <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">

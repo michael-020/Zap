@@ -58,7 +58,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center min-h-screen px-4">
+      <div className="flex flex-col items-center justify-center min-h-screen md-14">
         <div className="text-center mb-3">
           <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
             Start with a sentence.
@@ -68,10 +68,10 @@ export default function Landing() {
           </h2>
         </div>
         <p className="text-neutral-400 text-center mb-12 text-lg">
-          Create stunning websites by chatting with AI.
+          Create stunning websites by chatting with Mirror AI.
         </p>
 
-        <div className="w-full max-w-2xl mx-auto">
+        <div className="w-full max-w-3xl mx-auto">
           <PromptInputPanel
             description={prompt}
             setDescription={setPrompt}

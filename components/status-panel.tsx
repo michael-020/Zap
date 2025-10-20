@@ -1,70 +1,21 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
 
-import { ChangeEvent, useEffect, useRef, useState } from "react"
+import { useEffect, useRef, useState } from "react"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
-import { Clock, AlertCircle, Loader2, Check, Copy, ArrowUp, ImageIcon, X } from 'lucide-react'
+import { Clock, AlertCircle, Loader2, Check, Copy } from 'lucide-react'
 import { BuildStepType, statusType } from "@/stores/editorStore/types"
-import { TextArea } from "./text-area"
-import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import { StatusPanelSkeletons } from "./status-pannel-skeletons"
-
-async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
-  return new Promise((resolve, reject) => {
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    
-    img.onload = () => {
-      const maxWidth = 1920;
-      const maxHeight = 1080;
-      
-      let { width, height } = img;
-      
-      if (width > maxWidth) {
-        height = (height * maxWidth) / width;
-        width = maxWidth;
-      }
-      
-      if (height > maxHeight) {
-        width = (width * maxHeight) / height;
-        height = maxHeight;
-      }
-      
-      canvas.width = width;
-      canvas.height = height;
-      
-      ctx?.drawImage(img, 0, 0, width, height);
-      
-      canvas.toBlob((blob) => {
-        if (blob) {
-          const webpFile = new File([blob], `${file.name.split('.')[0]}.webp`, {
-            type: 'image/webp'
-          });
-          resolve(webpFile);
-        } else {
-          reject(new Error('Failed to convert image to WebP'));
-        }
-      }, 'image/webp', quality);
-    };
-    
-    img.onerror = () => reject(new Error('Failed to load image'));
-    img.src = URL.createObjectURL(file);
-  });
-}
+import { PromptInputPanel } from "./prompt-input-panel"
 
 export function StatusPanel() {
   const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap, isFetchingImages } = useEditorStore()
   const [prompt, setPrompt] = useState("")
   const bottomRef = useRef<HTMLDivElement>(null)
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null)
-  const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [webpFiles, setWebpFiles] = useState<File[]>([]);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
-  const [isProcessingImages, setIsProcessingImages] = useState(false)
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -75,116 +26,12 @@ export function StatusPanel() {
     setIsModalOpen(false)
     setModalImageSrc("")
   }
-
-  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from((e.target as HTMLInputElement).files || []);
-    
-    if (files.length === 0) return;
-
-    // Validate all files are images
-    const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
-    if (invalidFiles.length > 0) {
-      toast.error("Please select only image files");
-      return;
-    }
-
-    // Check if adding these files would exceed a reasonable limit (e.g., 10 images)
-    if (imagePreviews.length + files.length > 10) {
-      toast.error("Maximum 10 images allowed");
-      return;
-    }
-
-    setIsProcessingImages(true);
-
-    try {
-      const newPreviews: string[] = [];
-      const newWebpFiles: File[] = [];
-
-      for (const file of files) {
-        const previewUrl = URL.createObjectURL(file);
-        newPreviews.push(previewUrl);
-
-        try {
-          let webpFile: File;
-          if (file.type === 'image/webp') {
-            webpFile = file;
-          } else {
-            webpFile = await convertToWebP(file);
-          }
-          newWebpFiles.push(webpFile);
-        } catch (error) {
-          console.error('Error converting image to WebP:', error);
-          toast.error(`Failed to process image: ${file.name}`);
-          newWebpFiles.push(file);
-        }
-      }
-
-      setImagePreviews(prev => [...prev, ...newPreviews]);
-      setWebpFiles(prev => [...prev, ...newWebpFiles]);
-
-    } catch (error) {
-      console.error('Error processing images:', error);
-      toast.error('Failed to process some images');
-    } finally {
-      setIsProcessingImages(false);
-    }
-
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  const removeImage = (indexToRemove: number) => {
-    setImagePreviews(prev => {
-      const newPreviews = prev.filter((_, index) => index !== indexToRemove);
-      const removedUrl = prev[indexToRemove];
-      if (removedUrl && removedUrl.startsWith('blob:')) {
-        URL.revokeObjectURL(removedUrl);
-      }
-      return newPreviews;
-    });
-    setWebpFiles(prev => prev.filter((_, index) => index !== indexToRemove));
-  };
-
-  const removeAllImages = () => {
-    imagePreviews.forEach(url => {
-      if (url.startsWith('blob:')) {
-        URL.revokeObjectURL(url);
-      }
-    });
-    
-    setImagePreviews([]);
-    setWebpFiles([]);
-    if (fileInputRef.current) fileInputRef.current.value = "";
-  };
-
-  useEffect(() => {
-    return () => {
-      imagePreviews.forEach(url => {
-        if (url.startsWith('blob:')) {
-          URL.revokeObjectURL(url);
-        }
-      });
-    };
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
   
-  const handleSubmit = () => {
-    if (!prompt.trim()) return
+  const handleSubmit = (description: string, files: File[]) => {
+    if (!description.trim()) return
     
-    processFollowupPrompts(prompt, webpFiles);
-    
+    processFollowupPrompts(description, files);
     setPrompt("")
-    imagePreviews.forEach(url => {
-      if (url.startsWith('blob:')) {
-        URL.revokeObjectURL(url);
-      }
-    });
-    setImagePreviews([]);
-    setWebpFiles([]);
-  }
-
-  const handleFormSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-    handleSubmit()
   }
 
   const handleCopy = async (text: string, promptIndex: number) => {
@@ -335,117 +182,23 @@ export function StatusPanel() {
         )}
       </div>
 
-      {imagePreviews.length > 0 && (
-        <div className="border-t border-neutral-800 p-3 bg-neutral-950">
-          <div className="space-y-3">
-            <div className="flex items-center justify-between">
-              <h4 className="text-sm font-medium text-white">
-                Selected Images ({imagePreviews.length})
-                {isProcessingImages && (
-                  <span className="ml-2 text-xs text-blue-400">
-                    Processing...
-                  </span>
-                )}
-              </h4>
-              <button
-                type="button"
-                onClick={removeAllImages}
-                className="text-xs text-neutral-400 hover:text-red-400 transition-colors"
-              >
-                Remove All
-              </button>
-            </div>
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-2">
-              {imagePreviews.map((preview, index) => (
-                <div key={index} className="relative group">
-                  <div 
-                    className="aspect-square rounded-md overflow-hidden bg-neutral-800 cursor-pointer hover:opacity-80 transition-opacity"
-                    onClick={() => openImageModal(preview)}
-                  >
-                    <img
-                      src={preview}
-                      alt={`Preview ${index + 1}`}
-                      className="w-full h-full object-cover"
-                      crossOrigin="anonymous" 
-                    />
-                  </div>
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeImage(index);
-                    }}
-                    className="absolute -top-1 -right-1 bg-red-500 hover:bg-red-600 text-white rounded-full p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
-                  >
-                    <X className="w-3 h-3" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
       <div className="border-t border-neutral-800 p-2 bg-neutral-950">
-        <form onSubmit={handleFormSubmit} className="flex gap-2 relative">
-          <TextArea
-            id="description"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-            onEnterSubmit={handleSubmit}
-            placeholder="Ask a follow up..."
-            height="4rem"
-            className="text-[1rem] pl-4 pt-2 pr-20" 
-            maxHeight="16rem"
-            required
-          />
-
-          <div className="absolute bottom-3 right-14 flex items-center justify-center">
-            <label htmlFor="followupFileInput" className="cursor-pointer relative">
-              <ImageIcon className={`w-5 h-5 transition-colors ${
-                isProcessingImages 
-                  ? 'text-blue-400 animate-pulse' 
-                  : 'text-neutral-400 hover:text-neutral-300'
-              }`} />
-              {imagePreviews.length > 0 && (
-                <span className="absolute -top-1 -right-1 bg-blue-500 text-white text-xs rounded-full w-4 h-4 flex items-center justify-center text-[10px]">
-                  {imagePreviews.length}
-                </span>
-              )}
-            </label>
-            <input
-              id="followupFileInput"
-              type="file"
-              multiple
-              accept="image/*"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleImageChange}
-              disabled={isProcessingImages}
-            />
-          </div>
-
-          <button
-            type="submit"
-            disabled={!prompt.trim() || isProcessingFollowups || isProcessingImages}
-            className={`px-2 py-2 rounded-lg absolute bottom-2 right-2 font-medium transition-all duration-200 flex items-center gap-2 ${
-              prompt.trim() && !isProcessingFollowups && !isProcessingImages
-                ? "bg-neutral-300 hover:bg-neutral-400 text-black"
-                : "bg-neutral-600 text-gray-400 cursor-not-allowed"
-            }`}
-          >
-            {isProcessingFollowups ? (
-              <Loader2 className="w-4 h-4 animate-spin" />
-            ) : (
-              <>
-                <ArrowUp className="w-4 h-4" />
-              </>
-            )}
-          </button>
-        </form>
+        <PromptInputPanel
+          description={prompt}
+          setDescription={setPrompt}
+          onSubmit={handleSubmit}
+          isSubmitting={isProcessingFollowups}
+          disabled={false}
+          placeholder="Ask a follow up..."
+          textareaHeight="3rem"
+          textareaMaxHeight="10rem"
+          textareaClassName="placeholder:text-sm text-sm"
+          maxImages={10}
+          submitButtonSize={"4"}
+          imageSelectorSize={"5"}
+        />
       </div>
 
-      {/* Image Modal */}
       <ImageModal
         isOpen={isModalOpen}
         imageSrc={modalImageSrc}

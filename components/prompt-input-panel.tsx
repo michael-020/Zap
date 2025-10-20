@@ -64,7 +64,10 @@ interface PromptInputPanelProps {
   };
   textareaHeight?: string;
   textareaMaxHeight?: string;
+  textareaClassName?: string
   maxImages?: number;
+  submitButtonSize?: string,
+  imageSelectorSize?: string
 }
 
 export function PromptInputPanel({
@@ -78,6 +81,9 @@ export function PromptInputPanel({
   textareaHeight = "8rem",
   textareaMaxHeight = "16rem",
   maxImages = 10,
+  textareaClassName,
+  submitButtonSize,
+  imageSelectorSize
 }: PromptInputPanelProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [webpFiles, setWebpFiles] = useState<File[]>([])
@@ -254,11 +260,12 @@ export function PromptInputPanel({
             height={textareaHeight}
             maxHeight={textareaMaxHeight}
             placeholder={placeholder} 
+            className={textareaClassName}
           />
 
           <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">
             <label htmlFor="fileInput" className="cursor-pointer relative">
-              <ImageIcon className={`w-6 h-6 transition-colors ${
+              <ImageIcon className={`${imageSelectorSize ? `size-${imageSelectorSize}` : "size-6"} transition-colors ${
                 isProcessingImages 
                   ? 'text-blue-400 animate-pulse' 
                   : 'text-neutral-500 hover:text-neutral-400'
@@ -276,7 +283,7 @@ export function PromptInputPanel({
             />
           </div>
           
-          <div className="absolute bottom-4 right-4 p-3 flex items-center justify-center gap-2">
+          <div className={`absolute ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } p-3 flex items-center justify-center gap-2`}>
             {usageInfo && (
               <span className="text-sm text-neutral-400">
                 {usageInfo.limitReached
@@ -289,14 +296,14 @@ export function PromptInputPanel({
               type="button"
               onClick={handleSubmit}
               disabled={isDisabled}
-              className={`p-3 rounded-xl font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+              className={`${ submitButtonSize ? "p-2 rounded-lg" : "p-3 rounded-xl" }  font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 isDisabled
                   ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                   : 'bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg'
               }`}
             >
               {!isSubmitting ? (
-                <ArrowUp className="w-5 h-5" />
+                <ArrowUp className={`${submitButtonSize ? `size-${submitButtonSize}` : "size-5"}`} />
               ) : (
                 <LoaderPinwheel className="animate-spin w-5 h-5" />
               )}

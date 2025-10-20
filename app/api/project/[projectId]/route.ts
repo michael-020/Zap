@@ -19,7 +19,7 @@ export async function DELETE(
         }
 
         // Handle both single and multiple project IDs
-        const projectIds = params.projectId.split(',');
+        const projectIds = await params.projectId.split(',');
 
         // Ensure all projects exist and belong to the user
         const projects = await prisma.project.findMany({

@@ -13,6 +13,7 @@ import Navbar from "./navbar"
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import { axiosInstance } from "@/lib/axios"
+import AutoResizingTextarea from "./textarea"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -385,7 +386,7 @@ export function ProjectInitializer() {
             <div className="relative group">
               <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
               <div className="relative">
-                <TextArea
+                {/* <TextArea
                   id="description"
                   ref={textareaRef}
                   value={description}
@@ -395,6 +396,14 @@ export function ProjectInitializer() {
                   height="8rem"
                   maxHeight="16rem"
                   required
+                /> */}
+                <AutoResizingTextarea 
+                  description={description} 
+                  setDescription={setDescription} 
+                  onEnterSubmit={handleSubmit}
+                  height="8rem"
+                  maxHeight="16rem"
+                  placeholder="Describe the website you want to build..." 
                 />
 
                 <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">

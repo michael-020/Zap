@@ -126,11 +126,10 @@ export async function POST(req: NextRequest) {
     }
 
     if (!session.user.isPremium) {
-      const today = new Date().toISOString().split("T")[0]; 
       const usageRecord = await prisma.usage.findFirst({
         where: {
           userId: session.user.id,
-          date: today,
+          date: new Date(),
         },
       });
 
@@ -150,7 +149,7 @@ export async function POST(req: NextRequest) {
         await prisma.usage.create({
           data: {
             userId: session.user.id,
-            date: today,
+            date: new Date(),
             chatCount: 1,
           },
         });

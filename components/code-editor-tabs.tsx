@@ -33,6 +33,7 @@ export function CodeEditorTabs({ activeTab, onTabChange, isFullscreen, setIsFull
       <div className="flex">
         <button
           onClick={() => onTabChange("code")}
+          title="Code Editor"
           className={`px-4 py-2 text-sm border-r rounded-l-lg border-neutral-700 transition-colors flex items-center gap-1 ${
             activeTab === "code"
             ? "bg-neutral-950 text-neutral-200"
@@ -42,6 +43,7 @@ export function CodeEditorTabs({ activeTab, onTabChange, isFullscreen, setIsFull
           <Code className="size-3" />
         </button>
         <button
+          title="Preview"
           onClick={() => onTabChange("preview")}
           className={`px-4 py-2 text-sm transition-colors rounded-r-lg flex items-center gap-1 ${
             activeTab === "preview"

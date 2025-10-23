@@ -78,7 +78,7 @@ export function PromptInputPanel({
   disabled = false,
   placeholder = "Describe the website you want to build...",
   usageInfo,
-  textareaHeight = "8rem",
+  textareaHeight = "6rem",
   textareaMaxHeight = "16rem",
   maxImages = 10,
   textareaClassName,
@@ -251,63 +251,72 @@ export function PromptInputPanel({
       )}
 
       <div className="relative group">
-        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 rounded-2xl blur opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
-        <div className="relative">
-          <AutoResizingTextarea 
-            description={description} 
-            setDescription={setDescription} 
-            onEnterSubmit={handleSubmit}
-            height={textareaHeight}
-            maxHeight={textareaMaxHeight}
-            placeholder={placeholder} 
-            className={textareaClassName}
-          />
-
-          <div className="absolute bottom-6 left-6 flex items-center justify-center gap-2">
-            <label htmlFor="fileInput" className="cursor-pointer relative">
-              <ImageIcon className={`${imageSelectorSize ? `size-${imageSelectorSize}` : "size-6"} transition-colors ${
-                isProcessingImages 
-                  ? 'text-blue-400 animate-pulse' 
-                  : 'text-neutral-500 hover:text-neutral-400'
-              }`} />
-            </label>
-            <input
-              id="fileInput"
-              type="file"
-              multiple
-              accept="image/*"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleImageChange}
-              disabled={isProcessingImages || disabled}
+        <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 rounded-2xl blur group-hover:opacity-100 transition-opacity duration-300 p-1.5"></div>
+        <div className="relative flex-col bg-neutral-900 backdrop-blur-sm border border-neutral-700 rounded-xl">
+          <div>
+            <AutoResizingTextarea 
+              description={description} 
+              setDescription={setDescription} 
+              onEnterSubmit={handleSubmit}
+              height={textareaHeight}
+              maxHeight={textareaMaxHeight}
+              placeholder={placeholder} 
+              className={textareaClassName}
             />
           </div>
-          
-          <div className={`absolute ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } p-3 flex items-center justify-center gap-2`}>
+
+          <div className=" flex items-center justify-between px-4">
+            <div>
+
+              <label htmlFor="fileInput" className="cursor-pointer relative">
+                <ImageIcon className={`${imageSelectorSize ? `size-${imageSelectorSize}` : "size-6"} transition-colors ${
+                  isProcessingImages 
+                  ? 'text-blue-400 animate-pulse' 
+                  : 'text-neutral-500 hover:text-neutral-400'
+                }`} />
+              </label>
+              <input
+                id="fileInput"
+                type="file"
+                multiple
+                accept="image/*"
+                className="hidden"
+                ref={fileInputRef}
+                onChange={handleImageChange}
+                disabled={isProcessingImages || disabled}
+              />
+            </div>
+            <div className={` ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } pt-0 p-3 pr-0 flex items-center justify-center gap-2`}>
             {usageInfo && (
-              <span className="text-sm text-neutral-400">
-                {usageInfo.limitReached
+              <button 
+                title={usageInfo.limitReached
                   ? 'You have reached your daily limit.'
                   : `Chats left today: ${usageInfo.remaining}`}
-              </span>
+                className="text-sm text-neutral-400"
+              >
+                {usageInfo.limitReached
+                  ? 'You have reached your daily limit.'
+                  : `${usageInfo.remaining}/5`}
+              </button>
             )}
 
             <button
               type="button"
               onClick={handleSubmit}
               disabled={isDisabled}
-              className={`${ submitButtonSize ? "p-2 rounded-lg" : "p-3 rounded-xl" }  font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
+              className={`${ submitButtonSize ? "p-1 rounded-lg" : "p-2 rounded-xl" }  font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 isDisabled
                   ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
                   : 'bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg'
               }`}
             >
               {!isSubmitting ? (
-                <ArrowUp className={`${submitButtonSize ? `size-${submitButtonSize}` : "size-5"}`} />
+                <ArrowUp className={`${submitButtonSize ? `size-${submitButtonSize}` : "size-4"}`} />
               ) : (
                 <LoaderPinwheel className="animate-spin w-5 h-5" />
               )}
             </button>
+          </div>
           </div>
         </div>
       </div>

@@ -148,7 +148,7 @@ export function ProjectInitializer() {
                 remaining: usageRemaining,
                 limitReached: usageRemaining <= 0
               }}
-              textareaHeight="8rem"
+              textareaHeight="6rem"
               textareaMaxHeight="16rem"
               maxImages={10}
             />

@@ -45,7 +45,7 @@ const AutoResizingTextarea = ({description, placeholder, setDescription, onEnter
       onChange={handleChange}
       placeholder={placeholder}
       onKeyDown={handleKeyDown}
-      className={`${className} w-full px-6 py-4 bg-neutral-900/90 backdrop-blur-sm border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500/60 focus:border-neutral-500/60 resize-none transition-all duration-200 text-lg leading-relaxed scrollbar-hidden`}
+      className={`${className} w-full px-6 py-4 bg-neutral-900/90 backdrop-blur-sm border-0 border-b-0 border-neutral-700 rounded-t-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-b-1 focus:ring-neutral-500/60 focus:border-neutral-500/60 resize-none transition-all duration-200 text-lg leading-relaxed scrollbar-hidden`}
       style={{
         minHeight: height ?? "150px",
         maxHeight: maxHeight ?? "200px",

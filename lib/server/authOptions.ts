@@ -30,7 +30,7 @@ export const authOptions: AuthOptions = ({
         if(!checkPassword)
           return null
 
-        return { id: user.id, email: user.email }
+        return { id: user.id, email: user.email, isPremium: user.isPremium }
       }
     }),
     GoogleProvider({
@@ -42,22 +42,25 @@ export const authOptions: AuthOptions = ({
     session: ({ session, token }) => {
       if (session?.user && token.id) {
         session.user.id = token.id as string 
+        session.user.isPremium = token.isPremium as boolean
       }
       return session
     },
     jwt: async ({token, user, account}) => {
       if (user) {
         token.id = user.id;
+        token.isPremium = user.isPremium; 
       }
       
       if (account?.provider === "google" && token.email) {
         try {
           const dbUser = await prisma.user.findUnique({
             where: { email: token.email },
-            select: { id: true }
+            select: { id: true, isPremium: true }
           });
           if (dbUser) {
             token.id = dbUser.id;
+            token.isPremium = dbUser.isPremium;
           }
         } catch (error) {
           console.error("Error fetching user ID:", error);

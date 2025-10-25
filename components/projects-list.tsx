@@ -20,7 +20,6 @@ export default function ProjectsList({ projects, isSelectionMode, onProjectsUpda
         mode: 'delete'
     })
 
-    // Reset selection when selection mode is disabled
     useEffect(() => {
         if (!isSelectionMode) {
             setSelectedProjects(new Set())
@@ -77,7 +76,7 @@ export default function ProjectsList({ projects, isSelectionMode, onProjectsUpda
                     {selectedProjects.size > 0 && (
                         <button
                             onClick={handleDeleteSelected}
-                            className="px-4 py-2 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+                            className="px-4 py-2 text-sm font-medium bg-red-900/80 text-white rounded-lg hover:bg-red-900/70 transition-colors"
                         >
                             Delete Selected ({selectedProjects.size})
                         </button>
@@ -110,7 +109,6 @@ export default function ProjectsList({ projects, isSelectionMode, onProjectsUpda
                 ))}
             </div>
 
-            {/* Delete Modal */}
             <ProjectModal
                 isOpen={modalState.isOpen}
                 onClose={handleModalClose}

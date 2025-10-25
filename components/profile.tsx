@@ -83,7 +83,6 @@ export function Profile() {
                 showBackButton={true}
             />
             <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                {/* Header Section with Selection Toggle */}
                 <div className="mb-8 flex items-center justify-between">
                     <div>
                         <h1 className="text-3xl font-bold text-white mb-2">
@@ -93,7 +92,6 @@ export function Profile() {
                             Manage and explore your previous Chats
                         </p>
                     </div>
-                    {/* Only show Select Projects button if there are projects */}
                     {!isLoading && projects && projects.length > 0 && (
                         <button
                             onClick={() => setIsSelectionMode(!isSelectionMode)}
@@ -104,7 +102,6 @@ export function Profile() {
                     )}
                 </div>
 
-                {/* Projects Content */}
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                         {Array.from({ length: 8 }).map((_, index) => (

@@ -188,7 +188,7 @@ export default function ProjectModal({
                                 type="submit"
                                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                                     mode === 'delete' 
-                                        ? 'bg-red-600 hover:bg-red-700 text-white' 
+                                        ? 'bg-red-900/80 hover:bg-red-900/70 text-white' 
                                         : 'bg-neutral-600 hover:bg-neutral-700 text-white'
                                 }`}
                                 disabled={isLoading || (mode === 'rename' && !newName.trim())}

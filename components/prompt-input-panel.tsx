@@ -67,7 +67,8 @@ interface PromptInputPanelProps {
   textareaClassName?: string
   maxImages?: number;
   submitButtonSize?: string,
-  imageSelectorSize?: string
+  imageSelectorSize?: string,
+  isPremium: boolean
 }
 
 export function PromptInputPanel({
@@ -83,7 +84,8 @@ export function PromptInputPanel({
   maxImages = 10,
   textareaClassName,
   submitButtonSize,
-  imageSelectorSize
+  imageSelectorSize,
+  isPremium
 }: PromptInputPanelProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [webpFiles, setWebpFiles] = useState<File[]>([])
@@ -287,7 +289,7 @@ export function PromptInputPanel({
               />
             </div>
             <div className={` ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } pt-0 p-3 pr-0 flex items-center justify-center gap-2`}>
-            {usageInfo && (
+            {!isPremium && usageInfo && (
               <div className="flex gap-1 items-center justify-center">
                 <button 
                   title={usageInfo.limitReached

@@ -47,20 +47,23 @@ export default function Navbar({
               onClick={onBack}
               className="text-white font-bold font-stretch-extra-expanded text-xl tracking-wide cursor-pointer select-none hover:opacity-90 transition"
             >
-              Mirror
+              Zap
             </button>
           ) : (
             <div className="text-white font-bold font-stretch-extra-expanded text-xl tracking-wide select-none">
-              Mirror
+              Zap
             </div>
           )}
         </div>
 
         <div className="flex gap-3 items-center relative">
+          {session?.user.isPremium && <div className='text-xs text-neutral-200 bg-neutral-900 px-3 py-2 rounded-md cursor-default select-none'>
+            Pro  
+          </div>}
           {session && (
             <div className="relative" ref={dropdownRef}>
               <motion.button
-                className={`flex items-center justify-center size-8 text-white cursor-pointer bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-full shadow-lg ring-2 ring-transparent ${
+                className={`flex select-none items-center justify-center size-8 text-white cursor-pointer bg-gradient-to-br from-neutral-600 to-neutral-700 rounded-full shadow-lg ring-2 ring-transparent ${
                   dropdownOpen ? 'ring-neutral-400/50' : ''
                 }`}
                 onClick={() => setDropdownOpen((prev) => !prev)}

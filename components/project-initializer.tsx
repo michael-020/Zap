@@ -136,11 +136,12 @@ export function ProjectInitializer() {
                 End with a website.
               </h2>
               <p className="text-neutral-400 text-center mb-12 text-lg">
-                Create stunning websites by chatting with Mirror AI.
+                Create stunning websites by chatting with Zap.
               </p>
             </div>
 
             <PromptInputPanel
+              isPremium={session.user.isPremium}
               description={description}
               setDescription={setDescription}
               onSubmit={handleSubmit}

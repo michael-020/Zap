@@ -2,14 +2,8 @@ import { prisma } from "@/lib/prisma";
 import { authOptions } from "@/lib/server/authOptions";
 import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
-import Razorpay from "razorpay"
+import crypto from "crypto";
 
-const razorpay = new Razorpay({
-    key_id: process.env.RAZORPAY_KEY_ID,
-    key_secret: process.env.RAZORPAY_KEY_SECRET
-})
-
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
 export async function POST(req: NextRequest){
     try {
         const session = await getServerSession(authOptions)
@@ -19,12 +13,24 @@ export async function POST(req: NextRequest){
                 { status: 401}
             )
         }
-        const order = await razorpay.orders.create({
-            amount: 100 * 100,
-            currency: "INR",
-            receipt: "receipt_" + Math.random().toString(36).substring(7)
-        })
 
+        const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json();
+
+        // Verify payment signature
+        const body = razorpay_order_id + "|" + razorpay_payment_id;
+        const expectedSignature = crypto
+            .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET!)
+            .update(body.toString())
+            .digest("hex");
+
+        if (expectedSignature !== razorpay_signature) {
+            return NextResponse.json(
+                { msg: "Invalid payment signature" },
+                { status: 400 }
+            );
+        }
+
+        // Payment verified - now upgrade user
         await prisma.user.update({
             where: {
                 id: session.user.id,
@@ -35,10 +41,10 @@ export async function POST(req: NextRequest){
         });
 
         return NextResponse.json(
-            { orderId: order.id }
+            { msg: "Payment verified and user upgraded successfully" }
         )
     } catch (error) {
-        console.error("Error while creating order: ", error)
+        console.error("Error while verifying payment: ", error)
         return NextResponse.json(
             { msg: "Internal Server Error" },
             { status: 500 }

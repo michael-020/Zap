@@ -5,6 +5,7 @@ import { useState } from "react"
 import Script from "next/script"
 import { axiosInstance } from "@/lib/axios" 
 import { Loader2 } from "lucide-react"
+import { redirect } from "next/navigation"
 
 const PaymentPage = () => {
     const amount = 100; 
@@ -37,9 +38,25 @@ const PaymentPage = () => {
                 name: "Your Company Name",
                 description: "Test Transaction",
                 order_id: data.orderId,
-                handler: function (response: any) {
+                handler: async function (response: any) {
                     console.log("Payment successful", response);
-                    setPaymentStatus(`Payment Successful! Payment ID: ${response.razorpay_payment_id}`);
+                    
+                    try {
+                        const verifyRes = await axiosInstance.post("/api/verify-payment", {
+                            razorpay_order_id: response.razorpay_order_id,
+                            razorpay_payment_id: response.razorpay_payment_id,
+                            razorpay_signature: response.razorpay_signature
+                        });
+                        
+                        if (verifyRes.data) {
+                            setPaymentStatus(`Payment Successful! You are now a Premium user.`);
+                        }
+                        await new Promise(r => setTimeout(r, 2000))
+                        redirect("/chat")
+                    } catch (error) {
+                        console.error("Payment verification failed", error);
+                        setPaymentStatus("Payment completed but verification failed. Please contact support.");
+                    }
                 },
                 prefill: {
                     name: "John Doe",

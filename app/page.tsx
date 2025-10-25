@@ -73,6 +73,7 @@ export default function Landing() {
 
         <div className="w-full max-w-3xl mx-auto">
           <PromptInputPanel
+            isPremium={false}
             description={prompt}
             setDescription={setPrompt}
             onSubmit={handleSubmit}

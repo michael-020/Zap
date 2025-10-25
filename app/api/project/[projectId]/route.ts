@@ -7,7 +7,7 @@ import cloudinary from "@/lib/server/cloudinary";
 
 export async function DELETE(
     req: NextRequest,
-    { params }: { params: { projectId: string } }
+    { params }: { params: Promise<{ projectId: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -18,14 +18,13 @@ export async function DELETE(
             );
         }
 
-        // Handle both single and multiple project IDs
-        const projectIds = await params.projectId.split(',');
+        const parameters = await params
+        const projectIds = parameters.projectId.split(',');
 
-        // Ensure all projects exist and belong to the user
         const projects = await prisma.project.findMany({
             where: {
                 id: { in: projectIds },
-                userId: session.user.id // Add user check for security
+                userId: session.user.id 
             }
         });
 
@@ -39,14 +38,12 @@ export async function DELETE(
             );
         }
 
-        // Delete associated chats first
         await prisma.chat.deleteMany({
             where: {
                 projectId: { in: existingProjectIds }
             }
         });
 
-        // Delete the projects
         await prisma.project.deleteMany({
             where: {
                 id: { in: existingProjectIds },
@@ -67,11 +64,11 @@ export async function DELETE(
 
 
 export async function PUT(
-    req: NextResponse,
+    req: NextRequest,
     { params }: { params: Promise<{ projectId: string }> }
 ) {
     const browser = await puppeteer.launch({
-        headless: true, // Changed to headless: true for production
+        headless: true, 
         args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -109,13 +106,10 @@ export async function PUT(
 
         const page = await browser.newPage();
         
-        // Set user agent to avoid detection
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 
-        // Take the improved screenshot
         const screenshot = await captureIframeScreenshot(newPreviewUrl);
 
-        // FIXED: Convert base64 buffer to proper data URL string
         const screenshotDataUrl = `data:image/png;base64,${screenshot}`;
 
         const uploadResponse = await cloudinary.uploader.upload(screenshotDataUrl);
@@ -132,10 +126,10 @@ export async function PUT(
         }
 
         if (Object.keys(updatedData).length === 0) {
-        return NextResponse.json(
-            { msg: "No data to update" },
-            { status: 400 }
-        );
+            return NextResponse.json(
+                { msg: "No data to update" },
+                { status: 400 }
+            );
         }
 
         await prisma.project.update({
@@ -146,7 +140,7 @@ export async function PUT(
         });
 
         return NextResponse.json(
-        { msg: "Project updated successfully" }
+            { msg: "Project updated successfully" }
         );
     } catch (error) {
         console.error("Error while renaming project: ", error)

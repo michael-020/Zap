@@ -2,7 +2,7 @@ import axios from "axios";
 import { NextRequest, NextResponse } from "next/server"
 import puppeteer, { Page } from "puppeteer";
 
-export async function takeFullPageScreenshot(page: Page, url: string) {
+async function takeFullPageScreenshot(page: Page, url: string) {
   try {
     // Set viewport to a reasonable size
     await page.setViewport({
@@ -46,7 +46,7 @@ export async function takeFullPageScreenshot(page: Page, url: string) {
 }
 
 // Function to auto-scroll and trigger lazy loading
-export async function autoScroll(page: Page) {
+async function autoScroll(page: Page) {
   await page.evaluate(async () => {
     await new Promise<void>((resolve) => {
       let totalHeight = 0;
@@ -71,7 +71,7 @@ export async function autoScroll(page: Page) {
 }
 
 // Function to dismiss common popups and modals
-export async function dismissPopups(page: Page) {
+async function dismissPopups(page: Page) {
   try {
     // Common selectors for close buttons, overlays, and popups
     const popupSelectors = [
@@ -133,9 +133,8 @@ export async function dismissPopups(page: Page) {
 }
 
 export async function POST(req: NextRequest) {
-     // Launch browser with better settings for screenshot
     const browser = await puppeteer.launch({
-        headless: true, // Changed to headless: true for production
+        headless: true, 
         args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -148,14 +147,12 @@ export async function POST(req: NextRequest) {
     });
     try {
         const { url } = await req.json()
-        // Check if the URL starts with 'https://', if not, add it
         const correctUrl = url;
         // console.log("correct url: ", correctUrl)
         // if (!url.startsWith("https://") && !url.startsWith("http://")) {
         //   correctUrl = `https://${url}`;
         // }
 
-        // First check if URL is reachable
         const res = await axios.get(correctUrl, { timeout: 10000 });
 
         if (res.status === 404) {
@@ -168,16 +165,12 @@ export async function POST(req: NextRequest) {
 
         const page = await browser.newPage();
 
-        // Set user agent to avoid detection
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/91.0.4472.124 Safari/537.36');
 
-        // Take the improved screenshot
         const screenshot = await takeFullPageScreenshot(page, correctUrl);
 
-        // FIXED: Convert base64 buffer to proper data URL string
         const screenshotDataUrl = `data:image/png;base64,${screenshot}`;
         
-        // Validate the screenshot format before sending
         if (!screenshotDataUrl.startsWith('data:image/')) {
           throw new Error('Invalid screenshot format generated');
         }

@@ -7,7 +7,7 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/server/authOptions";
 import { prisma } from "@/lib/prisma";
 
-export const chatStreamSchema = z.object({
+const chatStreamSchema = z.object({
   messages: z.array(
     z.object({
       role: z.enum(["user", "assistant", "system"]),

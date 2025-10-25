@@ -8,6 +8,7 @@ import { BuildStepType, statusType } from "@/stores/editorStore/types"
 import { ImageModal } from "./image-modal"
 import { StatusPanelSkeletons } from "./status-pannel-skeletons"
 import { PromptInputPanel } from "./prompt-input-panel"
+import { useSession } from "next-auth/react"
 
 export function StatusPanel() {
   const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap, isFetchingImages } = useEditorStore()
@@ -16,6 +17,7 @@ export function StatusPanel() {
   const [copiedPromptIndex, setCopiedPromptIndex] = useState<number | null>(null)
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
+  const session = useSession()
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -184,6 +186,7 @@ export function StatusPanel() {
 
       <div className="border-t border-neutral-800 p-2 bg-neutral-950">
         <PromptInputPanel
+          isPremium={session.data?.user.isPremium as boolean}
           description={prompt}
           setDescription={setPrompt}
           onSubmit={handleSubmit}

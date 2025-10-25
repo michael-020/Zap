@@ -35,7 +35,7 @@ export default function Landing() {
   return (
     <main className="min-h-screen bg-neutral-950">
       {/* Navbar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-neutral-900/50 backdrop-blur-xl border-b border-neutral-800">
+      <nav className="fixed top-0 left-0 right-0 z-50 bg-neutral-950 border-0.5 backdrop-blur-xl border-b border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
             <div className="text-xl font-bold text-white">Mirror</div>
@@ -58,7 +58,7 @@ export default function Landing() {
       </nav>
 
       {/* Hero Section */}
-      <div className="flex flex-col items-center justify-center min-h-screen md-14">
+      <div className="flex flex-col items-center justify-center min-h-screen -translate-y-12">
         <div className="text-center mb-3">
           <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
             Start with a sentence.
@@ -79,7 +79,7 @@ export default function Landing() {
             isSubmitting={false}
             disabled={false}
             placeholder="Describe the website you want to build..."
-            textareaHeight="8rem"
+            textareaHeight="6rem"
             textareaMaxHeight="16rem"
             maxImages={10}
           />

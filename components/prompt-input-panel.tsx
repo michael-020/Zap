@@ -2,7 +2,7 @@
 "use client"
 
 import { ChangeEvent, useEffect, useRef, useState } from "react"
-import { ArrowUp, ImageIcon, LoaderPinwheel, X } from 'lucide-react'
+import { ArrowUp, CircleQuestionMark, ImageIcon, LoaderPinwheel, X } from 'lucide-react'
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import AutoResizingTextarea from "./textarea"
@@ -288,16 +288,25 @@ export function PromptInputPanel({
             </div>
             <div className={` ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } pt-0 p-3 pr-0 flex items-center justify-center gap-2`}>
             {usageInfo && (
-              <button 
-                title={usageInfo.limitReached
-                  ? 'You have reached your daily limit.'
-                  : `Chats left today: ${usageInfo.remaining}`}
-                className="text-sm text-neutral-400"
-              >
-                {usageInfo.limitReached
-                  ? 'You have reached your daily limit.'
-                  : `${usageInfo.remaining}/5`}
-              </button>
+              <div className="flex gap-1 items-center justify-center">
+                <button 
+                  title={usageInfo.limitReached
+                    ? 'You have reached your daily limit.'
+                    : `Chats left today: ${usageInfo.remaining}`}
+                    className="text-sm text-neutral-400"
+                    >
+                  {usageInfo.limitReached
+                    ? 'You have reached your daily limit.'
+                    : `${usageInfo.remaining}/5`}
+                </button>
+                <button
+                  title={usageInfo.limitReached
+                    ? 'You have reached your daily limit.'
+                    : `Chats left today: ${usageInfo.remaining}`}
+                >
+                  <CircleQuestionMark className={`text-neutral-500 size-3.5`} />
+                </button>
+              </div>
             )}
 
             <button

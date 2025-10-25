@@ -135,6 +135,9 @@ export function ProjectInitializer() {
               <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 End with a website.
               </h2>
+              <p className="text-neutral-400 text-center mb-12 text-lg">
+                Create stunning websites by chatting with Mirror AI.
+              </p>
             </div>
 
             <PromptInputPanel

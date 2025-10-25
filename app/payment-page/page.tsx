@@ -73,18 +73,18 @@ const PaymentPage = () => {
         <>
             <Script
                 src="https://checkout.razorpay.com/v1/checkout.js"
-                onLoad={() => setRazorpayLoaded(true)} // Ensure Razorpay is loaded
+                onLoad={() => setRazorpayLoaded(true)}
             />
 
-            <div className="min-h-screen bg-gray-100 flex items-center justify-center">
-                <div className="w-full max-w-md p-8 space-y-8 bg-white rounded-lg shadow-lg">
+            <div className="min-h-screen bg-neutral-800/10 flex items-center justify-center">
+                <div className="w-full max-w-md p-8 space-y-8 bg-neutral-900 border border-neutral-800 shadow-neutral-900 rounded-lg shadow-lg">
                     
                     {/* Header */}
                     <div>
-                        <h2 className="mt-6 text-center text-3xl font-extrabold text-gray-900">
+                        <h2 className="mt-6 text-center text-3xl font-extrabold text-neutral-200">
                             Complete Your Payment
                         </h2>
-                        <p className="mt-2 text-center text-sm text-gray-600">
+                        <p className="mt-2 text-center text-sm text-neutral-400">
                            Securely pay with Razorpay
                         </p>
                     </div>
@@ -92,10 +92,10 @@ const PaymentPage = () => {
                     {/* Order Summary */}
                     <div className="border-t border-b border-gray-200 py-6">
                         <div className="flex justify-between items-center">
-                            <p className="text-lg font-medium text-gray-800">Test Product</p>
-                            <p className="text-lg font-bold text-gray-900">₹{amount.toFixed(2)}</p>
+                            <p className="text-lg font-medium text-neutral-300">Mirror Pro</p>
+                            <p className="text-lg font-bold text-neutral-300">₹{amount.toFixed(2)}</p>
                         </div>
-                         <p className="mt-1 text-sm text-gray-500">A one-time purchase for our premium service.</p>
+                         <p className="mt-1 text-sm text-neutral-300">A one-time purchase for our premium service.</p>
                     </div>
 
                     {/* Payment Button */}

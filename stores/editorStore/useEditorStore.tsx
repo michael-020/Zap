@@ -479,7 +479,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         // Separate map for tracking file completion - this one uses objects
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
 
-        const descriptionRegex = /^([\s\S]*?)<mirrorArtifeact/;
+        const descriptionRegex = /^([\s\S]*?)<zapArtifeact/;
         
         let description = "";
         
@@ -518,12 +518,12 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             fileCompletionTracker.forEach((fileData, filePath) => {
               if (!fileData.isComplete && !get().userEditedFiles.has(filePath)) {
                 // Extract content between the opening tag and current buffer position
-                const openingTag = `<mirrorAction type="file" filePath="${filePath}">`;
+                const openingTag = `<zapAction type="file" filePath="${filePath}">`;
                 const openingIndex = buffer.indexOf(openingTag);
                 
                 if (openingIndex !== -1) {
                   const contentStart = openingIndex + openingTag.length;
-                  const closingTag = '</mirrorAction>';
+                  const closingTag = '</zapAction>';
                   const closingIndex = buffer.indexOf(closingTag, contentStart);
                   
                   // Extract the content portion
@@ -580,7 +580,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
             // Process complete actions (keep existing code)
             let match;
-            const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g;
+            const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
 
             while ((match = actionRegex.exec(buffer)) !== null) {
               const [, type, filePath, content] = match;
@@ -649,7 +649,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             }
 
             // Check for new incomplete file actions
-            const incompleteActionRegex = /<mirrorAction\s+type="file"\s+filePath="([^"]*)">/g;
+            const incompleteActionRegex = /<zapAction\s+type="file"\s+filePath="([^"]*)">/g;
             let incompleteMatch;
             while ((incompleteMatch = incompleteActionRegex.exec(buffer)) !== null) {
               const [, filePath] = incompleteMatch;
@@ -794,7 +794,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
 
         // Extract description from the start of the response
-        const descriptionRegex = /^([\s\S]*?)<mirrorArtifeact/;
+        const descriptionRegex = /^([\s\S]*?)<zapArtifeact/;
         
         let description = "";
         
@@ -833,12 +833,12 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             fileCompletionTracker.forEach((fileData, filePath) => {
               if (!fileData.isComplete && !get().userEditedFiles.has(filePath)) {
                 // Extract content between the opening tag and current buffer position
-                const openingTag = `<mirrorAction type="file" filePath="${filePath}">`;
+                const openingTag = `<zapAction type="file" filePath="${filePath}">`;
                 const openingIndex = buffer.indexOf(openingTag);
                 
                 if (openingIndex !== -1) {
                   const contentStart = openingIndex + openingTag.length;
-                  const closingTag = '</mirrorAction>';
+                  const closingTag = '</zapAction>';
                   const closingIndex = buffer.indexOf(closingTag, contentStart);
                   
                   // Extract the content portion
@@ -895,7 +895,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
             // Process complete actions
             let match;
-            const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g;
+            const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
 
             while ((match = actionRegex.exec(buffer)) !== null) {
               const [, type, filePath, content] = match;
@@ -964,7 +964,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             }
 
             // Check for new incomplete file actions
-            const incompleteActionRegex = /<mirrorAction\s+type="file"\s+filePath="([^"]*)">/g;
+            const incompleteActionRegex = /<zapAction\s+type="file"\s+filePath="([^"]*)">/g;
             let incompleteMatch;
             while ((incompleteMatch = incompleteActionRegex.exec(buffer)) !== null) {
               const [, filePath] = incompleteMatch;
@@ -1061,7 +1061,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           };
         });
 
-        const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g;
+        const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
         let match;
         const promptSteps: BuildStep[] = [];
 

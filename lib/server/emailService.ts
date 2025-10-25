@@ -15,7 +15,7 @@ export function generateOTP(): string {
 export async function sendOTP(email: string, otp: string): Promise<boolean> {
 
   const mailOptions = {
-    from: `"Mirror" <${process.env.EMAIL_USER}>`,
+    from: `"Zap" <${process.env.EMAIL_USER}>`,
     to: email,
     subject: 'Email Verification OTP',
     text: `Your OTP for email verification is: ${otp}`,

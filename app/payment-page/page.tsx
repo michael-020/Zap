@@ -109,7 +109,7 @@ const PaymentPage = () => {
                     {/* Order Summary */}
                     <div className="border-t border-b border-gray-200 py-6">
                         <div className="flex justify-between items-center">
-                            <p className="text-lg font-medium text-neutral-300">Mirror Pro</p>
+                            <p className="text-lg font-medium text-neutral-300">Zap Pro</p>
                             <p className="text-lg font-bold text-neutral-300">₹{amount.toFixed(2)}</p>
                         </div>
                          <p className="mt-1 text-sm text-neutral-300">A one-time purchase for our premium service.</p>

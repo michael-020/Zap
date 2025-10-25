@@ -15,7 +15,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Mirror",
+  title: "Zap",
   description: "A minimal site builder with a code editor and live preview.",
 };
 

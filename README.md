@@ -1,6 +1,6 @@
-# Mirror ✨
+# Zap ✨
 
-"Mirror" is a revolutionary minimal site builder that brings your development environment directly into the browser! 🚀 Craft beautiful websites with an integrated code editor, live preview, and AI assistance, all without any local setup. ✨
+"Zap" is a revolutionary minimal site builder that brings your development environment directly into the browser! 🚀 Craft beautiful websites with an integrated code editor, live preview, and AI assistance, all without any local setup. ✨
 
 ## Key Features
 
@@ -28,12 +28,12 @@
 
 ## Getting Started
 
-Follow these steps to get "Mirror" up and running on your local machine for development and testing purposes.
+Follow these steps to get "Zap" up and running on your local machine for development and testing purposes.
 
 1.  **Clone the repository:**
     ```bash
-    git clone https://github.com/your-username/mirror.git
-    cd mirror
+    git clone https://github.com/your-username/Zap.git
+    cd Zap
     ```
 
 2.  **Install dependencies:**

@@ -78,7 +78,7 @@ export default function AuthModal({ isOpen, onClose }: AuthModalProps) {
           <div className="p-6">
             {/* Header */}
             <div className="text-center mb-8">
-              <h3 className="text-2xl font-bold text-white mb-2">Welcome to Mirror</h3>
+              <h3 className="text-2xl font-bold text-white mb-2">Welcome to Zap</h3>
               <p className="text-neutral-400">Sign in to continue building</p>
             </div>
 

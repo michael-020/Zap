@@ -5,14 +5,14 @@ const uuidv4 = () => crypto.randomUUID();
 /*
  * Parse input XML and convert it into steps.
  * Eg: Input - 
- * <mirrorArtifeact id=\"project-import\" title=\"Project Files\">
- *  <mirrorAction type=\"file\" filePath=\"eslint.config.js\">
+ * <zapArtifeact id=\"project-import\" title=\"Project Files\">
+ *  <zapAction type=\"file\" filePath=\"eslint.config.js\">
  *      import js from '@eslint/js';\nimport globals from 'globals';\n
- *  </mirrorAction>
- * <mirrorAction type="shell">
+ *  </zapAction>
+ * <zapAction type="shell">
  *      node index.js
- * </mirrorAction>
- * </mirrorArtifeact>
+ * </zapAction>
+ * </zapArtifeact>
  * 
  * Output - 
  * [{
@@ -54,7 +54,7 @@ export function getDescriptionFromFile(fileName: string): string {
 }
 
 export function parseXml(response: string): BuildStep[] {
-  const xmlMatch = response.match(/<mirrorArtifeact[^>]*>([\s\S]*?)<\/mirrorArtifeact>/);
+  const xmlMatch = response.match(/<zapArtifeact[^>]*>([\s\S]*?)<\/zapArtifeact>/);
   if (!xmlMatch) return [];
 
   const xmlContent = xmlMatch[1];
@@ -72,7 +72,7 @@ export function parseXml(response: string): BuildStep[] {
     shouldExecute: false
   });
 
-  const actionRegex = /<mirrorAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/mirrorAction>/g;
+  const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
   
   let match;
   while ((match = actionRegex.exec(xmlContent)) !== null) {

@@ -2,7 +2,7 @@
 "use client"
 
 import { ChangeEvent, useEffect, useRef, useState } from "react"
-import { ArrowUp, Camera, CircleQuestionMark, Paperclip, LoaderPinwheel, Plus, X } from 'lucide-react'
+import { ArrowUp, CircleQuestionMark, LoaderPinwheel, Plus, X } from 'lucide-react'
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import AutoResizingTextarea from "./textarea"
@@ -90,11 +90,9 @@ export function PromptInputPanel({
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [webpFiles, setWebpFiles] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
-  const menuRef = useRef<HTMLDivElement>(null) 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
   const [isProcessingImages, setIsProcessingImages] = useState(false)
-  const [isMenuOpen, setIsMenuOpen] = useState(false) 
   const [isDragging, setIsDragging] = useState(false) 
 
   const openImageModal = (imageSrc: string) => {
@@ -124,7 +122,6 @@ export function PromptInputPanel({
     }
 
     setIsProcessingImages(true);
-    setIsMenuOpen(false); 
 
     try {
       const newPreviews: string[] = [];
@@ -204,16 +201,8 @@ export function PromptInputPanel({
     }
   };
 
-  const toggleMenu = () => setIsMenuOpen(prev => !prev);
-
   const handleFileUploadClick = () => {
     fileInputRef.current?.click();
-    setIsMenuOpen(false);
-  };
-
-  const handleCameraUpload = () => {
-    toast.error("Camera upload is not yet implemented.");
-    setIsMenuOpen(false);
   };
 
   const removeImage = (indexToRemove: number) => {
@@ -241,18 +230,6 @@ export function PromptInputPanel({
   };
 
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsMenuOpen(false);
-      }
-    };
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
-    };
-  }, []);
-
-  useEffect(() => {
     return () => {
       imagePreviews.forEach(url => {
         if (url.startsWith('blob:')) {
@@ -264,14 +241,14 @@ export function PromptInputPanel({
   }, []);
 
   const handleSubmit = () => {
-    if (!description.trim()) return;
+    if (!description.trim() && imagePreviews.length === 0) return;
     onSubmit(description, webpFiles);
   };
 
   const isDisabled = disabled || 
     isSubmitting || 
     isProcessingImages || 
-    (!description.trim() && imagePreviews.length === 0) || // Updated this line
+    (!description.trim() && imagePreviews.length === 0) ||
     (usageInfo?.limitReached ?? false);
 
   return (
@@ -352,12 +329,13 @@ export function PromptInputPanel({
 
           <div className=" flex items-center justify-between px-4">
             
-            <div className="relative" ref={menuRef}>
+            <div className="relative">
               <button
                 type="button"
-                onClick={toggleMenu}
+                onClick={handleFileUploadClick}
                 className="cursor-pointer relative"
                 aria-label="Add attachment"
+                title="Upload Images"
                 disabled={isProcessingImages || disabled}
               >
                 <Plus className={`${imageSelectorSize ? `size-${imageSelectorSize}` : "size-6"} transition-colors ${
@@ -366,25 +344,6 @@ export function PromptInputPanel({
                   : 'text-neutral-500 hover:text-neutral-300'
                 }`} />
               </button>
-
-              {isMenuOpen && (
-                <div className="absolute bottom-full left-0 mb-2 w-48 bg-neutral-800 rounded-lg shadow-xl border border-neutral-700 overflow-hidden z-20">
-                  <button
-                    onClick={handleFileUploadClick}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-700 transition-colors"
-                  >
-                    <Paperclip className="size-4 rotate-[-45deg] " />
-                    Upload File
-                  </button>
-                  <button
-                    onClick={handleCameraUpload}
-                    className="w-full flex items-center gap-3 px-4 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-700 transition-colors"
-                  >
-                    <Camera className="size-4" />
-                    Use Camera
-                  </button>
-                </div>
-              )}
             </div>
             
             <input

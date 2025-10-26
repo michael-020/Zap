@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, ChangeEvent, KeyboardEvent } from 'react';
+import React, { useEffect, useRef, ChangeEvent, KeyboardEvent, ClipboardEvent } from 'react';
 
 interface AutoResizingTextareaProps {
     description: string,
@@ -8,11 +8,20 @@ interface AutoResizingTextareaProps {
     height: string,
     maxHeight: string,
     className?: string
+    onPaste?: (event: ClipboardEvent<HTMLTextAreaElement>) => void;
 }
 
-const AutoResizingTextarea = ({description, placeholder, setDescription, onEnterSubmit, height, maxHeight, className}: AutoResizingTextareaProps) => {
+const AutoResizingTextarea = ({
+  description, 
+  placeholder, 
+  setDescription, 
+  onEnterSubmit, 
+  height, 
+  maxHeight, 
+  className,
+  onPaste
+}: AutoResizingTextareaProps) => {
   const textareaRef = useRef<HTMLTextAreaElement | null>(null);
-
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -45,6 +54,7 @@ const AutoResizingTextarea = ({description, placeholder, setDescription, onEnter
       onChange={handleChange}
       placeholder={placeholder}
       onKeyDown={handleKeyDown}
+      onPaste={onPaste}
       className={`${className} w-full px-6 py-4 bg-neutral-900/90 backdrop-blur-sm border-0 border-b-0 border-neutral-700 rounded-t-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-b-1 focus:ring-neutral-500/60 focus:border-neutral-500/60 resize-none transition-all duration-200 text-lg leading-relaxed scrollbar-hidden`}
       style={{
         minHeight: height ?? "150px",

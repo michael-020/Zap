@@ -145,7 +145,7 @@ export function PromptInputPanel({
         } catch (error) {
           console.error('Error converting image to WebP:', error);
           toast.error(`Failed to process image: ${file.name}`);
-          newWebpFiles.push(file); // Fallback to original file
+          newWebpFiles.push(file);
         }
       }
 
@@ -164,11 +164,9 @@ export function PromptInputPanel({
     if (e.target.files) {
       await processFiles(e.target.files);
     }
-    // Clear the file input value
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
   
-  // --- Drag and Drop Handlers ---
   const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
@@ -189,6 +187,21 @@ export function PromptInputPanel({
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
+  };
+
+  const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
+    const files = event.clipboardData.files;
+    
+    if (files.length > 0) {
+      const imageFiles = Array.from(files).filter(file => 
+        file.type.startsWith('image/')
+      );
+      
+      if (imageFiles.length > 0) {
+        event.preventDefault(); 
+        await processFiles(imageFiles);
+      }
+    }
   };
 
   const toggleMenu = () => setIsMenuOpen(prev => !prev);
@@ -258,7 +271,7 @@ export function PromptInputPanel({
   const isDisabled = disabled || 
     isSubmitting || 
     isProcessingImages || 
-    !description.trim() || 
+    (!description.trim() && imagePreviews.length === 0) || // Updated this line
     (usageInfo?.limitReached ?? false);
 
   return (
@@ -312,14 +325,12 @@ export function PromptInputPanel({
       <div className="relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 rounded-2xl blur group-hover:opacity-100 transition-opacity duration-300 p-1.5"></div>
         
-        {/* --- Main container with Drag & Drop handlers --- */}
         <div 
           className="relative flex-col bg-neutral-900 backdrop-blur-sm border border-neutral-700 rounded-xl"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
-          {/* --- Drag Overlay --- */}
           {isDragging && (
             <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-900/80 rounded-xl border-2 border-dashed border-blue-500">
               <p className="text-white text-lg font-semibold">Drop images here</p>
@@ -331,6 +342,7 @@ export function PromptInputPanel({
               description={description} 
               setDescription={setDescription} 
               onEnterSubmit={handleSubmit}
+              onPaste={handlePaste}
               height={textareaHeight}
               maxHeight={textareaMaxHeight}
               placeholder={placeholder} 
@@ -340,7 +352,6 @@ export function PromptInputPanel({
 
           <div className=" flex items-center justify-between px-4">
             
-            {/* --- Dropdown Menu Wrapper --- */}
             <div className="relative" ref={menuRef}>
               <button
                 type="button"
@@ -356,7 +367,6 @@ export function PromptInputPanel({
                 }`} />
               </button>
 
-              {/* --- Dropdown Menu --- */}
               {isMenuOpen && (
                 <div className="absolute bottom-full left-0 mb-2 w-48 bg-neutral-800 rounded-lg shadow-xl border border-neutral-700 overflow-hidden z-20">
                   <button
@@ -377,7 +387,6 @@ export function PromptInputPanel({
               )}
             </div>
             
-            {/* --- Hidden File Input --- */}
             <input
               id="fileInput"
               type="file"
@@ -389,7 +398,6 @@ export function PromptInputPanel({
               disabled={isProcessingImages || disabled}
             />
             
-            {/* --- Submit Button and Usage Info --- */}
             <div className={` ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } pt-0 p-3 pr-0 flex items-center justify-center gap-2`}>
             {!isPremium && usageInfo && (
               <div className="flex gap-1 items-center justify-center">

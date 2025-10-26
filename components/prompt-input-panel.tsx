@@ -2,7 +2,7 @@
 "use client"
 
 import { ChangeEvent, useEffect, useRef, useState } from "react"
-import { ArrowUp, CircleQuestionMark, ImageIcon, LoaderPinwheel, X } from 'lucide-react'
+import { ArrowUp, Camera, CircleQuestionMark, Paperclip, LoaderPinwheel, Plus, X } from 'lucide-react'
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import AutoResizingTextarea from "./textarea"
@@ -90,9 +90,12 @@ export function PromptInputPanel({
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [webpFiles, setWebpFiles] = useState<File[]>([])
   const fileInputRef = useRef<HTMLInputElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null) 
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
   const [isProcessingImages, setIsProcessingImages] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false) 
+  const [isDragging, setIsDragging] = useState(false) 
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -104,29 +107,30 @@ export function PromptInputPanel({
     setModalImageSrc("")
   }
 
-  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
-    const files = Array.from((e.target as HTMLInputElement).files || []);
+  const processFiles = async (files: FileList | File[]) => {
+    const fileArray = Array.from(files);
     
-    if (files.length === 0) return;
+    if (fileArray.length === 0) return;
 
-    const invalidFiles = files.filter(file => !file.type.startsWith("image/"));
+    const invalidFiles = fileArray.filter(file => !file.type.startsWith("image/"));
     if (invalidFiles.length > 0) {
       toast.error("Please select only image files");
       return;
     }
 
-    if (imagePreviews.length + files.length > maxImages) {
+    if (imagePreviews.length + fileArray.length > maxImages) {
       toast.error(`Maximum ${maxImages} images allowed`);
       return;
     }
 
     setIsProcessingImages(true);
+    setIsMenuOpen(false); 
 
     try {
       const newPreviews: string[] = [];
       const newWebpFiles: File[] = [];
 
-      for (const file of files) {
+      for (const file of fileArray) {
         const previewUrl = URL.createObjectURL(file);
         newPreviews.push(previewUrl);
 
@@ -141,7 +145,7 @@ export function PromptInputPanel({
         } catch (error) {
           console.error('Error converting image to WebP:', error);
           toast.error(`Failed to process image: ${file.name}`);
-          newWebpFiles.push(file);
+          newWebpFiles.push(file); // Fallback to original file
         }
       }
 
@@ -154,8 +158,49 @@ export function PromptInputPanel({
     } finally {
       setIsProcessingImages(false);
     }
+  }
 
+  const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files) {
+      await processFiles(e.target.files);
+    }
+    // Clear the file input value
     if (fileInputRef.current) fileInputRef.current.value = "";
+  };
+  
+  // --- Drag and Drop Handlers ---
+  const handleDrop = async (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    
+    if (e.dataTransfer.files) {
+      await processFiles(e.dataTransfer.files);
+    }
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const toggleMenu = () => setIsMenuOpen(prev => !prev);
+
+  const handleFileUploadClick = () => {
+    fileInputRef.current?.click();
+    setIsMenuOpen(false);
+  };
+
+  const handleCameraUpload = () => {
+    toast.error("Camera upload is not yet implemented.");
+    setIsMenuOpen(false);
   };
 
   const removeImage = (indexToRemove: number) => {
@@ -181,6 +226,18 @@ export function PromptInputPanel({
     setWebpFiles([]);
     if (fileInputRef.current) fileInputRef.current.value = "";
   };
+
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
+        setIsMenuOpen(false);
+      }
+    };
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
 
   useEffect(() => {
     return () => {
@@ -254,7 +311,21 @@ export function PromptInputPanel({
 
       <div className="relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 rounded-2xl blur group-hover:opacity-100 transition-opacity duration-300 p-1.5"></div>
-        <div className="relative flex-col bg-neutral-900 backdrop-blur-sm border border-neutral-700 rounded-xl">
+        
+        {/* --- Main container with Drag & Drop handlers --- */}
+        <div 
+          className="relative flex-col bg-neutral-900 backdrop-blur-sm border border-neutral-700 rounded-xl"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+        >
+          {/* --- Drag Overlay --- */}
+          {isDragging && (
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-900/80 rounded-xl border-2 border-dashed border-blue-500">
+              <p className="text-white text-lg font-semibold">Drop images here</p>
+            </div>
+          )}
+          
           <div>
             <AutoResizingTextarea 
               description={description} 
@@ -268,26 +339,57 @@ export function PromptInputPanel({
           </div>
 
           <div className=" flex items-center justify-between px-4">
-            <div>
-
-              <label htmlFor="fileInput" className="cursor-pointer relative">
-                <ImageIcon className={`${imageSelectorSize ? `size-${imageSelectorSize}` : "size-6"} transition-colors ${
+            
+            {/* --- Dropdown Menu Wrapper --- */}
+            <div className="relative" ref={menuRef}>
+              <button
+                type="button"
+                onClick={toggleMenu}
+                className="cursor-pointer relative"
+                aria-label="Add attachment"
+                disabled={isProcessingImages || disabled}
+              >
+                <Plus className={`${imageSelectorSize ? `size-${imageSelectorSize}` : "size-6"} transition-colors ${
                   isProcessingImages 
                   ? 'text-blue-400 animate-pulse' 
-                  : 'text-neutral-500 hover:text-neutral-400'
+                  : 'text-neutral-500 hover:text-neutral-300'
                 }`} />
-              </label>
-              <input
-                id="fileInput"
-                type="file"
-                multiple
-                accept="image/*"
-                className="hidden"
-                ref={fileInputRef}
-                onChange={handleImageChange}
-                disabled={isProcessingImages || disabled}
-              />
+              </button>
+
+              {/* --- Dropdown Menu --- */}
+              {isMenuOpen && (
+                <div className="absolute bottom-full left-0 mb-2 w-48 bg-neutral-800 rounded-lg shadow-xl border border-neutral-700 overflow-hidden z-20">
+                  <button
+                    onClick={handleFileUploadClick}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-700 transition-colors"
+                  >
+                    <Paperclip className="size-4 rotate-[-45deg] " />
+                    Upload File
+                  </button>
+                  <button
+                    onClick={handleCameraUpload}
+                    className="w-full flex items-center gap-3 px-4 py-2 text-left text-sm text-neutral-200 hover:bg-neutral-700 transition-colors"
+                  >
+                    <Camera className="size-4" />
+                    Use Camera
+                  </button>
+                </div>
+              )}
             </div>
+            
+            {/* --- Hidden File Input --- */}
+            <input
+              id="fileInput"
+              type="file"
+              multiple
+              accept="image/*"
+              className="hidden"
+              ref={fileInputRef}
+              onChange={handleImageChange}
+              disabled={isProcessingImages || disabled}
+            />
+            
+            {/* --- Submit Button and Usage Info --- */}
             <div className={` ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } pt-0 p-3 pr-0 flex items-center justify-center gap-2`}>
             {!isPremium && usageInfo && (
               <div className="flex gap-1 items-center justify-center">

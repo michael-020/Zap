@@ -105,6 +105,8 @@ export function ProjectInitializer() {
     }
 
     const projectId = await createProject(promptText);
+    if(!projectId)
+      return;
     clearSavedData();
     processPrompt(promptText, files)
     redirect(`/chat/${projectId}`)

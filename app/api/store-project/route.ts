@@ -18,6 +18,29 @@ export async function POST(req: NextRequest) {
               { status: 401}
           )
       }
+
+      const user = await prisma.user.findUnique({
+        where: { id: session.user.id },
+        select: { isPremium: true },
+      });
+
+      if (!user) {
+        return NextResponse.json(
+          { msg: "User not found" },
+          { status: 404 }
+        );
+      }
+
+      const projectCount = await prisma.project.count({
+        where: { userId: session.user.id },
+      });
+
+      if (!user.isPremium && projectCount >= 5) {
+        return NextResponse.json(
+          { msg: "You've reached the limit of 5 projects for your account.\nUpgrade to Pro to create more projects." },
+          { status: 403 }
+        );
+      }
       
       const validatedSchema = projectSchema.safeParse(await req.json())
       if(!validatedSchema.success){

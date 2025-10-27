@@ -5,6 +5,7 @@ import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import toast from "react-hot-toast"
 import { useAuthStore } from "../authStore/useAuthStore"
+import { AxiosError } from "axios"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -334,9 +335,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         const projectId = projectRes.data.projectId;
         set({ projectId });
         return projectId;
-      } catch (err) {
-        console.error("Error creating project:", err);
-        toast.error("Error creating project");
+      } catch (error) {
+        console.error("Error creating project:", error);
+        if (error instanceof AxiosError && error.response?.data?.msg) {
+            toast.error(error.response.data.msg as string);
+        } else {
+            toast.error("An unexpected error occurred.");
+        }
+
         set({ isInitialising: false });
         return null;
       } finally {

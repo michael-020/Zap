@@ -88,13 +88,13 @@ export default function RightSidebar({
         </button>
       </div>
         
-      <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar overflow-x-hidden h-[calc(100%-56px)]">
+      <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar overflow-x-hidden h-[calc(100%-56px-48px)]">
         <button
           className="w-full truncate flex items-center gap-2 bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
           title="New Project"
           onClick={() => {
-            router.push(`/chat`)
-            setIsOpenAction(false)
+            router.push(`/chat`);
+            setIsOpenAction(false);
           }}
         >
           <Plus className="size-4" /> <span>New Chat</span>
@@ -115,14 +115,23 @@ export default function RightSidebar({
               className="w-full truncate bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
               title={chat.name}
               onClick={() => {
-                router.push(`/prev-chat/${chat.id}`)
-                setIsOpenAction(false)
+                router.push(`/prev-chat/${chat.id}`);
+                setIsOpenAction(false);
               }}
             >
               {chat.name}
             </button>
           ))
         )}
+      </div>
+
+      <div className="absolute bottom-4 w-full px-4">
+        <button
+          onClick={() => router.push('/view-plans')}
+          className="w-full bg-blue-400/60 text-white py-2 rounded-lg text-sm hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+        >
+          Upgrade to Pro
+        </button>
       </div>
     </aside>
   );

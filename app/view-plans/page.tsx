@@ -18,7 +18,7 @@ const ViewPlansPage = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-neutral-900 via-neutral-800 to-neutral-900 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-gradient-to-br from-neutral-950 via-neutral-900 to-neutral-950 flex items-center justify-center p-4">
       <div className="w-full max-w-6xl">
         <div className="text-center mb-12">
           <h1 className="text-4xl md:text-5xl font-bold text-white mb-4">
@@ -34,9 +34,9 @@ const ViewPlansPage = () => {
           <div 
             className={`p-8 rounded-2xl border-2 ${
               selectedPlan === 'free' 
-                ? 'border-blue-500 bg-neutral-900/90 shadow-xl shadow-blue-500/20' 
-                : 'border-neutral-700/50 bg-neutral-900/60'
-            } transition-all duration-300 cursor-pointer hover:border-neutral-600`}
+                ? 'border-purple-500/50 bg-neutral-900/90 shadow-xl shadow-purple-500/20' 
+                : 'border-neutral-800/50 bg-neutral-900/60'
+            } transition-all duration-300 cursor-pointer hover:border-neutral-800`}
             onClick={() => setSelectedPlan('free')}
           >
             <div className="flex flex-col h-full">
@@ -50,19 +50,19 @@ const ViewPlansPage = () => {
 
               <div className="mt-10 space-y-4 flex-grow">
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-300">
                     <span className="font-semibold">5 iterations</span> per day
                   </span>
                 </div>
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-300">
                     <span className="font-semibold">Basic AI model</span> - Standard generation quality
                   </span>
                 </div>
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-500 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-300">
                     <span className="font-semibold">5 projects</span> per account
                   </span>
@@ -93,53 +93,53 @@ const ViewPlansPage = () => {
           <div 
             className={`p-8 rounded-2xl border-2 relative ${
               selectedPlan === 'pro' 
-                ? 'border-blue-500 bg-gradient-to-br from-blue-950/40 to-neutral-900/90 shadow-xl shadow-blue-500/20' 
-                : 'border-blue-500/50 bg-gradient-to-br from-blue-950/20 to-neutral-900/60'
-            } transition-all duration-300 cursor-pointer hover:border-blue-400`}
+                ? 'border-purple-500/60 bg-gradient-to-br from-purple-900/20 to-neutral-900/90 shadow-xl shadow-purple-500/20' 
+                : 'border-purple-500/50 bg-gradient-to-br from-purple-950/20 to-neutral-900/60'
+            } transition-all duration-300 cursor-pointer hover:border-purple-400/50`}
             onClick={() => setSelectedPlan('pro')}
           >
             <div className="absolute -top-4 left-1/2 transform -translate-x-1/2">
-              <span className="px-4 py-1.5 bg-gradient-to-r from-blue-600 to-blue-500 text-white text-sm font-semibold rounded-full shadow-lg">
+              <span className="px-4 py-1.5 bg-gradient-to-r from-purple-800 to-purple-900 text-white text-sm font-semibold rounded-full shadow-lg">
                 RECOMMENDED
               </span>
             </div>
 
             <div className="flex flex-col h-full">
               <h2 className="text-3xl font-bold text-white">Pro</h2>
-              <p className="mt-2 text-blue-300">For professional builders</p>
+              <p className="mt-2 text-purple-300">For professional builders</p>
 
               <div className="mt-6 flex items-baseline">
-                <span className="text-6xl font-extrabold bg-gradient-to-r from-blue-400 to-blue-600 bg-clip-text text-transparent">₹100</span>
+                <span className="text-6xl font-extrabold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">₹100</span>
                 <span className="ml-2 text-neutral-400 text-lg">/month</span>
               </div>
 
               <div className="mt-10 space-y-4 flex-grow">
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
                     <span className="font-semibold text-white">Unlimited iterations</span> - No daily limits
                   </span>
                 </div>
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
                     <span className="font-semibold text-white">Advanced AI model</span> - 3x smarter
                   </span>
                 </div>
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
                     <span className="font-semibold text-white">Unlimited Projects</span> - Generate as many projects as you like
                   </span>
                 </div>
                 {/* <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
                     <span className="font-semibold text-white">Priority generation speed</span> - 5x faster queue
                   </span>
                 </div> */}
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
+                  <Check className="h-5 w-5 text-purple-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200"><span className="font-semibold">Download</span> - Export the React codebase</span>
                 </div>
                 
@@ -150,7 +150,7 @@ const ViewPlansPage = () => {
                   e.stopPropagation()
                   handleSubscribe('pro')
                 }}
-                className="mt-10 w-full bg-gradient-to-r from-blue-600 to-blue-500 text-white py-3.5 px-4 rounded-lg font-semibold hover:from-blue-500 hover:to-blue-400 transition-all duration-300 shadow-lg shadow-blue-500/30"
+                className="mt-10 w-full bg-gradient-to-r from-purple-400/70 to-purple-500/70 text-white py-3.5 px-4 rounded-lg font-semibold hover:from-purple-500/60 hover:to-purple-400/60 transition-all duration-300 shadow-lg shadow-purple-500/30"
               >
                 Upgrade to Pro
               </button>

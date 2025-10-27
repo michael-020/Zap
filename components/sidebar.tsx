@@ -128,7 +128,7 @@ export default function RightSidebar({
       <div className="absolute bottom-4 w-full px-4">
         <button
           onClick={() => router.push('/view-plans')}
-          className="w-full bg-blue-400/60 text-white py-2 rounded-lg text-sm hover:bg-blue-400 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-gradient-to-r from-purple-400/70 to-purple-500/70 text-white py-2 rounded-lg text-sm hover:from-purple-500/60 hover:to-purple-400/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Upgrade to Pro
         </button>

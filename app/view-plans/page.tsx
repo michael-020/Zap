@@ -29,7 +29,7 @@ const ViewPlansPage = () => {
           </p>
         </div>
 
-        <div className="grid md:grid-cols-2 gap-8 -translate-y-8">
+        <div className="grid md:grid-cols-2 gap-8 ">
           {/* Free Plan */}
           <div 
             className={`p-8 rounded-2xl border-2 ${
@@ -52,7 +52,7 @@ const ViewPlansPage = () => {
                 <div className="flex items-start">
                   <Check className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-300">
-                    <span className="font-semibold">10 generations</span> per day
+                    <span className="font-semibold">5 iterations</span> per day
                   </span>
                 </div>
                 <div className="flex items-start">
@@ -64,28 +64,16 @@ const ViewPlansPage = () => {
                 <div className="flex items-start">
                   <Check className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-300">
-                    <span className="font-semibold">5 iterations</span> per day
+                    <span className="font-semibold">5 projects</span> per account
                   </span>
                 </div>
                 <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-300">Export as HTML/CSS/JS</span>
-                </div>
-                <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-500 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-300">Community templates</span>
+                  <X className="h-5 w-5 text-neutral-600 mt-0.5 flex-shrink-0" />
+                  <span className="ml-3 text-neutral-500">Download Unavailable</span>
                 </div>
                 <div className="flex items-start">
                   <X className="h-5 w-5 text-neutral-600 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-500">Advanced AI model</span>
-                </div>
-                <div className="flex items-start">
-                  <X className="h-5 w-5 text-neutral-600 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-500">Custom component library</span>
-                </div>
-                <div className="flex items-start">
-                  <X className="h-5 w-5 text-neutral-600 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-500">Priority generation speed</span>
                 </div>
               </div>
 
@@ -129,51 +117,32 @@ const ViewPlansPage = () => {
                 <div className="flex items-start">
                   <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
-                    <span className="font-semibold text-white">Unlimited generations</span> - No daily limits
+                    <span className="font-semibold text-white">Unlimited iterations</span> - No daily limits
                   </span>
                 </div>
                 <div className="flex items-start">
                   <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
-                    <span className="font-semibold text-white">Advanced AI model</span> - 3x smarter & faster
+                    <span className="font-semibold text-white">Advanced AI model</span> - 3x smarter
                   </span>
                 </div>
                 <div className="flex items-start">
                   <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
-                    <span className="font-semibold text-white">Unlimited iterations</span> - Perfect your design
+                    <span className="font-semibold text-white">Unlimited Projects</span> - Generate as many projects as you like
                   </span>
                 </div>
-                <div className="flex items-start">
+                {/* <div className="flex items-start">
                   <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
                   <span className="ml-3 text-neutral-200">
                     <span className="font-semibold text-white">Priority generation speed</span> - 5x faster queue
                   </span>
-                </div>
+                </div> */}
                 <div className="flex items-start">
                   <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-200">Export to React, Vue, or Next.js</span>
+                  <span className="ml-3 text-neutral-200"><span className="font-semibold">Download</span> - Export the React codebase</span>
                 </div>
-                <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-200">
-                    <span className="font-semibold text-white">Custom component library</span> - Premium templates
-                  </span>
-                </div>
-                <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-200">Version history & backups</span>
-                </div>
-                <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-200">API access for integrations</span>
-                </div>
-                <div className="flex items-start">
-                  <Check className="h-5 w-5 text-blue-400 mt-0.5 flex-shrink-0" />
-                  <span className="ml-3 text-neutral-200">
-                    <span className="font-semibold text-white">Priority support</span> - Response in 24hrs
-                  </span>
-                </div>
+                
               </div>
 
               <button

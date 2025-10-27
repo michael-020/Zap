@@ -6,6 +6,7 @@ import { ArrowUp, CircleQuestionMark, LoaderPinwheel, Plus, X } from 'lucide-rea
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import AutoResizingTextarea from "./textarea"
+import { UsageLimitModal } from "./usage-limit-modal"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -94,6 +95,7 @@ export function PromptInputPanel({
   const [modalImageSrc, setModalImageSrc] = useState("")
   const [isProcessingImages, setIsProcessingImages] = useState(false)
   const [isDragging, setIsDragging] = useState(false) 
+  const [showLimitModal, setShowLimitModal] = useState(false)
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -241,6 +243,10 @@ export function PromptInputPanel({
   }, []);
 
   const handleSubmit = () => {
+    if (!isPremium && usageInfo?.limitReached) {
+      setShowLimitModal(true)
+      return
+    }
     if (!description.trim() && imagePreviews.length === 0) return;
     onSubmit(description, webpFiles);
   };
@@ -252,6 +258,7 @@ export function PromptInputPanel({
     (usageInfo?.limitReached ?? false);
 
   return (
+    <>
     <div className="space-y-4">
       {imagePreviews.length > 0 && (
         <div className="space-y-4">
@@ -407,5 +414,11 @@ export function PromptInputPanel({
         onClose={closeImageModal}
       />
     </div>
+
+    <UsageLimitModal 
+      isOpen={showLimitModal}
+      onClose={() => setShowLimitModal(false)}
+    />
+    </>
   )
 }

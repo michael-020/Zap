@@ -69,7 +69,9 @@ interface PromptInputPanelProps {
   maxImages?: number;
   submitButtonSize?: string,
   imageSelectorSize?: string,
-  isPremium: boolean
+  isPremium: boolean,
+  showLimit?: boolean,
+  showBanner?: boolean
 }
 
 export type LimitReason = 'USAGE_LIMIT' | 'CHAR_LIMIT';
@@ -88,7 +90,9 @@ export function PromptInputPanel({
   textareaClassName,
   submitButtonSize,
   imageSelectorSize,
-  isPremium
+  isPremium,
+  showLimit,
+  showBanner
 }: PromptInputPanelProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [webpFiles, setWebpFiles] = useState<File[]>([])
@@ -332,7 +336,7 @@ export function PromptInputPanel({
               placeholder={placeholder} 
               className={textareaClassName}
             />
-            {!isPremium && (
+            {!isPremium && showLimit && (
               <div className={`absolute bottom-3 right-4 text-xs pointer-events-none ${
                 description.length > CHAR_LIMIT 
                 ? 'text-red-600/79' 
@@ -419,7 +423,7 @@ export function PromptInputPanel({
         imageSrc={modalImageSrc}
         onClose={closeImageModal}
       />
-      {!isPremium && <UpgradeBanner 
+      {!isPremium && showBanner && <UpgradeBanner 
         visible={showUpgradeBanner} 
         onClose={() => setShowUpgradeBanner(false)} 
       />}

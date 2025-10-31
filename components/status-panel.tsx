@@ -199,6 +199,7 @@ export function StatusPanel() {
           maxImages={10}
           submitButtonSize={"4"}
           imageSelectorSize={"5"}
+          showLimit={true}
         />
       </div>
 

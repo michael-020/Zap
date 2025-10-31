@@ -157,6 +157,8 @@ export function ProjectInitializer() {
               textareaHeight="6rem"
               textareaMaxHeight="16rem"
               maxImages={10}
+              showBanner={true}
+              showLimit={true}
             />
           </div>
         </div>

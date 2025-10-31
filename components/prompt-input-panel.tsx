@@ -1,12 +1,12 @@
 /* eslint-disable @next/next/no-img-element */
 "use client"
-
 import { ChangeEvent, useEffect, useRef, useState } from "react"
-import { ArrowUp, CircleQuestionMark, LoaderPinwheel, Plus, X } from 'lucide-react'
+import { ArrowUp, LoaderPinwheel, Plus, X } from 'lucide-react'
 import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import AutoResizingTextarea from "./textarea"
 import { UsageLimitModal } from "./usage-limit-modal"
+import { UpgradeBanner } from "./upgrade-banner"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -72,6 +72,8 @@ interface PromptInputPanelProps {
   isPremium: boolean
 }
 
+export type LimitReason = 'USAGE_LIMIT' | 'CHAR_LIMIT';
+
 export function PromptInputPanel({
   description,
   setDescription,
@@ -95,7 +97,10 @@ export function PromptInputPanel({
   const [modalImageSrc, setModalImageSrc] = useState("")
   const [isProcessingImages, setIsProcessingImages] = useState(false)
   const [isDragging, setIsDragging] = useState(false) 
-  const [showLimitModal, setShowLimitModal] = useState(false)
+  const [modalReason, setModalReason] = useState<LimitReason | null>(null)
+  const [showUpgradeBanner, setShowUpgradeBanner] = useState(!isPremium)
+  
+  const CHAR_LIMIT = 500;
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -111,28 +116,22 @@ export function PromptInputPanel({
     const fileArray = Array.from(files);
     
     if (fileArray.length === 0) return;
-
     const invalidFiles = fileArray.filter(file => !file.type.startsWith("image/"));
     if (invalidFiles.length > 0) {
       toast.error("Please select only image files");
       return;
     }
-
     if (imagePreviews.length + fileArray.length > maxImages) {
       toast.error(`Maximum ${maxImages} images allowed`);
       return;
     }
-
     setIsProcessingImages(true);
-
     try {
       const newPreviews: string[] = [];
       const newWebpFiles: File[] = [];
-
       for (const file of fileArray) {
         const previewUrl = URL.createObjectURL(file);
         newPreviews.push(previewUrl);
-
         try {
           let webpFile: File;
           if (file.type === 'image/webp') {
@@ -147,10 +146,8 @@ export function PromptInputPanel({
           newWebpFiles.push(file);
         }
       }
-
       setImagePreviews(prev => [...prev, ...newPreviews]);
       setWebpFiles(prev => [...prev, ...newWebpFiles]);
-
     } catch (error) {
       console.error('Error processing images:', error);
       toast.error('Failed to process some images');
@@ -158,7 +155,6 @@ export function PromptInputPanel({
       setIsProcessingImages(false);
     }
   }
-
   const handleImageChange = async (e: ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {
       await processFiles(e.target.files);
@@ -175,19 +171,16 @@ export function PromptInputPanel({
       await processFiles(e.dataTransfer.files);
     }
   };
-
   const handleDragOver = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(true);
   };
-
   const handleDragLeave = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     e.stopPropagation();
     setIsDragging(false);
   };
-
   const handlePaste = async (event: React.ClipboardEvent<HTMLTextAreaElement>) => {
     const files = event.clipboardData.files;
     
@@ -202,11 +195,9 @@ export function PromptInputPanel({
       }
     }
   };
-
   const handleFileUploadClick = () => {
     fileInputRef.current?.click();
   };
-
   const removeImage = (indexToRemove: number) => {
     setImagePreviews(prev => {
       const newPreviews = prev.filter((_, index) => index !== indexToRemove);
@@ -218,7 +209,6 @@ export function PromptInputPanel({
     });
     setWebpFiles(prev => prev.filter((_, index) => index !== indexToRemove));
   };
-
   const removeAllImages = () => {
     imagePreviews.forEach(url => {
       if (url.startsWith('blob:')) {
@@ -242,12 +232,23 @@ export function PromptInputPanel({
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const handleDescriptionChange = (value: string) => {
+    setDescription(value);
+  };
+
   const handleSubmit = () => {
+    if (!isPremium && description.length > CHAR_LIMIT) {
+      setModalReason('CHAR_LIMIT');
+      return;
+    }
+
     if (!isPremium && usageInfo?.limitReached) {
-      setShowLimitModal(true)
+      setModalReason('USAGE_LIMIT');
       return
     }
+    
     if (!description.trim() && imagePreviews.length === 0) return;
+    
     onSubmit(description, webpFiles);
   };
 
@@ -305,12 +306,11 @@ export function PromptInputPanel({
           </div>
         </div>
       )}
-
       <div className="relative group">
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 rounded-2xl blur group-hover:opacity-100 transition-opacity duration-300 p-1.5"></div>
         
         <div 
-          className="relative flex-col bg-neutral-900 backdrop-blur-sm border border-neutral-700 rounded-xl"
+          className="relative flex-col bg-[#101010] backdrop-blur-sm border border-neutral-700 rounded-xl"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
@@ -321,10 +321,10 @@ export function PromptInputPanel({
             </div>
           )}
           
-          <div>
+          <div className="relative">
             <AutoResizingTextarea 
               description={description} 
-              setDescription={setDescription} 
+              setDescription={handleDescriptionChange}
               onEnterSubmit={handleSubmit}
               onPaste={handlePaste}
               height={textareaHeight}
@@ -332,8 +332,16 @@ export function PromptInputPanel({
               placeholder={placeholder} 
               className={textareaClassName}
             />
+            {!isPremium && (
+              <div className={`absolute bottom-3 right-4 text-xs pointer-events-none ${
+                description.length > CHAR_LIMIT 
+                ? 'text-red-600/79' 
+                : 'text-neutral-500'
+              }`}>
+                {description.length} / {CHAR_LIMIT}
+              </div>
+            )}
           </div>
-
           <div className=" flex items-center justify-between px-4">
             
             <div className="relative">
@@ -374,19 +382,18 @@ export function PromptInputPanel({
                     className="text-sm text-neutral-400"
                     >
                   {usageInfo.limitReached
-                    ? 'You have reached your daily limit.'
-                    : `${usageInfo.remaining}/5`}
+                    ? 'Daily limit reached'
+                    : `${usageInfo.remaining} chats left today`}
                 </button>
-                <button
+                {/* <button
                   title={usageInfo.limitReached
                     ? 'You have reached your daily limit.'
                     : `Chats left today: ${usageInfo.remaining}`}
                 >
                   <CircleQuestionMark className={`text-neutral-500 size-3.5`} />
-                </button>
+                </button> */}
               </div>
             )}
-
             <button
               type="button"
               onClick={handleSubmit}
@@ -407,18 +414,24 @@ export function PromptInputPanel({
           </div>
         </div>
       </div>
-
       <ImageModal
         isOpen={isModalOpen}
         imageSrc={modalImageSrc}
         onClose={closeImageModal}
       />
+      {!isPremium && <UpgradeBanner 
+        visible={showUpgradeBanner} 
+        onClose={() => setShowUpgradeBanner(false)} 
+      />}
     </div>
-
-    <UsageLimitModal 
-      isOpen={showLimitModal}
-      onClose={() => setShowLimitModal(false)}
-    />
+    
+    {modalReason && (
+      <UsageLimitModal 
+        isOpen={true}
+        onClose={() => setModalReason(null)}
+        reason={modalReason}
+      />
+    )}
     </>
   )
 }

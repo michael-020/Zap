@@ -2,15 +2,30 @@ import { X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
+import { LimitReason } from "./prompt-input-panel" 
 
 interface UsageLimitModalProps {
   isOpen: boolean
   onClose: () => void
+  reason: LimitReason
 }
 
-export function UsageLimitModal({ isOpen, onClose }: UsageLimitModalProps) {
+export function UsageLimitModal({ isOpen, onClose, reason }: UsageLimitModalProps) {
   const router = useRouter()
   const modalRef = useRef<HTMLDivElement>(null)
+
+  const content = {
+    USAGE_LIMIT: {
+      title: "Daily Limit Reached",
+      description: "You've reached your daily usage limit. Upgrade to Pro for unlimited access."
+    },
+    CHAR_LIMIT: {
+      title: "Character Limit Exceeded",
+      description: "You've exceeded the 500 character limit. Please shorten your prompt or upgrade to Pro for longer prompts."
+    }
+  }
+
+  const { title, description } = content[reason];
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -56,10 +71,10 @@ export function UsageLimitModal({ isOpen, onClose }: UsageLimitModalProps) {
         <div className="p-6">
           <div className="text-center mb-6">
             <h3 className="text-xl font-semibold text-neutral-200 mb-2">
-              Daily Limit Reached
+              {title}
             </h3>
             <p className="text-neutral-400">
-              You&apos;ve reached your daily usage limit. Upgrade to Pro for unlimited access.
+              {description}
             </p>
           </div>
 

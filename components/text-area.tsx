@@ -69,7 +69,7 @@ export const TextArea = forwardRef<HTMLTextAreaElement, TextAreaProps>(
       }
     }, [minHeight, maxHeightPx])
 
-    const defaultClassName = "w-full px-6 py-4 bg-neutral-900/90 backdrop-blur-sm border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500/60 focus:border-neutral-500/60 resize-none transition-all duration-200 text-lg leading-relaxed custom-scrollbar"
+    const defaultClassName = "w-full px-6 py-4 bg-neutral-100 backdrop-blur-sm border border-neutral-700 rounded-xl text-white placeholder-neutral-500 focus:outline-none focus:ring-1 focus:ring-neutral-500/60 focus:border-neutral-500/60 resize-none transition-all duration-200 text-lg leading-relaxed custom-scrollbar"
 
     return (
       <textarea

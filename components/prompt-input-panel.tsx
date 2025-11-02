@@ -314,7 +314,7 @@ export function PromptInputPanel({
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 rounded-2xl blur group-hover:opacity-100 transition-opacity duration-300 p-1.5"></div>
         
         <div 
-          className="relative flex-col bg-neutral-50 dark:bg-[#101010] backdrop-blur-sm border border-neutral-200 dark:border-neutral-800 rounded-xl"
+          className="relative flex-col bg-white dark:bg-[#101010] backdrop-blur-sm border border-neutral-200 dark:border-neutral-800 rounded-xl"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}

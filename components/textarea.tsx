@@ -55,7 +55,7 @@ const AutoResizingTextarea = ({
       placeholder={placeholder}
       onKeyDown={handleKeyDown}
       onPaste={onPaste}
-      className={`${className} w-full px-6 py-4 bg-neutral-50 dark:bg-[#101010] backdrop-blur-sm border-0 border-b-0 border-neutral-400 dark:border-neutral-800 rounded-t-xl text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-b-1 focus:ring-neutral-500/60 focus:border-neutral-500/60 resize-none transition-all duration-200 text-lg leading-relaxed scrollbar-hidden`}
+      className={`${className} w-full px-6 py-4 bg-white dark:bg-[#101010] backdrop-blur-sm border-0 border-b-0 border-neutral-400 dark:border-neutral-800 rounded-t-xl text-black dark:text-white placeholder-neutral-400 dark:placeholder-neutral-500 focus:outline-none focus:ring-b-1 focus:ring-neutral-500/60 focus:border-neutral-500/60 resize-none transition-all duration-200 text-lg leading-relaxed scrollbar-hidden`}
       style={{
         minHeight: height ?? "150px",
         maxHeight: maxHeight ?? "200px",

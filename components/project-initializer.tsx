@@ -113,15 +113,15 @@ export function ProjectInitializer() {
   }
    
   if(!session){
-    return <div className="h-screen bg-black flex items-center justify-center">
-      <Loader2 className="size-14 animate-spin text-neutral-200" />
+    return <div className="h-screen bg-neutral-50 dark:bg-black flex items-center justify-center">
+      <Loader2 className="size-14 animate-spin text-neutral-900 dark:text-neutral-200" />
     </div>
   }
 
   const usageRemaining = maxUsage - currentUsage
 
   return (
-    <div className="relative min-h-screen bg-white dark:bg-black">
+    <div className="relative min-h-screen bg-neutral-50 dark:bg-black">
       <Navbar
         onPanelToggle={() => setIsOpen(!isOpen)}
         showPanelToggle={true}

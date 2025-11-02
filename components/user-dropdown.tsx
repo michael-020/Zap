@@ -71,7 +71,7 @@ export default function UserDropdown() {
       <AnimatePresence>
         {dropdownOpen && (
           <motion.div
-            className="absolute right-0 w-48 mt-3 bg-neutral-50/95 dark:bg-neutral-900/95 backdrop-blur-md border border-neutral-200 dark:border-neutral-700/50 rounded-xl shadow-2xl z-50 overflow-hidden"
+            className="absolute right-0 w-52 mt-3 bg-neutral-50/95 dark:bg-neutral-900/95 backdrop-blur-md border border-neutral-200 dark:border-neutral-700/50 rounded-xl shadow-2xl z-50 overflow-hidden"
             initial={{
               opacity: 0,
               scale: 0.9,
@@ -99,7 +99,7 @@ export default function UserDropdown() {
             <div className="absolute inset-0 bg-neutral-100/10 dark:bg-gradient-to-br from-neutral-800/20 to-neutral-900/20 pointer-events-none" />
 
             <motion.div
-              className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700/50 bg-neutral-100 dark:bg-neutral-800/30"
+              className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700/50 bg-neutral-50 dark:bg-neutral-800/30"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1, duration: 0.2 }}
@@ -112,13 +112,13 @@ export default function UserDropdown() {
               </div>
             </motion.div>
 
-            <div className="py-1">
+            <div className="py-2 px-2">
               <motion.button
                 onClick={() => {
                   setDropdownOpen(false)
                   router.push('/profile')
                 }}
-                className="w-full text-left px-4 py-3 text-sm text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800/60 flex items-center gap-3 group relative overflow-hidden"
+                className="w-full text-left px-4 py-3 rounded-lg text-sm text-neutral-900 dark:text-white hover:bg-neutral-200 dark:hover:bg-neutral-800/60 flex items-center gap-3 group relative overflow-hidden"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: 0.15, duration: 0.2 }}
@@ -126,7 +126,6 @@ export default function UserDropdown() {
               >
                 <motion.div
                   className="flex items-center justify-center size-8 bg-neutral-200 dark:bg-neutral-700/50 rounded-lg group-hover:bg-neutral-300 dark:group-hover:bg-neutral-600/50 transition-colors duration-200 relative z-10"
-                  whileHover={{ scale: 1.1, rotate: 5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <User className="size-4" />
@@ -149,23 +148,21 @@ export default function UserDropdown() {
                 <ThemeToggle />
               </motion.div>
 
-              {/* Optional: Add a divider */}
-              <div className="h-px mx-4 my-1 bg-neutral-200 dark:bg-neutral-700/50" />
+              <div className="h-px mx-4 my-2 bg-neutral-200 dark:bg-neutral-700/50" />
 
               <motion.button
                 onClick={() => {
                   setDropdownOpen(false)
                   signOut({ callbackUrl: '/signin' })
                 }}
-                className="w-full text-left px-4 py-3 text-sm text-red-600 dark:text-red-400 hover:bg-red-500/10 flex items-center gap-3 group relative overflow-hidden"
+                className="w-full text-left px-4 py-3 text-sm rounded-lg text-red-600 dark:text-red-400 hover:bg-red-500/10 flex items-center gap-3 group relative overflow-hidden"
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.25, duration: 0.2 }} // Adjusted delay
+                transition={{ delay: 0.25, duration: 0.2 }} 
                 whileTap={{ scale: 0.98 }}
               >
                 <motion.div
                   className="flex items-center justify-center size-8 bg-red-500/20 rounded-lg group-hover:bg-red-500/30 transition-colors duration-200 relative z-10"
-                  whileHover={{ scale: 1.1, rotate: -5 }}
                   transition={{ duration: 0.2 }}
                 >
                   <LogOut className="size-4" />

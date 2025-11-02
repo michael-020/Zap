@@ -77,19 +77,21 @@ export default function ProjectCard({
     return (
         <>
             <div 
-                className={`group relative p-4 rounded-xl bg-neutral-900 border border-neutral-800 transition-all
-                            ${isSelected ? 'ring-2 ring-blue-500' : 'hover:border-neutral-700'}
+                className={`group relative p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 transition-all
+                            ${isSelected ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-neutral-300 dark:hover:border-neutral-700'}
                             flex flex-col h-full justify-between`} 
             >
                 {showCheckbox && (
-                    <div className="absolute top-1 left-1 z-10">
+                    <div className="absolute top-2 left-2 z-10">
                         <button
                             onClick={handleCheckboxClick}
-                            className="w-5 h-5 rounded border border-neutral-600 flex items-center justify-center bg-neutral-800 hover:bg-neutral-700 transition-colors"
+                            className={`w-5 h-5 rounded border flex items-center justify-center transition-colors
+                                        ${isSelected ? 'bg-blue-500 border-blue-500 hover:bg-blue-600' 
+                                                    : 'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700'}`}
                         >
                             {isSelected && (
-                                <svg className="w-3 h-3 text-blue-500" fill="currentColor" viewBox="0 0 20 20">
-                                    <path d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" />
+                                <svg className="w-3 h-3 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" />
                                 </svg>
                             )}
                         </button>
@@ -99,14 +101,14 @@ export default function ProjectCard({
                 <div>
                     <div className="flex items-center gap-3 mb-2">
                         <h3 
-                            className="text-md font-semibold text-white truncate"
+                            className="text-md font-semibold text-neutral-900 dark:text-white truncate"
                             title={project.name}
                         >
                             {project.name}
                         </h3>
                     </div>
 
-                    <p className="text-sm text-neutral-400 mb-4 line-clamp-2" title={project.description}>
+                    <p className="text-sm text-neutral-600 dark:text-neutral-400 mb-4 line-clamp-2" title={project.description}>
                         {project.description}
                     </p>
                 </div>
@@ -114,7 +116,7 @@ export default function ProjectCard({
                 <div className="flex items-center justify-between mt-auto pt-2">
                     <button
                         onClick={handleOpenProject}
-                        className="px-3 py-1.5 text-sm font-medium rounded-md bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
+                        className="px-3 py-1.5 text-sm font-medium rounded-md bg-neutral-100 text-neutral-800 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700 transition-colors"
                     >
                         Open Project
                     </button>
@@ -122,10 +124,10 @@ export default function ProjectCard({
                     <div className="relative">
                         <button
                             onClick={handleMenuClick}
-                            className="p-1 rounded-md hover:bg-neutral-700 transition-all"
+                            className="p-1 rounded-md hover:bg-neutral-100 dark:hover:bg-neutral-700 transition-all"
                             aria-label="Project options"
                         >
-                            <svg className="w-5 h-5 text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
+                            <svg className="w-5 h-5 text-neutral-500 dark:text-neutral-400" fill="currentColor" viewBox="0 0 20 20">
                                 <path d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z" />
                             </svg>
                         </button>

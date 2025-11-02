@@ -58,25 +58,24 @@ export default function ProjectsList({ projects, isSelectionMode, onProjectsUpda
 
     return (
         <div>
-            {/* Selection Controls */}
             {isSelectionMode && (
                 <div className="mb-6 flex items-center gap-4">
                     <button
                         onClick={handleSelectAll}
-                        className="px-4 py-2 text-sm font-medium bg-neutral-700 text-white rounded-lg hover:bg-neutral-600 transition-colors"
+                        className="px-4 py-2 text-sm font-medium bg-neutral-100 text-neutral-800 rounded-lg hover:bg-neutral-200 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 transition-colors"
                     >
                         Select All
                     </button>
                     <button
                         onClick={handleUnselectAll}
-                        className="px-4 py-2 text-sm font-medium bg-neutral-700 text-white rounded-lg hover:bg-neutral-600 transition-colors"
+                        className="px-4 py-2 text-sm font-medium bg-neutral-100 text-neutral-800 rounded-lg hover:bg-neutral-200 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 transition-colors"
                     >
                         Unselect All
                     </button>
                     {selectedProjects.size > 0 && (
                         <button
                             onClick={handleDeleteSelected}
-                            className="px-4 py-2 text-sm font-medium bg-red-900/80 text-white rounded-lg hover:bg-red-900/70 transition-colors"
+                            className="px-4 py-2 text-sm font-medium bg-red-100 text-red-700 rounded-lg hover:bg-red-200 dark:bg-red-900/80 dark:text-white dark:hover:bg-red-900/70 transition-colors"
                         >
                             Delete Selected ({selectedProjects.size})
                         </button>
@@ -84,7 +83,6 @@ export default function ProjectsList({ projects, isSelectionMode, onProjectsUpda
                 </div>
             )}
 
-            {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
                 {projects.map(project => (
                     <ProjectCard

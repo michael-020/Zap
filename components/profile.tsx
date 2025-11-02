@@ -75,7 +75,7 @@ export function Profile() {
     }, [])
 
     return (
-        <div className="min-h-screen bg-neutral-950">
+        <div className="min-h-screen bg-white dark:bg-neutral-950">
             <Navbar 
                 onBack={handleBackToInitializer}
                 onPanelToggle={() => setIsOpen(!isOpen)}
@@ -85,17 +85,17 @@ export function Profile() {
             <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
                 <div className="mb-8 flex items-center justify-between">
                     <div>
-                        <h1 className="text-3xl font-bold text-white mb-2">
+                        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
                             My Chats
                         </h1>
-                        <p className="text-neutral-300">
+                        <p className="text-neutral-600 dark:text-neutral-300">
                             Manage and explore your previous Chats
                         </p>
                     </div>
                     {!isLoading && projects && projects.length > 0 && (
                         <button
                             onClick={() => setIsSelectionMode(!isSelectionMode)}
-                            className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
+                            className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-100 text-neutral-800 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700 transition-colors"
                         >
                             {isSelectionMode ? 'Cancel Selection' : 'Select Chats'}
                         </button>
@@ -116,20 +116,20 @@ export function Profile() {
                     />
                 ) : (
                     <div className="col-span-full flex flex-col items-center justify-center py-16">
-                        <div className="w-24 h-24 bg-neutral-800 rounded-full flex items-center justify-center mb-4">
-                            <svg className="w-12 h-12 text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <div className="w-24 h-24 bg-neutral-100 dark:bg-neutral-800 rounded-full flex items-center justify-center mb-4">
+                            <svg className="w-12 h-12 text-neutral-500 dark:text-neutral-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                 <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
                             </svg>
                         </div>
-                        <h3 className="text-lg font-medium text-white mb-2">
+                        <h3 className="text-lg font-medium text-neutral-900 dark:text-white mb-2">
                             No chats yet
                         </h3>
-                        <p className="text-neutral-400 text-center max-w-sm mb-6">
+                        <p className="text-neutral-600 dark:text-neutral-400 text-center max-w-sm mb-6">
                             Start a new conversation to create your first project
                         </p>
                         <button
                             onClick={() => router.push('/chat')}
-                            className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-800 text-white hover:bg-neutral-700 transition-colors"
+                            className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-100 text-neutral-800 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700 transition-colors"
                         >
                             New Chat
                         </button>

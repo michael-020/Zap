@@ -13,7 +13,6 @@ export default function UserDropdown() {
   const [dropdownOpen, setDropdownOpen] = useState(false)
   const dropdownRef = useRef<HTMLDivElement | null>(null)
 
-  // Close dropdown if clicking outside
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
@@ -28,50 +27,47 @@ export default function UserDropdown() {
   }, [])
 
   if (!session) {
-    return null // Don't render anything if there's no session
+    return null 
   }
 
   return (
     <div className="relative" ref={dropdownRef}>
-      <motion.button
-        className={`flex select-none items-center justify-center size-8 text-white cursor-pointer rounded-full shadow-lg ring-2 ring-transparent 
-              bg-gradient-to-br from-neutral-600 to-neutral-700 
-              hover:from-neutral-500 hover:to-neutral-600 
-              dark:from-neutral-700 dark:to-neutral-800 
-              dark:hover:from-neutral-600 dark:hover:to-neutral-700 
-              hover:shadow-2xl 
-              transition-all duration-200 ease-in-out ${
-                dropdownOpen
-                  ? 'ring-neutral-900 dark:ring-neutral-400/50'
-                  : ''
-              }`}
-        onClick={() => setDropdownOpen((prev) => !prev)}
-        whileHover={{
-          scale: 1.05,
-        }}
-        whileTap={{ scale: 0.95 }}
-        animate={{
-          scale: dropdownOpen ? 1.05 : 1,
-          transition: { duration: 0.2 },
-        }}
-        aria-haspopup="true"
-        aria-expanded={dropdownOpen}
-      >
-        <motion.span
-          className="text-sm font-semibold"
-          animate={{
-            rotate: dropdownOpen ? 360 : 0,
-            transition: { duration: 0.3, ease: 'easeInOut' },
-          }}
-        >
-          {session.user.email.charAt(0).toUpperCase()}
-        </motion.span>
-      </motion.button>
+        <motion.button
+            className={`flex select-none items-center justify-center size-8 text-white cursor-pointer rounded-full shadow-lg ring-2 
+                bg-gradient-to-br from-neutral-600 to-neutral-700 
+                hover:from-neutral-500 hover:to-neutral-600 
+                dark:from-neutral-700 dark:to-neutral-800 
+                dark:hover:from-neutral-600 dark:hover:to-neutral-700 
+                hover:shadow-2xl 
+                transition-all duration-200 ease-in-out 
+                ${dropdownOpen ? 'ring-neutral-500 dark:ring-neutral-800' : 'ring-transparent'}`}
+            onClick={() => setDropdownOpen((prev) => !prev)}
+            whileHover={{
+                scale: 1.05,
+            }}
+            whileTap={{ scale: 0.95 }}
+            animate={{
+                scale: dropdownOpen ? 1.05 : 1,
+                transition: { duration: 0.2 },
+            }}
+            aria-haspopup="true"
+            aria-expanded={dropdownOpen}
+            >
+            <motion.span
+                className="text-sm font-semibold"
+                animate={{
+                rotate: dropdownOpen ? 360 : 0,
+                transition: { duration: 0.3, ease: 'easeInOut' },
+                }}
+            >
+                {session.user.email.charAt(0).toUpperCase()}
+            </motion.span>
+        </motion.button>
 
       <AnimatePresence>
         {dropdownOpen && (
           <motion.div
-            className="absolute right-0 w-52 mt-3 bg-neutral-50/95 dark:bg-neutral-900/95 backdrop-blur-md border border-neutral-200 dark:border-neutral-700/50 rounded-xl shadow-2xl z-50 overflow-hidden"
+            className="absolute right-0 w-52 mt-3.5 backdrop-blur-md border dark:bg-[#101010] border-neutral-200 dark:border-neutral-700/50 rounded-xl shadow-2xl z-50 overflow-hidden"
             initial={{
               opacity: 0,
               scale: 0.9,
@@ -96,10 +92,10 @@ export default function UserDropdown() {
             }}
             style={{ transformOrigin: 'top right' }}
           >
-            <div className="absolute inset-0 bg-neutral-100/10 dark:bg-gradient-to-br from-neutral-800/20 to-neutral-900/20 pointer-events-none" />
+            <div className="absolute inset-0 pointer-events-none" />
 
             <motion.div
-              className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700/50 bg-neutral-50 dark:bg-neutral-800/30"
+              className="px-4 py-3 border-b border-neutral-200 dark:border-neutral-700/50 bg-neutral-50 dark:bg-[#101010]"
               initial={{ opacity: 0, x: -10 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: 0.1, duration: 0.2 }}
@@ -138,7 +134,6 @@ export default function UserDropdown() {
                 </div>
               </motion.button>
 
-              {/* ThemeToggle is now inside the dropdown */}
               <motion.div
                 className="w-full px-4 py-2"
                 initial={{ opacity: 0, x: -10 }}

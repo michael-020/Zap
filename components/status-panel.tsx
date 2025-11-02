@@ -113,8 +113,8 @@ export function StatusPanel() {
 
               )}
               
-              <div className="bg-neutral-700 rounded-lg rounded-tr-none p-3 max-w-[80%] ml-auto">
-                <p className="text-sm text-white break-words">
+              <div className="bg-neutral-200 dark:bg-neutral-700 rounded-lg rounded-tr-none p-3 max-w-[80%] ml-auto">
+                <p className="text-sm text-neutral-900 dark:text-neutral-50 break-words">
                   {prompt}
                 </p>
               </div>
@@ -134,13 +134,13 @@ export function StatusPanel() {
             </div>
             {description && (
                 <div className="p-4">
-                  <p className="text-sm text-neutral-400 leading-relaxed">
+                  <p className="text-sm text-neutral-800 dark:text-neutral-400 leading-relaxed">
                     {description}
                   </p>
                 </div>
               )}
             {steps.length > 0 && (
-              <div className="space-y-2 ml-2 bg-neutral-900 px-3 p-2 rounded-lg">
+              <div className="space-y-2 ml-2 bg-neutral-100 dark:bg-neutral-900 px-3 p-2 rounded-lg">
                 {steps.filter(step => step.shouldExecute !== false).map((step) => (
                   <div key={step.id} className="flex items-start gap-3 py-0.5 group">
                     {getStatusIcon(step.status)}
@@ -148,22 +148,22 @@ export function StatusPanel() {
                       {step.type === BuildStepType.RunScript ? 
                         <div className="space-y-2">
                             <p className="text-[0.8rem] text-blue-500">Execute Command</p>
-                          <p className="text-[0.8rem] text-orange-300 py-2 pl-2 rounded-md text-wrap bg-neutral-800 transition-colors">
+                          <p className="text-[0.8rem] text-orange-500 dark:text-orange-300 py-2 pl-2 rounded-md text-wrap bg-neutral-200 dark:bg-neutral-800">
                             {step.description}
                           </p> 
                         </div> :
-                        <div className="text-[0.8rem] text-gray-300 text-wrap group-hover:text-white transition-colors">
+                        <div className="text-[0.8rem] text-neutral-800 dark:text-gray-300 text-wrap transition-colors">
                           {step.title.startsWith("Create") ? (
                             <div className="space-x-1 flex flex-wrap items-center">
-                              <span className="font-semibold text-white">Create</span>
-                              <span className="bg-neutral-800 p-2 py-1 rounded-md">
+                              <span className="font-semibold text-black dark:text-white">Create</span>
+                              <span className="bg-neutral-200 dark:bg-neutral-800 p-2 py-1 rounded-md">
                                 {step.title
                                   .replace(/^Create\s*/, "")                  
                                   .replace(/^React Component\s*/, "")}        
                               </span>
                             </div>
                           ) : (
-                            <div className="text-white">{step.title}</div>
+                            <div className="text-black dark:text-white">{step.title}</div>
                           )}
                         </div>
                       }
@@ -184,7 +184,7 @@ export function StatusPanel() {
         )}
       </div>
 
-      <div className="border-t border-neutral-800 p-2 bg-neutral-950">
+      <div className="border-t border-neutral-200 dark:border-neutral-800 p-2 bg-neutral-50 dark:bg-neutral-950">
         <PromptInputPanel
           isPremium={session.data?.user.isPremium as boolean}
           description={prompt}
@@ -193,7 +193,7 @@ export function StatusPanel() {
           isSubmitting={isProcessingFollowups}
           disabled={false}
           placeholder="Ask a follow up..."
-          textareaHeight="3rem"
+          textareaHeight="1rem"
           textareaMaxHeight="10rem"
           textareaClassName="placeholder:text-sm text-sm"
           maxImages={10}

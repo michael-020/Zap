@@ -67,7 +67,7 @@ export default function UserDropdown() {
       <AnimatePresence>
         {dropdownOpen && (
           <motion.div
-            className="absolute right-0 w-52 mt-3.5 backdrop-blur-md border dark:bg-[#101010] border-neutral-200 dark:border-neutral-700/50 rounded-xl shadow-2xl z-50 overflow-hidden"
+            className="absolute right-0 w-52 mt-3.5 backdrop-blur-md border bg-neutral-50 dark:bg-[#101010] border-neutral-200 dark:border-neutral-700/50 rounded-xl shadow-2xl z-50 overflow-hidden"
             initial={{
               opacity: 0,
               scale: 0.9,

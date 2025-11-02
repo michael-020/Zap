@@ -45,8 +45,8 @@ export function PreviewPanel() {
         <div className="h-[calc(100vh-4rem)] overflow-hidden pb-10"> 
             {!previewUrl ? 
                 <div className="h-full w-full items-center justify-center flex flex-col gap-4"> 
-                    <Loader2 className="animate-spin size-10" />
-                    <div className="text-xl">Generating preview</div>
+                    <Loader2 className="animate-spin size-10 text-neutral-600 dark:text-neutral-400" />
+                    <div className="text-xl text-neutral-900 dark:text-neutral-100">Generating preview</div>
                 </div>
             : 
                 <iframe 

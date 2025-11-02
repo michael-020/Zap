@@ -19,10 +19,10 @@ export function EditorWorkspace({ isFullscreen, setIsFullscreen }: { isFullscree
 
   if (!selectedFile) {
     return (
-      <div className="flex-1 flex items-center justify-center  pt-10">
+      <div className="flex-1 flex items-center justify-center pt-10">
         <div className="text-center">
-          <p className="text-lg font-medium text-neutral-300">No file selected</p>
-          <p className="text-sm text-neutral-400">Please select a file to start editing</p>
+          <p className="text-lg font-medium text-neutral-600 dark:text-neutral-300">No file selected</p>
+          <p className="text-sm text-neutral-500 dark:text-neutral-400">Please select a file to start editing</p>
         </div>
       </div>
     )
@@ -35,7 +35,7 @@ export function EditorWorkspace({ isFullscreen, setIsFullscreen }: { isFullscree
         {activeTab === "code" ? (
           <div className="h-full flex">
             {/* File Explorer */}
-            <div className="w-64 border-r border-neutral-800">
+            <div className="w-64 border-r border-neutral-200 dark:border-neutral-800">
               <FileExplorer />
             </div>
 

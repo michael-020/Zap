@@ -128,7 +128,7 @@ export function EditorInterface({
       <div className="flex fixed top-[60px] h-[calc(100vh-60px)] w-screen">
         {!isFullscreen && (
           <div 
-          className="bg-neutral-950 border-r border-neutral-800 flex-shrink-0"
+          className="dark:bg-neutral-950 bg-neutral-50 border-r border-neutral-800 flex-shrink-0"
           style={{ width: `${leftPanelWidth}%` }}
           >
           <StatusPanel />

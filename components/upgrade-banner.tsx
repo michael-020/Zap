@@ -10,8 +10,8 @@ export function UpgradeBanner({ visible, onClose }: UpgradeBannerProps) {
   if (!visible) return null;
 
   return (
-    <div className="flex items-center justify-between px-4 pt-6 py-2 -z-40 -translate-y-9 bg-neutral-800/0 border border-t-0 border-neutral-700 rounded-b-xl">
-      <div className="text-neutral-400 text-sm">
+    <div className="flex items-center justify-between px-4 pt-6 py-2 -z-40 -translate-y-9 bg-neutral-800/0 border border-t-0 border-neutral-200 dark:border-neutral-800 rounded-b-xl">
+      <div className="text-neutral-800 dark:text-neutral-400 text-sm">
         Upgrade to Pro to unlock all of Zap&apos;s features
       </div>
       <div className="flex items-center gap-4">

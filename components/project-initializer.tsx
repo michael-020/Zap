@@ -121,7 +121,7 @@ export function ProjectInitializer() {
   const usageRemaining = maxUsage - currentUsage
 
   return (
-    <div className="relative min-h-screen bg-black">
+    <div className="relative min-h-screen bg-white dark:bg-black">
       <Navbar
         onPanelToggle={() => setIsOpen(!isOpen)}
         showPanelToggle={true}
@@ -131,13 +131,13 @@ export function ProjectInitializer() {
         <div className="w-full max-w-3xl mx-auto">
           <div className="space-y-8">
             <div className="text-center space-y-2">
-              <h1 className="text-4xl md:text-5xl font-black text-white leading-tight">
+              <h1 className="text-4xl md:text-5xl font-black text-neutral-950 dark:text-white leading-tight">
                 Start with a sentence.
               </h1>
               <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
                 End with a website.
               </h2>
-              <p className="text-neutral-400 text-center mb-12 text-lg">
+              <p className="text-neutral-600 dark:text-neutral-400 text-center mb-12 text-lg">
                 Create stunning websites by chatting with Zap.
               </p>
             </div>

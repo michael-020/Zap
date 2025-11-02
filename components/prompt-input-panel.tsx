@@ -314,13 +314,13 @@ export function PromptInputPanel({
         <div className="absolute -inset-1 bg-gradient-to-r from-blue-500/20 via-purple-500/20 to-pink-500/20 opacity-0 rounded-2xl blur group-hover:opacity-100 transition-opacity duration-300 p-1.5"></div>
         
         <div 
-          className="relative flex-col bg-[#101010] backdrop-blur-sm border border-neutral-700 rounded-xl"
+          className="relative flex-col bg-neutral-50 dark:bg-[#101010] backdrop-blur-sm border border-neutral-200 dark:border-neutral-800 rounded-xl"
           onDragOver={handleDragOver}
           onDragLeave={handleDragLeave}
           onDrop={handleDrop}
         >
           {isDragging && (
-            <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-900/80 rounded-xl border-2 border-dashed border-blue-500">
+            <div className="absolute inset-0 z-10 flex items-center justify-center bg-neutral-50 dark:bg-neutral-900/80 rounded-xl border-2 border-dashed border-blue-500">
               <p className="text-white text-lg font-semibold">Drop images here</p>
             </div>
           )}
@@ -340,7 +340,7 @@ export function PromptInputPanel({
               <div className={`absolute bottom-3 right-4 text-xs pointer-events-none ${
                 description.length > CHAR_LIMIT 
                 ? 'text-red-600/79' 
-                : 'text-neutral-500'
+                : 'text-neutral-600 dark:text-neutral-500'
               }`}>
                 {description.length} / {CHAR_LIMIT}
               </div>
@@ -383,7 +383,7 @@ export function PromptInputPanel({
                   title={usageInfo.limitReached
                     ? 'You have reached your daily limit.'
                     : `Chats left today: ${usageInfo.remaining}`}
-                    className="text-sm text-neutral-400"
+                    className="text-sm text-neutral-600 dark:text-neutral-400"
                     >
                   {usageInfo.limitReached
                     ? 'Daily limit reached'
@@ -404,8 +404,8 @@ export function PromptInputPanel({
               disabled={isDisabled}
               className={`${ submitButtonSize ? "p-1 rounded-lg" : "p-2 rounded-xl" }  font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 isDisabled
-                  ? 'bg-neutral-800 text-neutral-500 cursor-not-allowed'
-                  : 'bg-neutral-300 hover:bg-neutral-400 text-black shadow-lg'
+                  ? 'bg-neutral-300 dark:bg-neutral-800 text-black dark:text-neutral-500 cursor-not-allowed'
+                  : 'bg-neutral-800 dark:bg-neutral-300 dark:hover:bg-neutral-400 text-neutral-100 dark:text-black shadow-lg'
               }`}
             >
               {!isSubmitting ? (

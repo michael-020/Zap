@@ -11,7 +11,7 @@ export function PreviewPanel() {
     async function init(){
         if(!webcontainer) {
             console.log("return")
-            await setUpWebContainer()
+            setUpWebContainer()
         }
 
         if(!webcontainer) {

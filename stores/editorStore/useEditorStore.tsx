@@ -31,10 +31,10 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   projectId: "",
 
   setWebcontainer: async (instance: WebContainer) => {
-    if(get().webcontainer)
+    if(get().webcontainer || get().isInitialisingWebContainer)
       return;
-    else 
-      set({ webcontainer: instance })
+
+    set({ webcontainer: instance })
     console.log("webcontainer setup")
   },
 
@@ -1142,25 +1142,32 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
     setUpWebContainer: async () => {
       const {
-        setWebcontainer,
-        webcontainer
-      } = get()
-      if (webcontainer) {
+        webcontainer,
+        isInitialisingWebContainer
+      } = get();
+
+      if (webcontainer || isInitialisingWebContainer) {
+        if (webcontainer) {
+          console.log("Web container already initialized, exiting.");
+        } else {
+          console.log("Web container is already initialising, exiting.");
+        }
         return;
       }
 
-      set({ isInitialisingWebContainer: true })
-      console.log("initialising web container")
+      set({ isInitialisingWebContainer: true });
+      console.log("Initialising web container...");
+
       try {
         const webContainerInstance = await WebContainer.boot();
-        setWebcontainer(webContainerInstance);
-        console.log("web container initialised")
+        set({ webcontainer: webContainerInstance });
+        console.log("Web container initialised");
       } catch (error) {
-        console.error("Error while initialisint web container: ", error)
+        console.error("Error while initialising web container: ", error);
+        set({ webcontainer: null });
       } finally {
-        set({ isInitialisingWebContainer: false })
+        set({ isInitialisingWebContainer: false });
       }
-      
     }
   }))
 

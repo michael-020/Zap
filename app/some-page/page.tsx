@@ -4,6 +4,7 @@ import { LoginButton, LogoutButton } from '@/components/auth'
 import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/server/authOptions'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default async function Home() {
   const session = await getServerSession(authOptions)
@@ -12,7 +13,7 @@ export default async function Home() {
     redirect("/")
 
   return (
-    <main className='p-4 bg-neutral-700 h-screen text-white space-y-4'>
+    <main className='p-4 bg-neutral-200 text-neutral-900 dark:bg-neutral-950 h-screen dark:text-white space-y-4'>
       <LoginButton />
       <LogoutButton  />
       <h2>Server Session</h2>
@@ -36,6 +37,10 @@ export default async function Home() {
       <Link href={"/chat"}>
         go to chat
       </Link>
+
+      <div>
+        <ThemeToggle />
+      </div>
     </main>
   )
 }

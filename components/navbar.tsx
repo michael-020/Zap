@@ -5,6 +5,7 @@ import { LogOut, PanelRight, User } from 'lucide-react'
 import { useSession, signOut } from 'next-auth/react'
 import { useRouter } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
+import { ThemeToggle } from './theme-toggle'
 
 interface NavbarProps {
   onPanelToggle?: () => void
@@ -39,7 +40,7 @@ export default function Navbar({
   }, [])
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-black/80 backdrop-blur-sm border-b border-neutral-800">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-neutral-200 dark:bg-black/80 backdrop-blur-sm border-b border-neutral-800">
       <div className="flex items-center justify-between px-6 py-3">
         <div className="flex items-center gap-3">
           {showBackButton ? (
@@ -57,6 +58,9 @@ export default function Navbar({
         </div>
 
         <div className="flex gap-3 items-center relative">
+          {/* <div className='pb-2'>
+            <ThemeToggle />
+          </div> */}
           {session?.user.isPremium && <div className='text-xs text-neutral-200 bg-neutral-900 px-3 py-2 rounded-md cursor-default select-none'>
             Pro  
           </div>}

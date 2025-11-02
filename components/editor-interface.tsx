@@ -111,8 +111,8 @@ export function EditorInterface({
 
   
   if(!session){
-     return <div className="h-screen bg-black flex items-center justify-center">
-       <Loader2 className="size-14 animate-spin text-neutral-200" />
+     return <div className="h-screen bg-neutral-50 dark:bg-black flex items-center justify-center">
+       <Loader2 className="size-14 animate-spin text-neutral-950 dark:text-neutral-200" />
      </div>
    }
 
@@ -128,7 +128,7 @@ export function EditorInterface({
       <div className="flex fixed top-[60px] h-[calc(100vh-60px)] w-screen">
         {!isFullscreen && (
           <div 
-          className="dark:bg-neutral-950 bg-neutral-50 border-r border-neutral-800 flex-shrink-0"
+          className="dark:bg-neutral-950 bg-neutral-50 border-r border-neutral-200 dark:border-neutral-800 flex-shrink-0"
           style={{ width: `${leftPanelWidth}%` }}
           >
           <StatusPanel />
@@ -136,12 +136,12 @@ export function EditorInterface({
         )}
         <div
           ref={resizerRef}
-          className="w-0.5 bg-neutral-800 hover:bg-neutral-700 cursor-col-resize flex justify-center flex-shrink-0 transition-colors duration-150 relative group"
+          className="w-0.5 bg-neutral-200 hover:bg-neutral-300 dark:bg-neutral-800 dark:hover:bg-neutral-700 cursor-col-resize flex justify-center flex-shrink-0 transition-colors duration-150 relative group"
           onMouseDown={handleResizerMouseDown}
         >
-          <div className="absolute w-1.5 h-6 inset-y-0 top-1/2 -translate-y-1/2 bg-neutral-600 group-hover:bg-neutral-500 rounded-md transition-opacity duration-150" />
+          <div className="absolute w-1.5 h-6 inset-y-0 top-1/2 -translate-y-1/2 bg-neutral-200 group-hover:bg-neutral-300 dark:bg-neutral-600 dark:group-hover:bg-neutral-500 rounded-md transition-opacity duration-150" />
         </div>
-        <div className="bg-neutral-900 flex-1 min-w-0">
+        <div className=" flex-1 min-w-0">
           <EditorWorkspace isFullscreen={isFullscreen} setIsFullscreen={setIsFullscreen} />
         </div>
       </div>

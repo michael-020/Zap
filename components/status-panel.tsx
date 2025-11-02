@@ -121,12 +121,12 @@ export function StatusPanel() {
               
               <button
                 onClick={() => handleCopy(prompt, promptIndex)}
-                className="p-1 hover:text-white text-gray-400 transition-colors"
+                className="p-1 text-neutral-700 hover:text-neutral-400 dark:hover:text-white dark:text-gray-400 transition-colors"
                 title={copiedPromptIndex === promptIndex ? "Copied" : "Copy prompt"}
                 aria-label="Copy prompt"
               >
                 {copiedPromptIndex === promptIndex ? (
-                  <Check className="size-4 text-neutral-500" />
+                  <Check className="size-4 text-neutral-600 dark:text-neutral-500" />
                 ) : (
                   <Copy className="size-4" />
                 )}

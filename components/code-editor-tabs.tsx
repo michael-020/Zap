@@ -36,7 +36,7 @@ export function CodeEditorTabs({ activeTab, onTabChange, isFullscreen, setIsFull
           title="Code Editor"
           className={`px-4 py-2 text-sm border-r rounded-l-lg border-neutral-300 dark:border-neutral-700 transition-colors flex items-center gap-1 ${
             activeTab === "code"
-            ? "bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200"
+            ? "bg-neutral-300 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200"
               : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white"
             }`}
             >
@@ -47,7 +47,7 @@ export function CodeEditorTabs({ activeTab, onTabChange, isFullscreen, setIsFull
           onClick={() => onTabChange("preview")}
           className={`px-4 py-2 text-sm transition-colors rounded-r-lg flex items-center gap-1 ${
             activeTab === "preview"
-            ? "bg-neutral-50 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200"
+            ? "bg-neutral-300 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200"
             : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
           }`}
           >

@@ -28,7 +28,7 @@ body{
 @layer utilities {
   .custom-scrollbar {
     scrollbar-width: thin;
-    scrollbar-color: var(--color-neutral-700) transparent;
+    scrollbar-color: var(--color-neutral-200) transparent;
   }
 
   .custom-scrollbar::-webkit-scrollbar {
@@ -40,8 +40,17 @@ body{
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    background-color: #16171a;
+    /* Light mode default */
+    background-color: #a0a0a0;
     border-radius: 10px;
+  }
+
+  .dark .custom-scrollbar {
+    scrollbar-color: var(--color-neutral-700) transparent;
+  }
+
+  .dark .custom-scrollbar::-webkit-scrollbar-thumb {
+    background-color: #16171a;
   }
 
   .scrollbar-hidden::-webkit-scrollbar {

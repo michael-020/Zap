@@ -404,7 +404,7 @@ export function PromptInputPanel({
               disabled={isDisabled}
               className={`${ submitButtonSize ? "p-1 rounded-lg" : "p-2 rounded-xl" }  font-medium transition-all duration-300 flex items-center justify-center gap-2 ${
                 isDisabled
-                  ? 'bg-neutral-300 dark:bg-neutral-800 text-black dark:text-neutral-500 cursor-not-allowed'
+                  ? 'bg-neutral-300 dark:bg-neutral-800 text-neutral-500 dark:text-neutral-500 cursor-not-allowed'
                   : 'bg-neutral-800 dark:bg-neutral-300 dark:hover:bg-neutral-400 text-neutral-100 dark:text-black shadow-lg'
               }`}
             >

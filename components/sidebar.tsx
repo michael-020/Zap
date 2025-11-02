@@ -1,24 +1,24 @@
-'use client';
+'use client'
 
-import { useEffect, useRef, useState } from 'react';
-import clsx from 'clsx';
-import { Plus, X } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { useEffect, useRef, useState } from 'react'
+import clsx from 'clsx'
+import { Plus, X } from 'lucide-react'
+import { useRouter } from 'next/navigation'
 
 export interface Chat {
-  id: string;
-  message: string;
-  userId: string;
-  name: string;
-  previewUrl?: string;
-  createdAt: Date;
-  updatedAt: Date;
+  id: string
+  message: string
+  userId: string
+  name: string
+  previewUrl?: string
+  createdAt: Date
+  updatedAt: Date
 }
 
 interface RightSidebarProps {
-  isOpen: boolean;
-  setIsOpenAction: (value: boolean) => void;
-  onMouseLeaveAction: () => void;
+  isOpen: boolean
+  setIsOpenAction: (value: boolean) => void
+  onMouseLeaveAction: () => void
 }
 
 export default function RightSidebar({
@@ -26,75 +26,79 @@ export default function RightSidebar({
   setIsOpenAction,
   onMouseLeaveAction,
 }: RightSidebarProps) {
-  const [chats, setChats] = useState<Chat[]>([]);
-  const [loading, setLoading] = useState(true);
-  const router = useRouter();
-  const sidebarRef = useRef<HTMLDivElement>(null);
+  const [chats, setChats] = useState<Chat[]>([])
+  const [loading, setLoading] = useState(true)
+  const router = useRouter()
+  const sidebarRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) {
+      // Reset loading state when closed so it refetches next time
+      setLoading(true)
+      return
+    }
 
     const fetchChats = async () => {
       try {
-        const res = await fetch('/api/previous-projects');
-        if (!res.ok) throw new Error('Failed to fetch chats');
-        const data = await res.json();
-        setChats(data);
+        const res = await fetch('/api/previous-projects')
+        if (!res.ok) throw new Error('Failed to fetch chats')
+        const data = await res.json()
+        setChats(data)
       } catch (error) {
-        console.error('Error fetching chats:', error);
+        console.error('Error fetching chats:', error)
       } finally {
-        setLoading(false);
+        setLoading(false)
       }
-    };
+    }
 
-    fetchChats();
-  }, [isOpen]);
+    fetchChats()
+  }, [isOpen])
 
   useEffect(() => {
-    if (!isOpen) return;
+    if (!isOpen) return
 
     const handleClickOutside = (event: MouseEvent) => {
       if (
         sidebarRef.current &&
         !sidebarRef.current.contains(event.target as Node)
       ) {
-        setIsOpenAction(false);
+        setIsOpenAction(false)
       }
-    };
+    }
 
-    document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
-  }, [isOpen, setIsOpenAction]);
+    document.addEventListener('mousedown', handleClickOutside)
+    return () => document.removeEventListener('mousedown', handleClickOutside)
+  }, [isOpen, setIsOpenAction])
 
   return (
     <aside
       ref={sidebarRef}
       onMouseLeave={onMouseLeaveAction}
       className={clsx(
-        'fixed top-0 right-0 h-full w-64 bg-black border-l border-neutral-800 text-white shadow-lg transform transition-transform duration-300 z-50',
+        'fixed top-0 right-0 h-full w-64 bg-white dark:bg-black border-l border-neutral-200 dark:border-neutral-800 text-black dark:text-white shadow-lg transform transition-transform duration-300 z-50',
         {
           'translate-x-0': isOpen,
           'translate-x-full': !isOpen,
-        }
+        },
       )}
     >
-      <div className="flex justify-between items-center p-4 border-b border-neutral-800">
+      <div className="flex justify-between items-center p-4 border-b border-neutral-200 dark:border-neutral-800">
         <h2 className="text-lg font-semibold">Recent Chats</h2>
         <button
           onClick={() => setIsOpenAction(false)}
-          className="text-sm text-neutral-400 hover:text-white -translate-x-1"
+          className="text-sm text-neutral-500 dark:text-neutral-400 hover:text-black dark:hover:text-white -translate-x-1"
         >
           <X />
         </button>
       </div>
-        
+
       <div className="p-4 space-y-4 overflow-y-auto custom-scrollbar overflow-x-hidden h-[calc(100%-56px-48px)]">
         <button
-          className="w-full truncate flex items-center gap-2 bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
-          title="New Project"
+          className="w-full truncate flex items-center gap-2 bg-neutral-100 dark:bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 cursor-pointer text-left"
+          title="New Chat"
           onClick={() => {
-            router.push(`/chat`);
-            setIsOpenAction(false);
+            router.push(`/chat`)
+            setIsOpenAction(false)
           }}
         >
           <Plus className="size-4" /> <span>New Chat</span>
@@ -103,20 +107,22 @@ export default function RightSidebar({
           Array.from({ length: 6 }).map((_, index) => (
             <div
               key={index}
-              className="h-6 bg-neutral-800 rounded animate-pulse"
+              className="h-6 bg-neutral-200 dark:bg-neutral-800 rounded animate-pulse"
             />
           ))
         ) : chats.length === 0 ? (
-          <p className="text-neutral-500">No recent chats.</p>
+          <p className="text-neutral-400 dark:text-neutral-500 text-center">
+            You haven&apos;t started any chats. <br/> Start one now!
+          </p>
         ) : (
           chats.map((chat) => (
             <button
               key={chat.id}
-              className="w-full truncate bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-800 text-neutral-200 cursor-pointer text-left"
+              className="w-full truncate bg-neutral-100 dark:bg-neutral-900 rounded px-3 py-2 text-sm hover:bg-neutral-200 dark:hover:bg-neutral-800 text-neutral-800 dark:text-neutral-200 cursor-pointer text-left"
               title={chat.name}
               onClick={() => {
-                router.push(`/prev-chat/${chat.id}`);
-                setIsOpenAction(false);
+                router.push(`/prev-chat/${chat.id}`)
+                setIsOpenAction(false)
               }}
             >
               {chat.name}
@@ -128,11 +134,12 @@ export default function RightSidebar({
       <div className="absolute bottom-4 w-full px-4">
         <button
           onClick={() => router.push('/view-plans')}
-          className="w-full bg-gradient-to-r from-purple-400/70 to-purple-500/70 text-white py-2 rounded-lg text-sm hover:from-purple-500/60 hover:to-purple-400/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
+          className="w-full bg-gradient-to-r from-purple-500/70 to-purple-600/70 dark:from-purple-400/70 dark:to-purple-500/70 text-white py-2 rounded-lg text-sm hover:from-purple-600/50 hover:to-purple-700/50 dark:hover:from-purple-500/60 dark:hover:to-purple-400/60 focus:outline-none focus:ring-2 focus:ring-blue-500"
         >
           Upgrade to Pro
         </button>
       </div>
     </aside>
-  );
+  )
 }
+

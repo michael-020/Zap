@@ -69,16 +69,16 @@ export default function SignIn() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
-      <div className="bg-neutral-900 text-neutral-100 rounded-2xl shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-neutral-900 text-neutral-900 dark:text-neutral-100 rounded-2xl shadow-xl border border-neutral-200 dark:border-neutral-800 p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-neutral-100 mb-2">Welcome Back</h1>
-          <p className="text-neutral-400">Sign in to your account</p>
+          <h1 className="text-3xl font-bold text-neutral-900 dark:text-neutral-100 mb-2">Welcome Back</h1>
+          <p className="text-neutral-600 dark:text-neutral-400">Sign in to your account</p>
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-neutral-200 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">
               Email Address
             </label>
             <input
@@ -90,12 +90,12 @@ export default function SignIn() {
               onChange={handleInputChange}
               required
               disabled={isLoading}
-              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:border-transparent transition-all duration-200 disabled:bg-neutral-800/50 disabled:cursor-not-allowed placeholder-neutral-500"
+              className="w-full px-4 py-3 bg-neutral-50 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-900 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 dark:focus:ring-blue-500 focus:border-transparent transition-all duration-200 disabled:bg-neutral-100/50 dark:disabled:bg-neutral-800/50 disabled:cursor-not-allowed placeholder-neutral-500 dark:placeholder-neutral-500"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-neutral-200 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-200 mb-2">
               Password
             </label>
             <PasswordInput
@@ -112,7 +112,7 @@ export default function SignIn() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-neutral-700 hover:bg-neutral-600 disabled:bg-neutral-800 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:cursor-not-allowed"
+            className="w-full  bg-neutral-200 border border-neutral-200 dark:border-neutral-700 text-black hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 dark:text-white dark:text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 dark:focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-neutral-900 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">
@@ -131,17 +131,17 @@ export default function SignIn() {
         <div className="mt-8">
           <div className="relative">
             <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-neutral-700"></div>
+              <div className="w-full border-t border-neutral-200 dark:border-neutral-700"></div>
             </div>
             <div className="relative flex justify-center text-sm">
-              <span className="px-2 bg-neutral-900 text-gray-500">Or continue with</span>
+              <span className="px-2 bg-white dark:bg-neutral-900 text-neutral-500 dark:text-gray-500">Or continue with</span>
             </div>
           </div>
 
           <button
             onClick={() => signIn("google", { callbackUrl: decodedCallbackUrl })}
             disabled={isLoading}
-            className="mt-6 w-full bg-neutral-700 hover:bg-neutral-800 text-white font-medium py-3 px-4 border border-neutral-900 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-3"
+            className="mt-6 w-full bg-neutral-200 hover:bg-neutral-100 dark:bg-neutral-700 dark:hover:bg-neutral-800 text-neutral-700 dark:text-white font-medium py-3 px-4 border border-neutral-300 dark:border-neutral-700 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 dark:focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-neutral-900 disabled:cursor-not-allowed disabled:opacity-50 flex items-center justify-center gap-3"
           >
             <Image alt="google-image" src={"./google.svg"} width={25} height={25} />
             <p>
@@ -151,9 +151,9 @@ export default function SignIn() {
         </div>
 
         <div className="mt-8 text-center">
-          <p className="text-sm text-neutral-400">
+          <p className="text-sm text-neutral-600 dark:text-neutral-400">
             Don&apos;t have an account?{" "}
-            <Link href="/verify-email" className="font-medium hover:underline text-neutral-200 hover:text-white transition-colors duration-200">
+            <Link href="/verify-email" className="font-medium hover:underline text-neutral-800 dark:text-neutral-200 hover:text-neutral-950 dark:hover:text-white transition-colors duration-200">
               Sign up
             </Link>
           </p>

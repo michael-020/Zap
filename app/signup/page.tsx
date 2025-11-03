@@ -77,34 +77,34 @@ export default function SignUpPage() {
   };
 
   return (
-    <div className="min-h-screen bg-neutral-950 flex items-center justify-center p-4">
-      <div className="bg-neutral-900 rounded-xl border border-neutral-800 shadow-xl p-8 w-full max-w-md">
+    <div className="min-h-screen bg-white dark:bg-neutral-950 flex items-center justify-center p-4">
+      <div className="bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xl p-8 w-full max-w-md">
         <div className="text-center mb-8">
-          <h1 className="text-3xl font-bold text-white mb-2">Create Account</h1>
-          <p className="text-neutral-400">Sign up to get started</p>
+          <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">Create Account</h1>
+          <p className="text-neutral-600 dark:text-neutral-400">Sign up to get started</p>
         </div>
 
         {error && (
-          <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
-            <p className="text-red-400 text-sm font-medium">{error}</p>
+          <div className="mb-6 p-4 bg-red-50 dark:bg-red-900/20 border border-red-300 dark:border-red-800 rounded-lg">
+            <p className="text-red-700 dark:text-red-400 text-sm font-medium">{error}</p>
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="space-y-6">
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-neutral-300 mb-2">
+            <label htmlFor="email" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
               Email Address
             </label>
             <input
               value={inputEmail || ""}
               readOnly
               required
-              className="w-full px-4 py-3 bg-neutral-800 border border-neutral-700 text-white rounded-lg"
+              className="w-full px-4 py-3 bg-neutral-100 dark:bg-neutral-800 border border-neutral-300 dark:border-neutral-700 text-neutral-700 dark:text-neutral-300 rounded-lg cursor-not-allowed"
             />
           </div>
 
           <div>
-            <label htmlFor="password" className="block text-sm font-medium text-neutral-300 mb-2">
+            <label htmlFor="password" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
               Password
             </label>
             <PasswordInput
@@ -119,7 +119,7 @@ export default function SignUpPage() {
           </div>
 
           <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-300 mb-2">
+            <label htmlFor="confirmPassword" className="block text-sm font-medium text-neutral-700 dark:text-neutral-300 mb-2">
               Confirm Password
             </label>
             <PasswordInput
@@ -136,7 +136,7 @@ export default function SignUpPage() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full bg-neutral-700 hover:bg-neutral-600 disabled:bg-neutral-800 text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-neutral-900 disabled:cursor-not-allowed"
+            className="w-full bg-neutral-900 hover:bg-neutral-700 dark:bg-neutral-700 dark:hover:bg-neutral-600 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 text-white dark:text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 dark:focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-neutral-900 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">

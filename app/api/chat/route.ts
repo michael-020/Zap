@@ -225,9 +225,13 @@ export async function POST(req: NextRequest) {
     }
 
     const formattedMessages = await formatMessagesWithImages(messages, prompt, images);
+
+    const model = session.user.isPremium 
+      ? (process.env.PRO_MODEL as string) 
+      : (process.env.FREE_MODEL as string);
     
     const completion = await openai.chat.completions.create({
-      model: "gemini-2.5-flash",
+      model,
       messages: formattedMessages,
       stream: true,
       max_completion_tokens: 100_000

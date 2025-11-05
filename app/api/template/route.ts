@@ -35,7 +35,7 @@ export async function POST(req: NextRequest) {
         const prompt = validatedSchema.data.prompt
 
         const response = await openai.chat.completions.create({
-            model: "gemini-2.5-flash",
+            model: process.env.BASE_MODEL!,
             messages: [
                 {
                     role: "system",

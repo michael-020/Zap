@@ -1,13 +1,17 @@
+"use client"
+
 import { X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useRef, useEffect } from "react"
 import { createPortal } from "react-dom"
 import { LimitReason } from "./prompt-input-panel" 
 
+type AllReasons = LimitReason | "DOWNLOAD_LIMIT";
+
 interface UsageLimitModalProps {
   isOpen: boolean
   onClose: () => void
-  reason: LimitReason
+  reason: AllReasons
 }
 
 export function UsageLimitModal({ isOpen, onClose, reason }: UsageLimitModalProps) {
@@ -21,7 +25,11 @@ export function UsageLimitModal({ isOpen, onClose, reason }: UsageLimitModalProp
     },
     CHAR_LIMIT: {
       title: "Character Limit Exceeded",
-      description: "You've exceeded the 500 character limit. Please shorten your prompt or upgrade to Pro for longer prompts."
+      description: "You've exceeded the character limit. Please shorten your prompt or upgrade to Pro for longer prompts."
+    },
+    DOWNLOAD_LIMIT: {
+      title: "Download Limit Reached",
+      description: "You have reached your download limit for free projects. Please upgrade to Pro for unlimited downloads."
     }
   }
 
@@ -56,24 +64,24 @@ export function UsageLimitModal({ isOpen, onClose, reason }: UsageLimitModalProp
   if (!isOpen) return null
 
   return createPortal(
-    <div className="fixed inset-0 bg-neutral-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+    <div className="fixed inset-0 bg-black/60 dark:bg-neutral-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div
         ref={modalRef}
-        className="relative w-full max-w-md bg-neutral-900 rounded-xl border border-neutral-800 shadow-xl"
+        className="relative w-full max-w-md bg-white dark:bg-neutral-900 rounded-xl border border-neutral-200 dark:border-neutral-800 shadow-xl"
       >
         <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-neutral-400 hover:text-neutral-200 transition-colors"
+          className="absolute top-4 right-4 text-neutral-500 dark:text-neutral-400 hover:text-neutral-800 dark:hover:text-neutral-200 transition-colors"
         >
           <X className="size-5" />
         </button>
 
         <div className="p-6">
           <div className="text-center mb-6">
-            <h3 className="text-xl font-semibold text-neutral-200 mb-2">
+            <h3 className="text-xl font-semibold text-neutral-900 dark:text-neutral-200 mb-2">
               {title}
             </h3>
-            <p className="text-neutral-400">
+            <p className="text-neutral-600 dark:text-neutral-400">
               {description}
             </p>
           </div>
@@ -83,7 +91,7 @@ export function UsageLimitModal({ isOpen, onClose, reason }: UsageLimitModalProp
               onClose()
               router.push('/view-plans')
             }}
-            className="w-full bg-neutral-800 hover:bg-neutral-700 text-neutral-200 font-medium py-3 px-4 rounded-lg transition-colors"
+            className="w-full bg-neutral-900 hover:bg-neutral-700 text-white dark:bg-neutral-800 dark:hover:bg-neutral-700 dark:text-neutral-200 font-medium py-3 px-4 rounded-lg transition-colors"
           >
             Upgrade to Pro
           </button>

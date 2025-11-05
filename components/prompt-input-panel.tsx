@@ -74,7 +74,7 @@ interface PromptInputPanelProps {
   showBanner?: boolean
 }
 
-export type LimitReason = 'USAGE_LIMIT' | 'CHAR_LIMIT';
+export type LimitReason = 'USAGE_LIMIT' | 'CHAR_LIMIT' | 'DOWNLOAD_LIMIT';
 
 export function PromptInputPanel({
   description,

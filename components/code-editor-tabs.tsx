@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { axiosInstance } from "@/lib/axios";
 import { AxiosError } from "axios"; 
 import { UsageLimitModal } from "./usage-limit-modal"; 
+import { showSuccessToast } from "@/lib/toast";
 
 interface CodeEditorTabsProps {
   activeTab: "code" | "preview";
@@ -32,7 +33,7 @@ export function CodeEditorTabs({
     try {
       const response = await axiosInstance.post("/api/check-download");
       const data = response.data;
-      toast.success("Download approved! Preparing your zip...");
+      showSuccessToast("Download approved! Preparing your zip...");
 
       const zip = new JSZip();
       Object.entries(fileItems).forEach(([, file]) => {
@@ -46,7 +47,7 @@ export function CodeEditorTabs({
 
       if (data.remaining !== "Unlimited") {
         await new Promise(r => setTimeout(r, 3000))
-        toast.success(`You have ${data.remaining} downloads remaining.`);
+        showSuccessToast(`You have ${data.remaining} downloads remaining.`);
       }
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 403) {

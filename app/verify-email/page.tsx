@@ -8,6 +8,7 @@ import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { useSession } from "next-auth/react";
 import { useAuthStore } from "@/stores/authStore/useAuthStore";
+import { showSuccessToast } from "@/lib/toast";
 
 
 export default function VerifyEmailPage() {
@@ -37,7 +38,7 @@ export default function VerifyEmailPage() {
 
         const data = await res.data;
 
-        toast.success(data.msg)
+        showSuccessToast(data.msg)
 
         setOtpSent(true);
     } catch (error) {
@@ -62,7 +63,7 @@ export default function VerifyEmailPage() {
         otp
       });
       
-      toast.success(res.data.msg);
+      showSuccessToast(res.data.msg);
       setInputEmail(email)
       router.push(`/signup`);
     } catch (err) {

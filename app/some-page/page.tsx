@@ -5,6 +5,7 @@ import Link from 'next/link'
 import { redirect } from 'next/navigation'
 import { authOptions } from '@/lib/server/authOptions'
 import { ThemeToggle } from '@/components/theme-toggle'
+import { ToastButton } from '@/components/toast-button'
 
 export default async function Home() {
   const session = await getServerSession(authOptions)
@@ -41,6 +42,10 @@ export default async function Home() {
 
       <div>
         <ThemeToggle />
+      </div>
+
+      <div>
+       <ToastButton />
       </div>
     </main>
   )

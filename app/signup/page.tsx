@@ -8,6 +8,7 @@ import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import toast from "react-hot-toast";
 import { PasswordInput } from "@/components/PasswordInput";
+import { showSuccessToast } from "@/lib/toast";
 
 export default function SignUpPage() {
   const { inputEmail } = useAuthStore()
@@ -63,7 +64,7 @@ export default function SignUpPage() {
       if (result?.error) {
         throw new Error(result.error);
       }
-      toast.success("Signed up successfully")
+      showSuccessToast("Signed up successfully")
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.msg) {
         toast.error(error.response.data.msg as string);

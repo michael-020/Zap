@@ -8,7 +8,8 @@ declare module "next-auth" {
       email: string;
       name?: string | null;
       image?: string | null;
-      isPremium: boolean
+      isPremium: boolean;
+      downloadCount: number;
     }
   }
 
@@ -16,11 +17,14 @@ declare module "next-auth" {
     id: string;
     email: string;
     isPremium: boolean;
+    downloadCount: number;
   }
 }
 
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
+    isPremium: boolean;   
+    downloadCount: number;
   }
 }

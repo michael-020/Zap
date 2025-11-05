@@ -1408,8 +1408,18 @@ export namespace Prisma {
 
   export type AggregateUser = {
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
+  }
+
+  export type UserAvgAggregateOutputType = {
+    downloadCount: number | null
+  }
+
+  export type UserSumAggregateOutputType = {
+    downloadCount: number | null
   }
 
   export type UserMinAggregateOutputType = {
@@ -1420,6 +1430,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     isPremium: boolean | null
+    downloadCount: number | null
   }
 
   export type UserMaxAggregateOutputType = {
@@ -1430,6 +1441,7 @@ export namespace Prisma {
     createdAt: Date | null
     updatedAt: Date | null
     isPremium: boolean | null
+    downloadCount: number | null
   }
 
   export type UserCountAggregateOutputType = {
@@ -1440,9 +1452,18 @@ export namespace Prisma {
     createdAt: number
     updatedAt: number
     isPremium: number
+    downloadCount: number
     _all: number
   }
 
+
+  export type UserAvgAggregateInputType = {
+    downloadCount?: true
+  }
+
+  export type UserSumAggregateInputType = {
+    downloadCount?: true
+  }
 
   export type UserMinAggregateInputType = {
     id?: true
@@ -1452,6 +1473,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     isPremium?: true
+    downloadCount?: true
   }
 
   export type UserMaxAggregateInputType = {
@@ -1462,6 +1484,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     isPremium?: true
+    downloadCount?: true
   }
 
   export type UserCountAggregateInputType = {
@@ -1472,6 +1495,7 @@ export namespace Prisma {
     createdAt?: true
     updatedAt?: true
     isPremium?: true
+    downloadCount?: true
     _all?: true
   }
 
@@ -1513,6 +1537,18 @@ export namespace Prisma {
     /**
      * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
      * 
+     * Select which fields to average
+    **/
+    _avg?: UserAvgAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
+     * Select which fields to sum
+    **/
+    _sum?: UserSumAggregateInputType
+    /**
+     * {@link https://www.prisma.io/docs/concepts/components/prisma-client/aggregations Aggregation Docs}
+     * 
      * Select which fields to find the minimum value
     **/
     _min?: UserMinAggregateInputType
@@ -1543,6 +1579,8 @@ export namespace Prisma {
     take?: number
     skip?: number
     _count?: UserCountAggregateInputType | true
+    _avg?: UserAvgAggregateInputType
+    _sum?: UserSumAggregateInputType
     _min?: UserMinAggregateInputType
     _max?: UserMaxAggregateInputType
   }
@@ -1555,7 +1593,10 @@ export namespace Prisma {
     createdAt: Date
     updatedAt: Date
     isPremium: boolean
+    downloadCount: number
     _count: UserCountAggregateOutputType | null
+    _avg: UserAvgAggregateOutputType | null
+    _sum: UserSumAggregateOutputType | null
     _min: UserMinAggregateOutputType | null
     _max: UserMaxAggregateOutputType | null
   }
@@ -1582,6 +1623,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isPremium?: boolean
+    downloadCount?: boolean
     Project?: boolean | User$ProjectArgs<ExtArgs>
     Usage?: boolean | User$UsageArgs<ExtArgs>
     _count?: boolean | UserCountOutputTypeDefaultArgs<ExtArgs>
@@ -1595,6 +1637,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isPremium?: boolean
+    downloadCount?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectUpdateManyAndReturn<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetSelect<{
@@ -1605,6 +1648,7 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isPremium?: boolean
+    downloadCount?: boolean
   }, ExtArgs["result"]["user"]>
 
   export type UserSelectScalar = {
@@ -1615,9 +1659,10 @@ export namespace Prisma {
     createdAt?: boolean
     updatedAt?: boolean
     isPremium?: boolean
+    downloadCount?: boolean
   }
 
-  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "provider" | "createdAt" | "updatedAt" | "isPremium", ExtArgs["result"]["user"]>
+  export type UserOmit<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = $Extensions.GetOmit<"id" | "email" | "password" | "provider" | "createdAt" | "updatedAt" | "isPremium" | "downloadCount", ExtArgs["result"]["user"]>
   export type UserInclude<ExtArgs extends $Extensions.InternalArgs = $Extensions.DefaultArgs> = {
     Project?: boolean | User$ProjectArgs<ExtArgs>
     Usage?: boolean | User$UsageArgs<ExtArgs>
@@ -1640,6 +1685,7 @@ export namespace Prisma {
       createdAt: Date
       updatedAt: Date
       isPremium: boolean
+      downloadCount: number
     }, ExtArgs["result"]["user"]>
     composites: {}
   }
@@ -2072,6 +2118,7 @@ export namespace Prisma {
     readonly createdAt: FieldRef<"User", 'DateTime'>
     readonly updatedAt: FieldRef<"User", 'DateTime'>
     readonly isPremium: FieldRef<"User", 'Boolean'>
+    readonly downloadCount: FieldRef<"User", 'Int'>
   }
     
 
@@ -7797,7 +7844,8 @@ export namespace Prisma {
     provider: 'provider',
     createdAt: 'createdAt',
     updatedAt: 'updatedAt',
-    isPremium: 'isPremium'
+    isPremium: 'isPremium',
+    downloadCount: 'downloadCount'
   };
 
   export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
@@ -7980,6 +8028,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     isPremium?: BoolFilter<"User"> | boolean
+    downloadCount?: IntFilter<"User"> | number
     Project?: ProjectListRelationFilter
     Usage?: UsageListRelationFilter
   }
@@ -7992,6 +8041,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isPremium?: SortOrder
+    downloadCount?: SortOrder
     Project?: ProjectOrderByRelationAggregateInput
     Usage?: UsageOrderByRelationAggregateInput
   }
@@ -8007,6 +8057,7 @@ export namespace Prisma {
     createdAt?: DateTimeFilter<"User"> | Date | string
     updatedAt?: DateTimeFilter<"User"> | Date | string
     isPremium?: BoolFilter<"User"> | boolean
+    downloadCount?: IntFilter<"User"> | number
     Project?: ProjectListRelationFilter
     Usage?: UsageListRelationFilter
   }, "id" | "id" | "email">
@@ -8019,9 +8070,12 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isPremium?: SortOrder
+    downloadCount?: SortOrder
     _count?: UserCountOrderByAggregateInput
+    _avg?: UserAvgOrderByAggregateInput
     _max?: UserMaxOrderByAggregateInput
     _min?: UserMinOrderByAggregateInput
+    _sum?: UserSumOrderByAggregateInput
   }
 
   export type UserScalarWhereWithAggregatesInput = {
@@ -8035,6 +8089,7 @@ export namespace Prisma {
     createdAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     updatedAt?: DateTimeWithAggregatesFilter<"User"> | Date | string
     isPremium?: BoolWithAggregatesFilter<"User"> | boolean
+    downloadCount?: IntWithAggregatesFilter<"User"> | number
   }
 
   export type AdminWhereInput = {
@@ -8330,6 +8385,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isPremium?: boolean
+    downloadCount?: number
     Project?: ProjectCreateNestedManyWithoutUserInput
     Usage?: UsageCreateNestedManyWithoutUserInput
   }
@@ -8342,6 +8398,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isPremium?: boolean
+    downloadCount?: number
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
     Usage?: UsageUncheckedCreateNestedManyWithoutUserInput
   }
@@ -8354,6 +8411,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
     Project?: ProjectUpdateManyWithoutUserNestedInput
     Usage?: UsageUpdateManyWithoutUserNestedInput
   }
@@ -8366,6 +8424,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
     Usage?: UsageUncheckedUpdateManyWithoutUserNestedInput
   }
@@ -8378,6 +8437,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isPremium?: boolean
+    downloadCount?: number
   }
 
   export type UserUpdateManyMutationInput = {
@@ -8388,6 +8448,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type UserUncheckedUpdateManyInput = {
@@ -8398,6 +8459,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
   }
 
   export type AdminCreateInput = {
@@ -8748,6 +8810,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type IntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type ProjectListRelationFilter = {
     every?: ProjectWhereInput
     some?: ProjectWhereInput
@@ -8781,6 +8854,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isPremium?: SortOrder
+    downloadCount?: SortOrder
+  }
+
+  export type UserAvgOrderByAggregateInput = {
+    downloadCount?: SortOrder
   }
 
   export type UserMaxOrderByAggregateInput = {
@@ -8791,6 +8869,7 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isPremium?: SortOrder
+    downloadCount?: SortOrder
   }
 
   export type UserMinOrderByAggregateInput = {
@@ -8801,6 +8880,11 @@ export namespace Prisma {
     createdAt?: SortOrder
     updatedAt?: SortOrder
     isPremium?: SortOrder
+    downloadCount?: SortOrder
+  }
+
+  export type UserSumOrderByAggregateInput = {
+    downloadCount?: SortOrder
   }
 
   export type StringWithAggregatesFilter<$PrismaModel = never> = {
@@ -8869,6 +8953,22 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedBoolFilter<$PrismaModel>
     _max?: NestedBoolFilter<$PrismaModel>
+  }
+
+  export type IntWithAggregatesFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
+    _count?: NestedIntFilter<$PrismaModel>
+    _avg?: NestedFloatFilter<$PrismaModel>
+    _sum?: NestedIntFilter<$PrismaModel>
+    _min?: NestedIntFilter<$PrismaModel>
+    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type AdminCountOrderByAggregateInput = {
@@ -9002,17 +9102,6 @@ export namespace Prisma {
     createdAt?: SortOrder
   }
 
-  export type IntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
-  }
-
   export type UsageUserIdDateCompoundUniqueInput = {
     userId: string
     date: Date | string
@@ -9045,22 +9134,6 @@ export namespace Prisma {
 
   export type UsageSumOrderByAggregateInput = {
     chatCount?: SortOrder
-  }
-
-  export type IntWithAggregatesFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntWithAggregatesFilter<$PrismaModel> | number
-    _count?: NestedIntFilter<$PrismaModel>
-    _avg?: NestedFloatFilter<$PrismaModel>
-    _sum?: NestedIntFilter<$PrismaModel>
-    _min?: NestedIntFilter<$PrismaModel>
-    _max?: NestedIntFilter<$PrismaModel>
   }
 
   export type ProjectCreateNestedManyWithoutUserInput = {
@@ -9109,6 +9182,14 @@ export namespace Prisma {
 
   export type BoolFieldUpdateOperationsInput = {
     set?: boolean
+  }
+
+  export type IntFieldUpdateOperationsInput = {
+    set?: number
+    increment?: number
+    decrement?: number
+    multiply?: number
+    divide?: number
   }
 
   export type ProjectUpdateManyWithoutUserNestedInput = {
@@ -9252,14 +9333,6 @@ export namespace Prisma {
     connect?: UserWhereUniqueInput
   }
 
-  export type IntFieldUpdateOperationsInput = {
-    set?: number
-    increment?: number
-    decrement?: number
-    multiply?: number
-    divide?: number
-  }
-
   export type UserUpdateOneRequiredWithoutUsageNestedInput = {
     create?: XOR<UserCreateWithoutUsageInput, UserUncheckedCreateWithoutUsageInput>
     connectOrCreate?: UserCreateOrConnectWithoutUsageInput
@@ -9319,6 +9392,17 @@ export namespace Prisma {
     not?: NestedBoolFilter<$PrismaModel> | boolean
   }
 
+  export type NestedIntFilter<$PrismaModel = never> = {
+    equals?: number | IntFieldRefInput<$PrismaModel>
+    in?: number[] | ListIntFieldRefInput<$PrismaModel>
+    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
+    lt?: number | IntFieldRefInput<$PrismaModel>
+    lte?: number | IntFieldRefInput<$PrismaModel>
+    gt?: number | IntFieldRefInput<$PrismaModel>
+    gte?: number | IntFieldRefInput<$PrismaModel>
+    not?: NestedIntFilter<$PrismaModel> | number
+  }
+
   export type NestedStringWithAggregatesFilter<$PrismaModel = never> = {
     equals?: string | StringFieldRefInput<$PrismaModel>
     in?: string[] | ListStringFieldRefInput<$PrismaModel>
@@ -9334,17 +9418,6 @@ export namespace Prisma {
     _count?: NestedIntFilter<$PrismaModel>
     _min?: NestedStringFilter<$PrismaModel>
     _max?: NestedStringFilter<$PrismaModel>
-  }
-
-  export type NestedIntFilter<$PrismaModel = never> = {
-    equals?: number | IntFieldRefInput<$PrismaModel>
-    in?: number[] | ListIntFieldRefInput<$PrismaModel>
-    notIn?: number[] | ListIntFieldRefInput<$PrismaModel>
-    lt?: number | IntFieldRefInput<$PrismaModel>
-    lte?: number | IntFieldRefInput<$PrismaModel>
-    gt?: number | IntFieldRefInput<$PrismaModel>
-    gte?: number | IntFieldRefInput<$PrismaModel>
-    not?: NestedIntFilter<$PrismaModel> | number
   }
 
   export type NestedStringNullableWithAggregatesFilter<$PrismaModel = never> = {
@@ -9549,6 +9622,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isPremium?: boolean
+    downloadCount?: number
     Usage?: UsageCreateNestedManyWithoutUserInput
   }
 
@@ -9560,6 +9634,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isPremium?: boolean
+    downloadCount?: number
     Usage?: UsageUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -9615,6 +9690,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
     Usage?: UsageUpdateManyWithoutUserNestedInput
   }
 
@@ -9626,6 +9702,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
     Usage?: UsageUncheckedUpdateManyWithoutUserNestedInput
   }
 
@@ -9722,6 +9799,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isPremium?: boolean
+    downloadCount?: number
     Project?: ProjectCreateNestedManyWithoutUserInput
   }
 
@@ -9733,6 +9811,7 @@ export namespace Prisma {
     createdAt?: Date | string
     updatedAt?: Date | string
     isPremium?: boolean
+    downloadCount?: number
     Project?: ProjectUncheckedCreateNestedManyWithoutUserInput
   }
 
@@ -9760,6 +9839,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
     Project?: ProjectUpdateManyWithoutUserNestedInput
   }
 
@@ -9771,6 +9851,7 @@ export namespace Prisma {
     createdAt?: DateTimeFieldUpdateOperationsInput | Date | string
     updatedAt?: DateTimeFieldUpdateOperationsInput | Date | string
     isPremium?: BoolFieldUpdateOperationsInput | boolean
+    downloadCount?: IntFieldUpdateOperationsInput | number
     Project?: ProjectUncheckedUpdateManyWithoutUserNestedInput
   }
 

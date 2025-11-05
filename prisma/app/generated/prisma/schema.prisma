@@ -9,15 +9,16 @@ datasource db {
 }
 
 model User {
-  id        String      @id @unique @default(uuid())
-  email     String      @unique
-  password  String?
-  provider  AUTHOPTIONS @default(CREDENTIALS)
-  createdAt DateTime    @default(now())
-  updatedAt DateTime    @default(now())
-  isPremium Boolean     @default(false)
-  Project   Project[]
-  Usage     Usage[]
+  id            String      @id @unique @default(uuid())
+  email         String      @unique
+  password      String?
+  provider      AUTHOPTIONS @default(CREDENTIALS)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @default(now())
+  isPremium     Boolean     @default(false)
+  Project       Project[]
+  Usage         Usage[]
+  downloadCount Int         @default(0)
 }
 
 model Admin {

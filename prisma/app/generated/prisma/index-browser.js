@@ -127,7 +127,8 @@ exports.Prisma.UserScalarFieldEnum = {
   provider: 'provider',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  isPremium: 'isPremium'
+  isPremium: 'isPremium',
+  downloadCount: 'downloadCount'
 };
 
 exports.Prisma.AdminScalarFieldEnum = {

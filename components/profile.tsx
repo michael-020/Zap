@@ -75,7 +75,7 @@ export function Profile() {
     }, [])
 
     return (
-        <div className="min-h-screen bg-white dark:bg-neutral-950">
+        <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
             <Navbar 
                 onBack={handleBackToInitializer}
                 onPanelToggle={() => setIsOpen(!isOpen)}

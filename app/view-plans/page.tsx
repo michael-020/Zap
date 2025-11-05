@@ -187,7 +187,7 @@ const ViewPlansPage = () => {
                     </div> */}
                   <div className="flex items-start">
                     <Check className="h-5 w-5 text-purple-500 dark:text-purple-400 mt-0.5 flex-shrink-0" />
-                    <span className="ml-3 text-neutral-700 dark:text-neutral-200"><span className="font-semibold text-neutral-900 dark:text-white">Unlimited downloads</span> - Export the React codebase</span>
+                    <span className="ml-3 text-neutral-700 dark:text-neutral-200"><span className="font-semibold text-neutral-900 dark:text-white">Unlimited downloads</span> - Export the Project&apos;s codebase</span>
                   </div>
                   
                 </div>

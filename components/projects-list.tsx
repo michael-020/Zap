@@ -62,13 +62,13 @@ export default function ProjectsList({ projects, isSelectionMode, onProjectsUpda
                 <div className="mb-6 flex items-center gap-4">
                     <button
                         onClick={handleSelectAll}
-                        className="px-4 py-2 text-sm font-medium bg-neutral-100 text-neutral-800 rounded-lg hover:bg-neutral-200 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 transition-colors"
+                        className="px-4 py-2 text-sm font-medium bg-neutral-200 text-neutral-800 rounded-lg hover:bg-neutral-300 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 transition-colors"
                     >
                         Select All
                     </button>
                     <button
                         onClick={handleUnselectAll}
-                        className="px-4 py-2 text-sm font-medium bg-neutral-100 text-neutral-800 rounded-lg hover:bg-neutral-200 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 transition-colors"
+                        className="px-4 py-2 text-sm font-medium bg-neutral-200 text-neutral-800 rounded-lg hover:bg-neutral-300 dark:bg-neutral-700 dark:text-white dark:hover:bg-neutral-600 transition-colors"
                     >
                         Unselect All
                     </button>

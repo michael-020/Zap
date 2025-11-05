@@ -78,7 +78,7 @@ export default function ProjectCard({
         <>
             <div 
                 className={`group relative p-4 rounded-xl bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800 transition-all
-                            ${isSelected ? 'ring-2 ring-blue-500 border-blue-500' : 'hover:border-neutral-300 dark:hover:border-neutral-700'}
+                            ${isSelected ? 'ring-2 ring-purple-400/70 border-purple-400/70' : 'hover:border-neutral-300 dark:hover:border-neutral-700'}
                             flex flex-col h-full justify-between`} 
             >
                 {showCheckbox && (
@@ -86,7 +86,7 @@ export default function ProjectCard({
                         <button
                             onClick={handleCheckboxClick}
                             className={`w-5 h-5 rounded border flex items-center justify-center transition-colors
-                                        ${isSelected ? 'bg-blue-500 border-blue-500 hover:bg-blue-600' 
+                                        ${isSelected ? 'bg-purple-400/70 border-purple-400/70 hover:bg-purple-500/70' 
                                                     : 'bg-white dark:bg-neutral-800 border-neutral-300 dark:border-neutral-600 hover:bg-neutral-100 dark:hover:bg-neutral-700'}`}
                         >
                             {isSelected && (

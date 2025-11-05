@@ -40,7 +40,7 @@ body{
   }
 
   .custom-scrollbar::-webkit-scrollbar-thumb {
-    /* Light mode default */
+    
     background-color: #a0a0a0;
     border-radius: 10px;
   }
@@ -60,5 +60,45 @@ body{
   .scrollbar-hidden {
     -ms-overflow-style: none; 
     scrollbar-width: none; 
+  }
+
+  .tooltip-button {
+    position: relative; 
+  }
+
+  .tooltip-button:hover::after {
+    content: attr(aria-label); 
+    position: absolute;
+    background-color: #333; 
+    color: #fff;             
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;     
+    top: 100%;               
+    left: 50%;
+    transform: translateX(-50%);
+    margin-top: 10px;        
+    z-index: 9999;           
+  }
+
+  .tooltip-button-bottom {
+    position: relative; 
+  }
+
+  .tooltip-button-bottom:hover::after {
+    content: attr(aria-label); 
+    position: absolute;
+    background-color: #333; 
+    color: #fff;             
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 14px;
+    white-space: nowrap;     
+    bottom: 100%;               
+    left: 50%;
+    transform: translateX(-50%);
+    margin-bottom: 5px;        
+    z-index: 9999;           
   }
 }

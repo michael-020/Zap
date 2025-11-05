@@ -352,9 +352,8 @@ export function PromptInputPanel({
               <button
                 type="button"
                 onClick={handleFileUploadClick}
-                className="cursor-pointer relative"
-                aria-label="Add attachment"
-                title="Upload Images"
+                className="cursor-pointer tooltip-button-bottom relative"
+                aria-label="Upload Images"
                 disabled={isProcessingImages || disabled}
               >
                 <Plus className={`${imageSelectorSize ? `size-${imageSelectorSize}` : "size-6"} transition-colors ${
@@ -380,11 +379,14 @@ export function PromptInputPanel({
             {!isPremium && usageInfo && (
               <div className="flex gap-1 items-center justify-center">
                 <button 
-                  title={usageInfo.limitReached
-                    ? 'You have reached your daily limit.'
-                    : `Chats left today: ${usageInfo.remaining}`}
-                    className="text-sm text-neutral-600 dark:text-neutral-400"
-                    >
+                  // aria-label={usageInfo.limitReached
+                  //   ? 'You have reached your daily limit.'
+                  //   : `Chats left today: ${usageInfo.remaining}`}
+                  // title={usageInfo.limitReached
+                  //   ? 'You have reached your daily limit.'
+                  //   : `Chats left today: ${usageInfo.remaining}`}
+                    className=" text-sm text-neutral-600 dark:text-neutral-400"
+                >
                   {usageInfo.limitReached
                     ? 'Daily limit reached'
                     : `${usageInfo.remaining} chats left today`}

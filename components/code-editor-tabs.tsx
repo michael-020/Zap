@@ -70,8 +70,8 @@ export function CodeEditorTabs({
         <div className="flex">
           <button
             onClick={() => onTabChange("code")}
-            title="Code Editor"
-            className={`px-4 py-2 text-sm border-r rounded-l-lg border-neutral-300 dark:border-neutral-700 transition-colors flex items-center gap-1 ${
+            aria-label="Code Editor"
+            className={`tooltip-button px-4 py-2 text-sm border-r rounded-l-lg border-neutral-300 dark:border-neutral-700 transition-colors flex items-center gap-1 ${
               activeTab === "code"
                 ? "bg-neutral-300 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200"
                 : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-300 hover:text-neutral-900 dark:hover:text-white"
@@ -80,9 +80,9 @@ export function CodeEditorTabs({
             <Code className="size-3" />
           </button>
           <button
-            title="Preview"
+            aria-label="Preview"
             onClick={() => onTabChange("preview")}
-            className={`px-4 py-2 text-sm transition-colors rounded-r-lg flex items-center gap-1 ${
+            className={`tooltip-button px-4 py-2 text-sm transition-colors rounded-r-lg flex items-center gap-1 ${
               activeTab === "preview"
                 ? "bg-neutral-300 dark:bg-neutral-950 text-neutral-900 dark:text-neutral-200"
                 : "bg-neutral-200 dark:bg-neutral-800 text-neutral-600 dark:text-neutral-400 hover:text-neutral-900 dark:hover:text-white"
@@ -95,8 +95,8 @@ export function CodeEditorTabs({
         <button
           onClick={handleDownloadZip}
           disabled={isDownloading}
-          className="px-3 py-1 text-xs bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors flex items-center disabled:opacity-50"
-          title="Download as ZIP"
+          className="tooltip-button px-3 py-1 text-xs bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors flex items-center disabled:opacity-50"
+          aria-label="Download as ZIP"
         >
           {isDownloading ? (
             <Loader2 className="size-4 animate-spin" />
@@ -107,8 +107,8 @@ export function CodeEditorTabs({
 
         <button
           onClick={() => setIsFullscreen(!isFullscreen)}
-          className="px-3 py-1 text-xs bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors flex items-center"
-          title="Fullscreen"
+          className="tooltip-button px-3 py-1 text-xs bg-neutral-200 dark:bg-neutral-800 text-neutral-700 dark:text-neutral-200 rounded hover:bg-neutral-300 dark:hover:bg-neutral-700 transition-colors flex items-center"
+          aria-label="Fullscreen"
         >
           <Fullscreen className="size-4" />
         </button>

@@ -22,10 +22,9 @@ export function ThemeToggle() {
           className={`p-1.5 rounded-full transition-colors duration-300 ${
             theme === 'system'
               ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
-              : 'bg-transparent text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-100'
+              : 'bg-transparent text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-100 tooltip-button'
           }`}
-          aria-label="System theme"
-          title='System'
+          aria-label="System"
         >
           <Monitor className="h-4 w-4" />
         </button>
@@ -34,10 +33,9 @@ export function ThemeToggle() {
           className={`p-1.5 rounded-full transition-colors duration-300 ${
             theme === 'light'
               ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
-              : 'bg-transparent text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-100'
+              : 'bg-transparent text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-100 tooltip-button'
           }`}
           aria-label="Light mode"
-          title='Light mode'
         >
           <Sun className="h-4 w-4" />
         </button>
@@ -46,10 +44,9 @@ export function ThemeToggle() {
           className={`p-1.5 rounded-full transition-colors duration-300 ${
             theme === 'dark'
               ? 'bg-neutral-300 dark:bg-neutral-700 text-neutral-900 dark:text-neutral-100'
-              : 'bg-transparent text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-100'
+              : 'bg-transparent text-neutral-500 hover:bg-neutral-200 dark:hover:bg-neutral-700 dark:text-neutral-400 dark:hover:text-neutral-100 tooltip-button'
           }`}
           aria-label="Dark mode"
-          title='Dark mode'
         >
           <Moon className="h-4 w-4" />
         </button>

@@ -17,13 +17,14 @@ export function Profile() {
     const [isOpen, setIsOpen] = useState(false)
     const [isHovered, setIsHovered] = useState(false)
     const router = useRouter()
-    const { clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap } = useEditorStore()
+    const { clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap, setMessages } = useEditorStore()
 
     const handleBackToInitializer = () => {
         clearBuildSteps()
         setFileItems([])
         setSelectedFile(null)
         clearPromptStepsMap()
+        setMessages([])
         router.push("/chat")
     }
 

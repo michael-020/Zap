@@ -107,4 +107,5 @@ export interface StoreState {
   clearPromptStepsMap: () => void;
   setUpWebContainer: () => void;
   cleanupWebContainer: () => Promise<void>;
+  clearEditorState: () => void; // Clears all state variables related to the current project
 }

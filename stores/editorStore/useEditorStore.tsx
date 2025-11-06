@@ -132,6 +132,22 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   
   clearPromptStepsMap: () => set({ promptStepsMap: new Map() }),
 
+  clearEditorState: () => {
+    set({ 
+      buildSteps: [],
+      fileItems: [],
+      shellCommands: [],
+      messages: [],
+      inputPrompts: [],
+      promptStepsMap: new Map(),
+      previewUrl: "",
+      streamingFiles: new Map(),
+      userEditedFiles: new Set(),
+      projectId: "",
+      selectedFile: null
+    });
+  },
+
   updateFileContent: (path, content) =>
     set((state) => {
       // Mark file as user-edited and stop streaming
@@ -739,7 +755,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         fileCompletionTracker.forEach((_, filePath) => {
           get().completeFileStreaming(filePath);
         });
-
+        console.log("full response: ", fullResponse)
         get().setMessages(fullResponse);
       } catch (err) {
         console.error("Error during build:", err);
@@ -775,6 +791,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             );
           }
           
+          console.log("messages: ", get().messages)
           await axiosInstance.post("/api/store-chats", {
             prompt,
             response: get().messages,
@@ -1186,17 +1203,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         isInitialisingWebContainer,
       } = get();
 
-      // If we already have a webcontainer instance, return it
       if (webcontainer) {
         console.log("Web container already initialized, reusing existing instance.");
         return webcontainer;
       }
 
-      // If initialization is in progress, wait for it to complete
       if (isInitialisingWebContainer) {
         console.log("Web container is already initialising, waiting...");
-        // Wait for a short period and check again
-        await new Promise(resolve => setTimeout(resolve, 1000));
+
         const currentState = get();
         if (currentState.webcontainer) {
           return currentState.webcontainer;
@@ -1222,8 +1236,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               throw err;
             }
             retryCount++;
-            // Wait before retrying
-            await new Promise(resolve => setTimeout(resolve, 1000));
           }
         }
 

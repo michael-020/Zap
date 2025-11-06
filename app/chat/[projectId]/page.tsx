@@ -16,7 +16,8 @@ export default function ProjectPage() {
     setSelectedFile, 
     clearPromptStepsMap, 
     processChatData, 
-    cleanupWebContainer
+    cleanupWebContainer,
+    setMessages
   } = useEditorStore()
   const router = useRouter()
   const hasProcessedChatDataRef = useRef(false);
@@ -28,6 +29,7 @@ export default function ProjectPage() {
     setFileItems([])
     setSelectedFile(null)
     clearPromptStepsMap()
+    setMessages([])
   }
 
     // Effect to fetch project data

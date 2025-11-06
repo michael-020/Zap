@@ -9,11 +9,20 @@ import { axiosInstance } from "@/lib/axios"
 
 export default function ProjectPage() {
   const { projectId } = useParams()
-  const { isInitialising, clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap, processChatData } = useEditorStore()
+  const { 
+    isInitialising, 
+    clearBuildSteps, 
+    setFileItems, 
+    setSelectedFile, 
+    clearPromptStepsMap, 
+    processChatData, 
+    cleanupWebContainer
+  } = useEditorStore()
   const router = useRouter()
   const hasProcessedChatDataRef = useRef(false);
 
   const handleBackToInitializer = async () => {
+    await cleanupWebContainer()
     await router.push("/chat")
     clearBuildSteps()
     setFileItems([])
@@ -21,6 +30,7 @@ export default function ProjectPage() {
     clearPromptStepsMap()
   }
 
+    // Effect to fetch project data
     useEffect(() => {
         if (projectId && !hasProcessedChatDataRef.current) {
             const fetchProject = async () => {
@@ -38,6 +48,16 @@ export default function ProjectPage() {
             fetchProject();
         }
     }, [projectId, processChatData]); 
+
+    // Effect to cleanup webcontainer when leaving chat page
+    useEffect(() => {
+        return () => {
+            const pathname = window.location.pathname;
+            if (!pathname.startsWith('/chat/') && !pathname.startsWith('/prev-chat/')) {
+                cleanupWebContainer();
+            }
+        }
+    }, [cleanupWebContainer]);
 
   return (
     <>

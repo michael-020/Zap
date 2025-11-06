@@ -9,31 +9,38 @@ export function PreviewPanel() {
     const { webcontainer, previewUrl, setPreviewUrl, setUpWebContainer } = useEditorStore()
 
     async function init(){
-        if(!webcontainer) {
-            console.log("return")
-            setUpWebContainer()
-        }
-
-        if(!webcontainer) {
-            console.log("return")
-            return;
-        }
-
-        const installProcess = await webcontainer.spawn('npm', ['install']);
-        console.log("npm i done")
-
-        installProcess.output.pipeTo(new WritableStream({
-            write() {
+        try {
+            if(!webcontainer) {
+                console.log("setting up webcontainer")
+                await setUpWebContainer()
             }
-        }));
+            
+            // Get the webcontainer instance again after setup
+            const currentContainer = useEditorStore.getState().webcontainer
+            if(!currentContainer) {
+                console.log("No webcontainer available after setup")
+                return;
+            }
 
-        await webcontainer.spawn('npm', ['run', 'dev']);
-        console.log("npm run dev")
+            // Use the current container instance
+            const installProcess = await currentContainer.spawn('npm', ['install']);
+            console.log("npm i done")
 
-        webcontainer.on('server-ready', (port, url) => {
-            console.log("url: ", url)
-            setPreviewUrl(url)
-        });
+            installProcess.output.pipeTo(new WritableStream({
+                write() {
+                }
+            }));
+
+            await currentContainer.spawn('npm', ['run', 'dev']);
+            console.log("npm run dev")
+
+            currentContainer.on('server-ready', (port, url) => {
+                console.log("url: ", url)
+                setPreviewUrl(url)
+            });
+        } catch (error) {
+            console.error("Error in preview initialization:", error);
+        }
     }
 
     useEffect(() => {

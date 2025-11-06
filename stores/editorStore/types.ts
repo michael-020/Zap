@@ -106,4 +106,5 @@ export interface StoreState {
   processChatData: (chatData: ChatData[]) => void;
   clearPromptStepsMap: () => void;
   setUpWebContainer: () => void;
+  cleanupWebContainer: () => Promise<void>;
 }

@@ -10,6 +10,17 @@ import { StatusPanelSkeletons } from "./status-pannel-skeletons"
 import { PromptInputPanel } from "./prompt-input-panel"
 import { useSession } from "next-auth/react"
 
+const loadingWords = [
+  "Thinking...",
+  "Processing Prompt...",
+  "Analyzing requirements...",
+  "Generating code...",
+  "Building components...",
+  "Refining solution...",
+  "Finalizing details...",
+  "Getting things ready..."
+]
+
 export function StatusPanel() {
   const { processFollowupPrompts, isProcessing, isProcessingFollowups, promptStepsMap, isFetchingImages } = useEditorStore()
   const [prompt, setPrompt] = useState("")
@@ -18,6 +29,7 @@ export function StatusPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
   const session = useSession()
+  const [loadingWordIndex, setLoadingWordIndex] = useState(0)
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -67,6 +79,24 @@ export function StatusPanel() {
       bottomRef.current.scrollIntoView({ behavior: "smooth" })
     }
   }, [promptStepsMap])
+
+  useEffect(() => {
+    let intervalId: NodeJS.Timeout | undefined = undefined
+
+    if (isProcessing) {
+      intervalId = setInterval(() => {
+        setLoadingWordIndex((prevIndex) => (prevIndex + 1) % loadingWords.length)
+      }, 2000) 
+    } else {
+      setLoadingWordIndex(0) 
+    }
+
+    return () => {
+      if (intervalId) {
+        clearInterval(intervalId)
+      }
+    }
+  }, [isProcessing])
 
   if (!promptStepsMap || promptStepsMap.size === 0) {
     return <StatusPanelSkeletons />
@@ -179,7 +209,7 @@ export function StatusPanel() {
         {isProcessing && (
           <div className="flex items-center gap-2 text-sm text-blue-400 mt-4 p-3 bg-blue-900/20 rounded-lg">
             <Loader2 className="w-4 h-4 animate-spin" />
-            <span>Thinking...</span>
+            <span className="animate-pulse">{loadingWords[loadingWordIndex]}</span>
           </div>
         )}
       </div>

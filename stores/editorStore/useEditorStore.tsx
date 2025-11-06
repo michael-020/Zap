@@ -30,6 +30,46 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   isCreatingProject: false,
   projectId: "",
 
+  cleanupWebContainer: async () => {
+    const { webcontainer, devServerProcess } = get();
+    if (!webcontainer) {
+      console.log("Skipping cleanup as web container is not initialized yet");
+      return;
+    }
+
+    try {
+      if (devServerProcess) {
+        try {
+          await devServerProcess.kill();
+        } catch (err) {
+          console.warn("Error killing dev server:", err);
+        }
+      }
+
+      try {
+        await webcontainer.teardown();
+      } catch (err) {
+        console.warn("Error during webcontainer teardown:", err);
+      }
+
+      set({ 
+        webcontainer: null, 
+        devServerProcess: null,
+        previewUrl: "",
+        isInitialisingWebContainer: false
+      });
+      console.log("Webcontainer cleaned up successfully");
+    } catch (err) {
+      console.error("Error cleaning up webcontainer:", err);
+      set({ 
+        webcontainer: null, 
+        devServerProcess: null,
+        previewUrl: "",
+        isInitialisingWebContainer: false
+      });
+    }
+  },
+
   setWebcontainer: async (instance: WebContainer) => {
     if(get().webcontainer || get().isInitialisingWebContainer)
       return;
@@ -1143,31 +1183,67 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     setUpWebContainer: async () => {
       const {
         webcontainer,
-        isInitialisingWebContainer
+        isInitialisingWebContainer,
       } = get();
 
-      if (webcontainer || isInitialisingWebContainer) {
-        if (webcontainer) {
-          console.log("Web container already initialized, exiting.");
-        } else {
-          console.log("Web container is already initialising, exiting.");
+      // If we already have a webcontainer instance, return it
+      if (webcontainer) {
+        console.log("Web container already initialized, reusing existing instance.");
+        return webcontainer;
+      }
+
+      // If initialization is in progress, wait for it to complete
+      if (isInitialisingWebContainer) {
+        console.log("Web container is already initialising, waiting...");
+        // Wait for a short period and check again
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        const currentState = get();
+        if (currentState.webcontainer) {
+          return currentState.webcontainer;
         }
-        return;
+        return null;
       }
 
       set({ isInitialisingWebContainer: true });
       console.log("Initialising web container...");
 
       try {
-        const webContainerInstance = await WebContainer.boot();
-        set({ webcontainer: webContainerInstance });
-        console.log("Web container initialised");
+        let retryCount = 0;
+        const maxRetries = 3;
+        let webContainerInstance = null;
+
+        while (retryCount < maxRetries && !webContainerInstance) {
+          try {
+            webContainerInstance = await WebContainer.boot();
+          } catch (err) {
+            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+            console.log(`Attempt ${retryCount + 1} failed, ${errorMessage}`);
+            if ((err instanceof Error && err.message.includes("Unable to create more instances")) || retryCount === maxRetries - 1) {
+              throw err;
+            }
+            retryCount++;
+            // Wait before retrying
+            await new Promise(resolve => setTimeout(resolve, 1000));
+          }
+        }
+
+        if (webContainerInstance) {
+          set({ webcontainer: webContainerInstance });
+          console.log("Web container initialised successfully");
+          return webContainerInstance;
+        }
       } catch (error) {
         console.error("Error while initialising web container: ", error);
         set({ webcontainer: null });
+        // If we hit the instance limit, we might want to show a user-friendly message
+        if (error instanceof Error && error.message.includes("Unable to create more instances")) {
+          toast.error("Too many preview instances open. Please close some tabs and try again.");
+        }
       } finally {
         set({ isInitialisingWebContainer: false });
       }
+
+      return null;
     }
   }))
 

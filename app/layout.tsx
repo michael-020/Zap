@@ -4,6 +4,7 @@ import "./globals.css";
 import { Providers } from "./providers";
 import { Toaster } from "react-hot-toast"
 import { ThemeProvider } from "./theme-provider";
+import { WebContainerManager } from "@/components/web-container-manager";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -36,7 +37,10 @@ export default function RootLayout({
           enableSystem
           disableTransitionOnChange
         >
-          <Providers>{children}</Providers> 
+          <Providers>
+            <WebContainerManager />
+            {children}
+          </Providers> 
         </ThemeProvider>
        <Toaster />
       </body>

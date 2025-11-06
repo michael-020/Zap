@@ -33,7 +33,7 @@ const getLanguageFromPath = (filePath: string): string => {
 }
 
 export function EditorPanel({ filePath }: EditorPanelProps) {
-  const { fileItems, updateFileContent, streamingFiles, userEditedFiles } = useEditorStore()
+  const { fileItems, updateFileContent, streamingFiles } = useEditorStore()
   const [editorValue, setEditorValue] = useState("")
   const [editorTheme, setEditorTheme] = useState<'vs-light' | 'vs-dark'>('vs-dark');
   const isUserEditingRef = useRef(false)
@@ -45,7 +45,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
 
   const file = fileItems.find(item => item.path === filePath)
   const isStreaming = streamingFiles?.get(filePath) || false
-  const isUserEdited = userEditedFiles?.has(filePath) || false
+  // const isUserEdited = userEditedFiles?.has(filePath) || false
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -179,12 +179,12 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
 
   return (
       <div className="h-full relative bg-white dark:bg-neutral-900">
-      {isStreaming && !isUserEdited && (
+      {/* {isStreaming && !isUserEdited && (
         <div className="absolute top-2 right-2 z-10 bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
           <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
           Streaming...
         </div>
-      )}
+      )} */}
       <div className="h-full pb-4">
         <Editor
           height="100%"
@@ -230,7 +230,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             });
           }}
           options={{
-            readOnly: false,
+            readOnly: true,
             minimap: { enabled: false },
             fontSize: 14,
             wordWrap: 'on',

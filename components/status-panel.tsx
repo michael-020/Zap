@@ -105,6 +105,7 @@ export function StatusPanel() {
   return (
     <div className="h-[calc(100vh-60px)] flex flex-col overflow-x-hidden">
       <div className="flex-1 overflow-x-hidden flex-wrap p-4 space-y-4 custom-scrollbar">
+        {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
         {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images, description }]) => (
           <div key={promptIndex} className="space-y-3">
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
@@ -162,13 +163,13 @@ export function StatusPanel() {
                 )}
               </button>
             </div>
-            {description && (
+            {/* {description && (
                 <div className="p-4">
                   <p className="text-sm text-neutral-800 dark:text-neutral-400 leading-relaxed">
                     {description}
                   </p>
                 </div>
-              )}
+              )} */}
             {steps.length > 0 && (
               <div className="space-y-2 ml-2 bg-neutral-100 dark:bg-neutral-900 px-3 p-2 rounded-lg">
                 {steps.filter(step => step.shouldExecute !== false).map((step) => (

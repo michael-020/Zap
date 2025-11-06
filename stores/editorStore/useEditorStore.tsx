@@ -1088,27 +1088,27 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     processChatData: async (chatData) => {
       const { 
         setBuildSteps, 
-        addFile, 
-        addFileItem, 
         setMessages, 
-        setShellCommand,
         resetUserEditedFiles,
         clearBuildSteps,
         setUpWebContainer,
-        webcontainer
+        executeSteps,
       } = get()
       
-      if(!webcontainer)
-        setUpWebContainer()
+      await setUpWebContainer()
+      
       // Reset store state
       clearBuildSteps()
       resetUserEditedFiles()
+      
+      // Clear the promptStepsMap
+      set({ promptStepsMap: new Map() })
 
       const allSteps: BuildStep[] = []
       const allMessages: string[] = []
-
+      console.log("processing chat data")
+      // First pass: Create all steps and initialize promptStepsMap
       chatData.forEach((chat, promptIndex) => {
-        
         // Initialize the prompt mapping first with description
         set((state) => {
           const newMap = new Map(state.promptStepsMap);
@@ -1138,38 +1138,28 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               title: getTitleFromFile(filePath),
               description: getDescriptionFromFile(filePath),
               type: BuildStepType.CreateFile,
-              status: statusType.Completed,
+              status: statusType.InProgress,
               code,
               path: filePath,
             };
 
-            addFile(filePath, code);
-            addFileItem({
-              name: filePath.split("/").pop() || filePath,
-              path: filePath,
-              type: "file",
-              content: code
-            });
-
             promptSteps.push(step);
             allSteps.push(step);
-            get().executeSteps([step])
           }
 
           if (type === "shell") {
+            const decodedCode = code.replace(/&amp;/g, '&');
             const step: BuildStep = {
               id: crypto.randomUUID(),
               title: "Run shell command",
-              description: code,
+              description: decodedCode,
               type: BuildStepType.RunScript,
               status: statusType.InProgress,
-              code,
+              code: decodedCode,
             };
 
-            setShellCommand(code);
             promptSteps.push(step);
             allSteps.push(step);
-            get().executeSteps([step])
           }
         }
       
@@ -1191,10 +1181,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       
       setBuildSteps(allSteps)
       setMessages(allMessages)
-    
+
       if (chatData.length > 0) {
         set({ projectId: chatData[0].projectId })
       }
+
+      // Second pass: Execute all steps sequentially
+      // This ensures steps show as InProgress and then complete
+      await executeSteps(allSteps)
     },
 
     setUpWebContainer: async () => {

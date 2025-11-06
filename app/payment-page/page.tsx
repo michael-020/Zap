@@ -1,17 +1,56 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 "use client"
 
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Script from "next/script"
 import { axiosInstance } from "@/lib/axios" 
 import { Loader2 } from "lucide-react"
-import { redirect } from "next/navigation"
+import { redirect, useRouter } from "next/navigation"
+import Navbar from "@/components/navbar"
+import RightSidebar from "@/components/sidebar"
 
 const PaymentPage = () => {
     const amount = 100; 
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState(""); 
     const [razorpayLoaded, setRazorpayLoaded] = useState(false);
+    const [isOpen, setIsOpen] = useState(false)
+    const [isHovered, setIsHovered] = useState(false)
+    const router = useRouter()
+
+    const onBackHandler = () => {
+        router.push("/chat")
+    }
+
+    useEffect(() => {
+    const threshold = 25;
+    const sidebarWidth = 256; 
+    
+    const onMouseMove = (e: MouseEvent) => {
+        const isNearRightEdge = window.innerWidth - e.clientX <= threshold;
+        const isInsideSidebar = e.clientX >= window.innerWidth - sidebarWidth;
+        
+        if (isNearRightEdge) {
+        setIsHovered(true);
+        } else if (!isInsideSidebar && isHovered) {
+        setIsHovered(false);
+        }
+    };
+    
+    document.addEventListener("mousemove", onMouseMove);
+    return () => document.removeEventListener("mousemove", onMouseMove);
+    }, [isHovered]);
+    
+    const handleSidebarMouseLeave = () => {
+    setIsHovered(false);
+    };
+
+    const handleSidebarClose = () => {
+    setIsOpen(false);
+    setIsHovered(false);
+    };
+
+    const sidebarVisible = isOpen || isHovered;
 
     const handlePayment = async () => {
         if (!razorpayLoaded) {
@@ -87,6 +126,12 @@ const PaymentPage = () => {
 
     return (
         <>
+            <Navbar
+                onBack={onBackHandler} 
+                showBackButton={true} 
+                showPanelToggle={true}
+                onPanelToggle={() => setIsOpen(!isOpen)} 
+            />
             <Script
                 src="https://checkout.razorpay.com/v1/checkout.js"
                 onLoad={() => setRazorpayLoaded(true)}
@@ -115,7 +160,7 @@ const PaymentPage = () => {
                     <div>
                         <button
                             onClick={handlePayment}
-                            disabled={isProcessing || !razorpayLoaded}
+                            disabled={isProcessing}
                             className="w-full flex justify-center py-3 px-4 border border-transparent rounded-md shadow-sm text-lg font-medium text-white bg-purple-500/70 hover:bg-purple-500/90 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 disabled:bg-gray-400 disabled:cursor-not-allowed transition-colors duration-300"
                         >
                             {isProcessing ? (
@@ -145,6 +190,12 @@ const PaymentPage = () => {
 
                 </div>
             </div>
+
+            <RightSidebar
+                isOpen={sidebarVisible}
+                setIsOpenAction={handleSidebarClose}
+                onMouseLeaveAction={handleSidebarMouseLeave}
+            />
         </>
     );
 };

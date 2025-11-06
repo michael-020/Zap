@@ -65,7 +65,6 @@ export function CodeEditorTabs({
   };
 
   return (
-    // Wrap in a React Fragment
     <>
       <div className="bg-neutral-100 dark:bg-neutral-900 border-b border-neutral-200 dark:border-neutral-800 flex p-2 gap-4">
         <div className="flex">
@@ -115,7 +114,6 @@ export function CodeEditorTabs({
         </button>
       </div>
       
-      {/* Render the modal */}
       <UsageLimitModal
         isOpen={isLimitModalOpen}
         onClose={() => setIsLimitModalOpen(false)}

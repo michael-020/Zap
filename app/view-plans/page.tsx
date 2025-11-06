@@ -1,7 +1,7 @@
 "use client"
 
 import Navbar from "@/components/navbar"
-import RightSidebar from "@/components/sidebar" // Assuming sidebar is a global component like navbar
+import RightSidebar from "@/components/sidebar" 
 import { Check, X } from "lucide-react"
 import { useRouter } from "next/navigation"
 import { useState, useEffect } from "react"
@@ -90,7 +90,7 @@ const ViewPlansPage = () => {
                 
                 <div className="mt-6 flex items-baseline">
                   <span className="text-6xl font-extrabold text-neutral-900 dark:text-white">₹0</span>
-                  <span className="ml-2 text-neutral-600 dark:text-neutral-400 text-lg">/month</span>
+                  {/* <span className="ml-2 text-neutral-600 dark:text-neutral-400 text-lg">/month</span> */}
                 </div>
 
                 <div className="mt-10 space-y-4 flex-grow">
@@ -157,7 +157,8 @@ const ViewPlansPage = () => {
 
                 <div className="mt-6 flex items-baseline">
                   <span className="text-6xl font-extrabold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">₹100</span>
-                  <span className="ml-2 text-neutral-600 dark:text-neutral-400 text-lg">/month</span>
+                  {/* <span className="ml-2 text-neutral-600 dark:text-neutral-400 text-lg">/month</span> */}
+                  <span className="ml-2 text-neutral-600 dark:text-neutral-400 text-lg">Pay once, enjoy forever</span>
                 </div>
 
                 <div className="mt-10 space-y-4 flex-grow">

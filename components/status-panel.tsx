@@ -9,6 +9,7 @@ import { ImageModal } from "./image-modal"
 import { StatusPanelSkeletons } from "./status-pannel-skeletons"
 import { PromptInputPanel } from "./prompt-input-panel"
 import { useSession } from "next-auth/react"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
 
 const loadingWords = [
   "Thinking...",
@@ -29,7 +30,9 @@ export function StatusPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
   const session = useSession()
+  const { currentUsage, isPremium } = useAuthStore()
   const [loadingWordIndex, setLoadingWordIndex] = useState(0)
+  const maxUsage = isPremium ? Infinity : 5
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)
@@ -102,11 +105,12 @@ export function StatusPanel() {
     return <StatusPanelSkeletons />
   }
 
+  const usageRemaining = maxUsage - currentUsage
+
   return (
     <div className="h-[calc(100vh-60px)] flex flex-col overflow-x-hidden">
       <div className="flex-1 overflow-x-hidden flex-wrap p-4 space-y-4 custom-scrollbar">
-        {/* eslint-disable-next-line @typescript-eslint/no-unused-vars */}
-        {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images, description }]) => (
+        {Array.from(promptStepsMap.entries()).map(([promptIndex, { prompt, steps, images }]) => (
           <div key={promptIndex} className="space-y-3">
             <div className="flex flex-col items-end gap-1 justify-end mb-3">
               {isFetchingImages ? (
@@ -117,39 +121,36 @@ export function StatusPanel() {
                     </div>
               ) : (
                 <div className="grid grid-cols-3 gap-2">
-                {images && images.map((image: string | File, index: number) => {
-                  let imageSrc: string;
-                  if (typeof image === 'string') {
-                    imageSrc = image;
-                  } else {
-                    imageSrc = URL.createObjectURL(image);
-                  }
+                  {images && images.map((image: string | File, index: number) => {
+                    let imageSrc: string;
+                    if (typeof image === 'string') {
+                      imageSrc = image;
+                    } else {
+                      imageSrc = URL.createObjectURL(image);
+                    }
 
-                  return (
-                    <div 
-                      key={`${typeof image === 'string' ? image : image.name}-${index}`} 
-                      className="rounded-sm aspect-square cursor-pointer hover:opacity-80 transition-opacity overflow-hidden"
-                      onClick={() => openImageModal(imageSrc)}
-                    >
-                      <img 
-                        src={imageSrc} 
-                        alt="prompt-image" 
-                        crossOrigin="anonymous" 
-                        className="scale-200" 
-                      />
-                    </div>
-                  );
-                })}
-              </div>
-
+                    return (
+                      <div 
+                        key={`${typeof image === 'string' ? image : image.name}-${index}`} 
+                        className="rounded-sm aspect-square cursor-pointer hover:opacity-80 transition-opacity overflow-hidden"
+                        onClick={() => openImageModal(imageSrc)}
+                      >
+                        <img 
+                          src={imageSrc} 
+                          alt="prompt-image" 
+                          crossOrigin="anonymous" 
+                          className="scale-200" 
+                        />
+                      </div>
+                    );
+                  })}
+                </div>
               )}
-              
               <div className="bg-neutral-200 dark:bg-neutral-700 rounded-lg rounded-tr-none p-3 max-w-[80%] ml-auto">
                 <p className="text-sm text-neutral-900 dark:text-neutral-50 break-words">
                   {prompt}
                 </p>
               </div>
-              
               <button
                 onClick={() => handleCopy(prompt, promptIndex)}
                 className="p-1 text-neutral-700 hover:text-neutral-400 dark:hover:text-white dark:text-gray-400 transition-colors"
@@ -163,13 +164,6 @@ export function StatusPanel() {
                 )}
               </button>
             </div>
-            {/* {description && (
-                <div className="p-4">
-                  <p className="text-sm text-neutral-800 dark:text-neutral-400 leading-relaxed">
-                    {description}
-                  </p>
-                </div>
-              )} */}
             {steps.length > 0 && (
               <div className="space-y-2 ml-2 bg-neutral-100 dark:bg-neutral-900 px-3 p-2 rounded-lg">
                 {steps.filter(step => step.shouldExecute !== false).map((step) => (
@@ -224,6 +218,10 @@ export function StatusPanel() {
           isSubmitting={isProcessingFollowups}
           disabled={false}
           placeholder="Ask a follow up..."
+          usageInfo={{
+            remaining: usageRemaining,
+            limitReached: usageRemaining <= 0
+          }}
           textareaHeight="1rem"
           textareaMaxHeight="10rem"
           textareaClassName="placeholder:text-sm text-sm"

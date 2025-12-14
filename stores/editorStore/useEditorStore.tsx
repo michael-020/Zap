@@ -255,8 +255,9 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         }
       }),
 
-    setShellCommand: (command: string) =>{
+    setShellCommand: async (command: string) =>{
       console.log("command added: ", command)
+      await get().setUpWebContainer()
       set((state) => ({
         shellCommands: [...state.shellCommands, command],
       }))
@@ -1211,7 +1212,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
       if (webcontainer) {
         console.log("Web container already initialized, reusing existing instance.");
-        return webcontainer;
+        return;
       }
 
       if (isInitialisingWebContainer) {

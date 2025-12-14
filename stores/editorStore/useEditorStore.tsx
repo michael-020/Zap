@@ -359,6 +359,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
             case BuildStepType.RunScript: {
               if (step.description) {
+                await get().setUpWebContainer()
                 console.log("Executing command:", step.description)
                 get().setShellCommand(step.description)
                 await get().handleShellCommand(step.description)
@@ -383,8 +384,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     createProject: async (prompt) => {
-      if(!get().webcontainer)
-        get().setUpWebContainer()
       set({ isCreatingProject: true })
       try {
         const projectRes = await axiosInstance.post("/api/store-project", { prompt });
@@ -407,9 +406,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     processPrompt: async (prompt, images) => {
-      if(!get().webcontainer)
-        get().setUpWebContainer()
-
       set({ isInitialising: true })
       let url = ""
       let desc = ""
@@ -755,7 +751,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         fileCompletionTracker.forEach((_, filePath) => {
           get().completeFileStreaming(filePath);
         });
-        console.log("full response: ", fullResponse)
+
         get().setMessages(fullResponse);
       } catch (err) {
         console.error("Error during build:", err);
@@ -1091,11 +1087,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         setMessages, 
         resetUserEditedFiles,
         clearBuildSteps,
-        setUpWebContainer,
         executeSteps,
       } = get()
-      
-      await setUpWebContainer()
       
       // Reset store state
       clearBuildSteps()
@@ -1216,45 +1209,65 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       console.log("Initialising web container...");
 
       try {
-        let retryCount = 0;
-        const maxRetries = 3;
-        let webContainerInstance = null;
+        // let retryCount = 0;
+        // const maxRetries = 3;
+        // let webContainerInstance = null;
 
-        while (retryCount < maxRetries && !webContainerInstance) {
-          try {
-            webContainerInstance = await WebContainer.boot();
-          } catch (err) {
-            const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-            console.log(`Attempt ${retryCount + 1} failed, ${errorMessage}`);
-            if ((err instanceof Error && err.message.includes("Unable to create more instances")) || retryCount === maxRetries - 1) {
-              throw err;
-            }
-            retryCount++;
-          }
-        }
+        // while (retryCount < maxRetries && !webContainerInstance) {
+        //   try {
+        //     webContainerInstance = await WebContainer.boot();
+        //   } catch (err) {
+        //     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
+        //     console.log(`Attempt ${retryCount + 1} failed, ${errorMessage}`);
+        //     if ((err instanceof Error && err.message.includes("Unable to create more instances")) || retryCount === maxRetries - 1) {
+        //       throw err;
+        //     }
+        //     retryCount++;
+        //   }
+        // }
 
-        if (webContainerInstance) {
-          set({ webcontainer: webContainerInstance });
-          console.log("Web container initialised successfully");
-          return webContainerInstance;
-        }
+        // if (webContainerInstance) {
+        //   set({ webcontainer: webContainerInstance });
+        //   console.log("Web container initialised successfully");
+        //   return webContainerInstance;
+        // }
+        const webContainerInstance = await WebContainer.boot()
+        set({ webcontainer: webContainerInstance })
+        console.log("Web container initialised successfully");
       } catch (error) {
         console.error("Error while initialising web container: ", error);
-        set({ webcontainer: null });
+        // set({ webcontainer: null });
         // If we hit the instance limit, we might want to show a user-friendly message
-        if (error instanceof Error && error.message.includes("Unable to create more instances")) {
-          toast.error("Too many preview instances open. Please close some tabs and try again.");
-        }
+        // if (error instanceof Error && error.message.includes("Unable to create more instances")) {
+        //   toast.error("Too many preview instances open. Please close some tabs and try again.");
+        // }
       } finally {
         set({ isInitialisingWebContainer: false });
       }
+    },
 
-      return null;
+    startDevServer: async () => {
+      const { webcontainer, devServerProcess } = get()
+      if (!webcontainer) throw new Error("WebContainer not ready")
+
+      // prevent duplicate servers
+      if (devServerProcess) return
+
+      await webcontainer.spawn("npm", ["install"])
+
+      const devProc = await webcontainer.spawn("npm", ["run", "dev"])
+      set({ devServerProcess: devProc })
+
+      webcontainer.on("server-ready", (port, url) => {
+        console.log("Dev server ready:", url)
+        set({ previewUrl: url })
+      })
     }
-  }))
+
+}))
 
 
-  export function formatCodeBlock(code: string): string {
+export function formatCodeBlock(code: string): string {
   const lines = code.split('\n');
   const result: string[] = [];
   let indentLevel = 0;

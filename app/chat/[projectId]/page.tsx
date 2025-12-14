@@ -17,10 +17,21 @@ export default function ProjectPage() {
     clearPromptStepsMap, 
     processChatData, 
     cleanupWebContainer,
-    setMessages
+    setMessages,
+    setUpWebContainer
   } = useEditorStore()
   const router = useRouter()
   const hasProcessedChatDataRef = useRef(false);
+
+  useEffect(() => {
+    const init = async () => {
+      await setUpWebContainer()
+    }
+
+    init()
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [])
+
 
   const handleBackToInitializer = async () => {
     await cleanupWebContainer()
@@ -32,34 +43,33 @@ export default function ProjectPage() {
     setMessages([])
   }
 
-    // Effect to fetch project data
-    useEffect(() => {
-        if (projectId && !hasProcessedChatDataRef.current) {
-            const fetchProject = async () => {
-                try {
-                const res = await axiosInstance.get(`/api/project/${projectId}/chats`);
-                const data = res.data;
+  // Effect to fetch project data
+  useEffect(() => {
+    if (projectId && !hasProcessedChatDataRef.current) {
+      const fetchProject = async () => {
+          try {
+            await setUpWebContainer()
+            const res = await axiosInstance.get(`/api/project/${projectId}/chats`);
+            const data = res.data;
 
-                processChatData(data);
-                hasProcessedChatDataRef.current = true; 
-                } catch (error) {
-                console.error("Failed to fetch project chat data:", error);
-                }
-            };
+            processChatData(data);
+            hasProcessedChatDataRef.current = true; 
+          } catch (error) {
+            console.error("Failed to fetch project chat data:", error);
+          }
+      };
 
-            fetchProject();
-        }
-    }, [projectId, processChatData]); 
+      fetchProject();
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [projectId, processChatData]); 
 
-    // Effect to cleanup webcontainer when leaving chat page
-    useEffect(() => {
-        return () => {
-            const pathname = window.location.pathname;
-            if (!pathname.startsWith('/chat/') && !pathname.startsWith('/prev-chat/')) {
-                cleanupWebContainer();
-            }
-        }
-    }, [cleanupWebContainer]);
+  // Effect to cleanup webcontainer when leaving chat page
+  useEffect(() => {
+    return () => {
+      cleanupWebContainer()
+    }
+  }, [cleanupWebContainer]);
 
   return (
     <>

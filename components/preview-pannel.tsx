@@ -6,47 +6,56 @@ import { useEffect } from "react";
 
 
 export function PreviewPanel() {
-    const { webcontainer, previewUrl, setPreviewUrl, setUpWebContainer } = useEditorStore()
+    const { previewUrl, startDevServer, setUpWebContainer } = useEditorStore()
 
-    async function init(){
-        try {
-            if(!webcontainer) {
-                console.log("setting up webcontainer")
-                await setUpWebContainer()
-            }
+    // async function init(){
+    //     try {
+    //         if(!webcontainer) {
+    //             console.log("setting up webcontainer")
+    //             await setUpWebContainer()
+    //         }
             
-            // Get the webcontainer instance again after setup
-            const currentContainer = useEditorStore.getState().webcontainer
-            if(!currentContainer) {
-                console.log("No webcontainer available after setup")
-                return;
-            }
+    //         // Get the webcontainer instance again after setup
+    //         const currentContainer = useEditorStore.getState().webcontainer
+    //         if(!currentContainer) {
+    //             console.log("No webcontainer available after setup")
+    //             return;
+    //         }
 
-            // Use the current container instance
-            const installProcess = await currentContainer.spawn('npm', ['install']);
-            console.log("npm i done")
+    //         // Use the current container instance
+    //         const installProcess = await currentContainer.spawn('npm', ['install']);
+    //         console.log("npm i done")
 
-            installProcess.output.pipeTo(new WritableStream({
-                write() {
-                }
-            }));
+    //         installProcess.output.pipeTo(new WritableStream({
+    //             write() {
+    //             }
+    //         }));
 
-            await currentContainer.spawn('npm', ['run', 'dev']);
-            console.log("npm run dev")
+    //         await currentContainer.spawn('npm', ['run', 'dev']);
+    //         console.log("npm run dev")
 
-            currentContainer.on('server-ready', (port, url) => {
-                console.log("url: ", url)
-                setPreviewUrl(url)
-            });
-        } catch (error) {
-            console.error("Error in preview initialization:", error);
-        }
-    }
+    //         currentContainer.on('server-ready', (port, url) => {
+    //             console.log("url: ", url)
+    //             setPreviewUrl(url)
+    //         });
+    //     } catch (error) {
+    //         console.error("Error in preview initialization:", error);
+    //     }
+    // }
 
+    // useEffect(() => {
+    //     init()
+    // // eslint-disable-next-line react-hooks/exhaustive-deps
+    // }, [])
     useEffect(() => {
+        const init = async () => {
+            await setUpWebContainer()
+            await startDevServer()
+        }
+
         init()
-    // eslint-disable-next-line react-hooks/exhaustive-deps
     }, [])
+
     
     return (
         <div className="h-[calc(100vh-4rem)] overflow-hidden pb-10"> 

@@ -536,6 +536,9 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         let fullResponse = "";
         // Separate map for tracking file completion - this one uses objects
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
+        
+        // Collect steps to execute at the end
+        const stepsToExecuteLater: BuildStep[] = [];
 
         const descriptionRegex = /^([\s\S]*?)<zapArtifeact/;
         
@@ -702,7 +705,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 })
 
                 get().setBuildSteps([step]);
-                get().executeSteps([step]);
+                // Collect shell steps to execute later after all files are created
+                stepsToExecuteLater.push(step);
               }
             }
 
@@ -753,6 +757,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         });
 
         get().setMessages(fullResponse);
+
+        // Execute shell commands after all files are created
+        if (stepsToExecuteLater.length > 0) {
+          await get().executeSteps(stepsToExecuteLater);
+        }
       } catch (err) {
         console.error("Error during build:", err);
         toast.error("Error while building project")
@@ -851,6 +860,9 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         let fullResponse = "";
         // Separate map for tracking file completion - this one uses objects
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
+        
+        // Collect steps to execute at the end
+        const stepsToExecuteLater: BuildStep[] = [];
 
         // Extract description from the start of the response
         const descriptionRegex = /^([\s\S]*?)<zapArtifeact/;
@@ -1018,7 +1030,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 })
 
                 get().setBuildSteps([step]);
-                get().executeSteps([step]);
+                // Collect shell steps to execute later after all files are created
+                stepsToExecuteLater.push(step);
               }
             }
 
@@ -1067,6 +1080,12 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         });
 
         get().setMessages(fullResponse);
+
+        // Execute shell commands after all files are created
+        if (stepsToExecuteLater.length > 0) {
+          await get().executeSteps(stepsToExecuteLater);
+        }
+
         await axiosInstance.post("/api/store-chats", {
           prompt,
           response: [fullResponse],

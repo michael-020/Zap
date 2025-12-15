@@ -59,6 +59,7 @@ export interface StoreState {
   isBuilding: boolean
   isInitialising: boolean,
   isInitialisingWebContainer: boolean,
+  isCleaningUp: boolean,
   isProcessing: boolean,
   isProcessingFollowups: boolean,
   projectId: string,

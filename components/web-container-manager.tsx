@@ -23,8 +23,14 @@ export function WebContainerManager() {
 
     if (wasOnSafeRoute && !isOnSafeRoute) {
       console.log("Navigating away from chat. Cleaning up WebContainer...")
-      cleanupWebContainer()
-      clearEditorState()
+      // Properly await the async cleanup function
+      cleanupWebContainer().then(() => {
+        console.log("WebContainer cleanup completed before clearing state");
+        clearEditorState()
+      }).catch((err) => {
+        console.error("Error during cleanup:", err);
+        clearEditorState()
+      })
     }
 
     prevPathnameRef.current = pathname

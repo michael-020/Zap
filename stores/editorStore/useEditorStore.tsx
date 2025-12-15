@@ -29,43 +29,42 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   isFetchingImages: false,
   isCreatingProject: false,
   projectId: "",
+  isCleaningUp: false,
 
   cleanupWebContainer: async () => {
-    const { webcontainer, devServerProcess } = get();
-    if (!webcontainer) {
-      console.log("Skipping cleanup as web container is not initialized yet");
+    const state = get();
+    const { isCleaningUp } = state;
+    
+    // Prevent multiple concurrent cleanup attempts
+    if (isCleaningUp) {
+      console.log("Cleanup already in progress, skipping...");
       return;
     }
 
+    set({ isCleaningUp: true });
+
     try {
-      if (devServerProcess) {
-        try {
-          await devServerProcess.kill();
-        } catch (err) {
-          console.warn("Error killing dev server:", err);
-        }
-      }
-
-      try {
-        await webcontainer.teardown();
-      } catch (err) {
-        console.warn("Error during webcontainer teardown:", err);
-      }
-
+      console.log("Cleaning up WebContainer state...");
+      
+      // Simply nullify the state without calling teardown()
+      // This avoids the "Process aborted" error from teardown
       set({ 
         webcontainer: null, 
         devServerProcess: null,
         previewUrl: "",
-        isInitialisingWebContainer: false
+        isInitialisingWebContainer: false,
+        isCleaningUp: false
       });
-      console.log("Webcontainer cleaned up successfully");
+      
+      console.log("WebContainer state cleared successfully");
     } catch (err) {
-      console.error("Error cleaning up webcontainer:", err);
+      console.error("Unexpected error during cleanup:", err);
       set({ 
         webcontainer: null, 
         devServerProcess: null,
         previewUrl: "",
-        isInitialisingWebContainer: false
+        isInitialisingWebContainer: false,
+        isCleaningUp: false
       });
     }
   },
@@ -218,7 +217,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
       addFile: (path: string, content: string = "") => {
         set((state) => {
-          const formattedContent = formatCodeBlock(content);
+          const formattedContent = content;
           // Check if file already exists
           const existingIndex = state.fileItems.findIndex(item => item.path === path)
           
@@ -663,11 +662,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: formatCodeBlock(code), // Format only on completion
+                  code: code, // Format only on completion
                   path: filePath,
                 };
 
-                get().addFile(filePath, formatCodeBlock(code)); // Format only on completion
+                get().addFile(filePath, code); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -750,6 +749,76 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           }
         }
 
+        // Process any remaining buffer content after stream ends
+        if (buffer.trim().length > 0) {
+          let match;
+          const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
+
+          while ((match = actionRegex.exec(buffer)) !== null) {
+            const [, type, filePath, content] = match;
+            const code = content.trim();
+
+            if (type === "file" && filePath) {
+              if (fileCompletionTracker.has(filePath)) {
+                fileCompletionTracker.get(filePath)!.isComplete = true;
+              }
+
+              get().completeFileStreaming(filePath);
+
+              const step: BuildStep = {
+                id: crypto.randomUUID(),
+                title: getTitleFromFile(filePath),
+                description: getDescriptionFromFile(filePath),
+                type: BuildStepType.CreateFile,
+                status: statusType.InProgress,
+                code: code,
+                path: filePath,
+              };
+
+              get().addFile(filePath, code);
+
+              set(state => {
+                const newMap = new Map(state.promptStepsMap)
+                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
+                newMap.set(currentPromptIndex, {
+                  ...existing,
+                  steps: [...existing.steps, step]
+                })
+                return { promptStepsMap: newMap }
+              })
+
+              get().setBuildSteps([step]);
+              get().setSelectedFile(step.path as string);
+              get().executeSteps([step]);
+            }
+
+            if (type === "shell") {
+              const decodedCode = code.replace(/&amp;/g, '&');
+              const step: BuildStep = {
+                id: crypto.randomUUID(),
+                title: "Run shell command",
+                description: decodedCode,
+                type: BuildStepType.RunScript,
+                status: statusType.InProgress,
+                code: decodedCode,
+              };
+
+              set(state => {
+                const newMap = new Map(state.promptStepsMap)
+                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
+                newMap.set(currentPromptIndex, {
+                  ...existing,
+                  steps: [...existing.steps, step]
+                })
+                return { promptStepsMap: newMap }
+              })
+
+              get().setBuildSteps([step]);
+              stepsToExecuteLater.push(step);
+            }
+          }
+        }
+
         desc = description
 
         // Mark all files as no longer streaming
@@ -759,9 +828,12 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
         get().setMessages(fullResponse);
 
-        // Execute shell commands after all files are created
+        // Log the shell steps that will be executed
         if (stepsToExecuteLater.length > 0) {
+          console.log(`Found ${stepsToExecuteLater.length} shell steps to execute:`, stepsToExecuteLater.map(s => s.code || s.description));
           await get().executeSteps(stepsToExecuteLater);
+        } else {
+          console.log('No shell steps found in response');
         }
       } catch (err) {
         console.error("Error during build:", err);
@@ -988,11 +1060,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: formatCodeBlock(code), // Format only on completion
+                  code: code, // Format only on completion
                   path: filePath,
                 };
 
-                get().addFile(filePath, formatCodeBlock(code)); // Format only on completion
+                get().addFile(filePath, code); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -1075,6 +1147,76 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           }
         }
 
+        // Process any remaining buffer content after stream ends
+        if (buffer.trim().length > 0) {
+          let match;
+          const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
+
+          while ((match = actionRegex.exec(buffer)) !== null) {
+            const [, type, filePath, content] = match;
+            const code = content.trim();
+
+            if (type === "file" && filePath) {
+              if (fileCompletionTracker.has(filePath)) {
+                fileCompletionTracker.get(filePath)!.isComplete = true;
+              }
+
+              get().completeFileStreaming(filePath);
+
+              const step: BuildStep = {
+                id: crypto.randomUUID(),
+                title: getTitleFromFile(filePath),
+                description: getDescriptionFromFile(filePath),
+                type: BuildStepType.CreateFile,
+                status: statusType.InProgress,
+                code: code,
+                path: filePath,
+              };
+
+              get().addFile(filePath, code);
+
+              set(state => {
+                const newMap = new Map(state.promptStepsMap)
+                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
+                newMap.set(currentPromptIndex, {
+                  ...existing,
+                  steps: [...existing.steps, step]
+                })
+                return { promptStepsMap: newMap }
+              })
+
+              get().setBuildSteps([step]);
+              get().setSelectedFile(step.path as string);
+              get().executeSteps([step]);
+            }
+
+            if (type === "shell") {
+              const decodedCode = code.replace(/&amp;/g, '&');
+              const step: BuildStep = {
+                id: crypto.randomUUID(),
+                title: "Run shell command",
+                description: decodedCode,
+                type: BuildStepType.RunScript,
+                status: statusType.InProgress,
+                code: decodedCode,
+              };
+
+              set(state => {
+                const newMap = new Map(state.promptStepsMap)
+                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
+                newMap.set(currentPromptIndex, {
+                  ...existing,
+                  steps: [...existing.steps, step]
+                })
+                return { promptStepsMap: newMap }
+              })
+
+              get().setBuildSteps([step]);
+              stepsToExecuteLater.push(step);
+            }
+          }
+        }
+
         // Mark all files as no longer streaming
         fileCompletionTracker.forEach((_, filePath) => {
           get().completeFileStreaming(filePath);
@@ -1082,9 +1224,12 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
         get().setMessages(fullResponse);
 
-        // Execute shell commands after all files are created
+        // Log the shell steps that will be executed
         if (stepsToExecuteLater.length > 0) {
+          console.log(`Found ${stepsToExecuteLater.length} shell steps to execute:`, stepsToExecuteLater.map(s => s.code || s.description));
           await get().executeSteps(stepsToExecuteLater);
+        } else {
+          console.log('No shell steps found in response');
         }
 
         await axiosInstance.post("/api/store-chats", {
@@ -1287,41 +1432,41 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 }))
 
 
-export function formatCodeBlock(code: string): string {
-  const lines = code.split('\n');
-  const result: string[] = [];
-  let indentLevel = 0;
-  const INDENT = '  '; // 2 spaces
+// export function formatCodeBlock(code: string): string {
+//   const lines = code.split('\n');
+//   const result: string[] = [];
+//   let indentLevel = 0;
+//   const INDENT = '  '; // 2 spaces
 
-  // Find base indentation to remove
-  const baseIndent = lines
-    .filter(line => line.trim())
-    .reduce((min, line) => {
-      const indent = line.match(/^\s*/)?.[0].length ?? 0;
-      return Math.min(min, indent);
-    }, Infinity);
+//   // Find base indentation to remove
+//   const baseIndent = lines
+//     .filter(line => line.trim())
+//     .reduce((min, line) => {
+//       const indent = line.match(/^\s*/)?.[0].length ?? 0;
+//       return Math.min(min, indent);
+//     }, Infinity);
 
-  for (const line of lines) {
-    // Remove base indentation from line
-    let currentLine = line.slice(baseIndent);
+//   for (const line of lines) {
+//     // Remove base indentation from line
+//     let currentLine = line.slice(baseIndent);
     
-    // Decrease indent for closing brackets
-    if (currentLine.trim().match(/^[}\])]/) && indentLevel > 0) {
-      indentLevel--;
-    }
+//     // Decrease indent for closing brackets
+//     if (currentLine.trim().match(/^[}\])]/) && indentLevel > 0) {
+//       indentLevel--;
+//     }
 
-    // Add proper indentation
-    if (currentLine.trim().length > 0) {
-      currentLine = INDENT.repeat(indentLevel) + currentLine.trim();
-    }
+//     // Add proper indentation
+//     if (currentLine.trim().length > 0) {
+//       currentLine = INDENT.repeat(indentLevel) + currentLine.trim();
+//     }
 
-    result.push(currentLine);
+//     result.push(currentLine);
 
-    // Increase indent for opening brackets
-    if (currentLine.trim().match(/[{[(]\s*$/)) {
-      indentLevel++;
-    }
-  }
+//     // Increase indent for opening brackets
+//     if (currentLine.trim().match(/[{[(]\s*$/)) {
+//       indentLevel++;
+//     }
+//   }
 
-  return result.join('\n');
-}
+//   return result.join('\n');
+// }

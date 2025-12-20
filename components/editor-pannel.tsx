@@ -37,15 +37,13 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
   const [editorValue, setEditorValue] = useState("")
   const [editorTheme, setEditorTheme] = useState<'vs-light' | 'vs-dark'>('vs-dark');
   const isUserEditingRef = useRef(false)
-  const lastStreamedContentRef = useRef("")
   const editorRef = useRef<any | null>(null)
   const monacoRef = useRef<any>(null)
   const currentFilePathRef = useRef<string>(filePath)
-  const modelDisposalTimeoutRef = useRef<NodeJS.Timeout | null>(null)
+  const updateTimeoutRef = useRef<NodeJS.Timeout | null>(null)
 
   const file = fileItems.find(item => item.path === filePath)
   const isStreaming = streamingFiles?.get(filePath) || false
-  // const isUserEdited = userEditedFiles?.has(filePath) || false
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -66,34 +64,17 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     return () => observer.disconnect();
   }, []);
 
-  const cleanupOldModels = useCallback(() => {
-    if (typeof window !== 'undefined' && monacoRef.current) {
-      const allModels = monacoRef.current.editor.getModels()
-      allModels.forEach((model: any) => {
-        const modelUri = model.uri.toString()
-        const modelPath = modelUri.replace('file:///', '')
-        
-        const fileExists = fileItems.some(item => item.path === modelPath)
-        if (!fileExists) {
-          try {
-            model.dispose()
-          } catch (err) {
-            console.warn('Error disposing model:', err)
-          }
-        }
-      })
-    }
-  }, [fileItems])
-
+  // Handle file path changes
   useEffect(() => {
     if (currentFilePathRef.current !== filePath) {
+      console.log(`Switching to file: ${filePath}`);
       currentFilePathRef.current = filePath
       isUserEditingRef.current = false
-      lastStreamedContentRef.current = ""
       
-      if (modelDisposalTimeoutRef.current) {
-        clearTimeout(modelDisposalTimeoutRef.current)
-        modelDisposalTimeoutRef.current = null
+      // Clear any pending updates
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
+        updateTimeoutRef.current = null
       }
       
       if (file?.content !== undefined) {
@@ -101,23 +82,31 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
       } else {
         setEditorValue("")
       }
-      
-      modelDisposalTimeoutRef.current = setTimeout(cleanupOldModels, 1000)
     }
-  }, [filePath, file?.content, cleanupOldModels])
+  }, [filePath, file?.content])
 
+  // Handle content streaming updates with minimal delay
   useEffect(() => {
     if (file?.content !== undefined && currentFilePathRef.current === filePath) {
       if (!isUserEditingRef.current) {
+        // Clear any pending timeout
+        if (updateTimeoutRef.current) {
+          clearTimeout(updateTimeoutRef.current)
+        }
+
+        // For streaming files, update immediately for real-time effect
         if (isStreaming) {
-          const contentDiff = file.content.length - lastStreamedContentRef.current.length
-          if (contentDiff > 50 || file.content !== lastStreamedContentRef.current) {
-            setEditorValue(file.content)
-            lastStreamedContentRef.current = file.content
-          }
+          setEditorValue(file.content)
         } else {
+          // Immediate update for non-streaming files
           setEditorValue(file.content)
         }
+      }
+    }
+
+    return () => {
+      if (updateTimeoutRef.current) {
+        clearTimeout(updateTimeoutRef.current)
       }
     }
   }, [file?.content, isStreaming, filePath])
@@ -129,6 +118,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
       return
     }
     
+    // Allow edits but mark as user-edited to stop streaming
     isUserEditingRef.current = true
     setEditorValue(newValue)
     
@@ -161,14 +151,6 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
     }
   }, [file?.content])
 
-  useEffect(() => {
-    return () => {
-      if (modelDisposalTimeoutRef.current) {
-        clearTimeout(modelDisposalTimeoutRef.current)
-      }
-    }
-  }, [])
-
   if (!file) {
     return (
       <div className="h-full flex items-center justify-center text-neutral-500 dark:text-neutral-400 bg-white dark:bg-neutral-900">
@@ -178,11 +160,11 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
   }
 
   return (
-      <div className="h-full relative bg-white dark:bg-neutral-900">
-      {/* {isStreaming && !isUserEdited && (
-        <div className="absolute top-2 right-2 z-10 bg-blue-500 text-white px-2 py-1 rounded text-xs flex items-center gap-1">
+    <div className="h-full relative bg-white dark:bg-neutral-900">
+      {/* {isStreaming && (
+        <div className="absolute top-2 right-2 z-10 bg-blue-500 text-white px-3 py-1.5 rounded-md text-xs flex items-center gap-2 shadow-lg">
           <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-          Streaming...
+          <span>Streaming code...</span>
         </div>
       )} */}
       <div className="h-full pb-4">
@@ -230,7 +212,7 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             });
           }}
           options={{
-            readOnly: true,
+            readOnly: false, // Allow editing - user edits will stop streaming for that file
             minimap: { enabled: false },
             fontSize: 14,
             wordWrap: 'on',
@@ -238,13 +220,14 @@ export function EditorPanel({ filePath }: EditorPanelProps) {
             quickSuggestions: !isStreaming,
             parameterHints: { enabled: !isStreaming },
             suggestOnTriggerCharacters: !isStreaming,
-            hover: { enabled: false },
+            hover: { enabled: !isStreaming },
             links: false,
             colorDecorators: false,
             codeLens: false,
             autoIndent: "full",
             scrollBeyondLastColumn: 10,
             automaticLayout: true,
+            cursorBlinking: 'blink',
           }}
         />
       </div>

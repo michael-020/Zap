@@ -15,7 +15,7 @@ import { PromptInputPanel } from "./prompt-input-panel"
 export function ProjectInitializer() {
   const { savedPrompt, savedImages, clearSavedData, currentUsage, isPremium, setUsage } = useAuthStore()
   const [description, setDescription] = useState("")
-  const { createProject, isCreatingProject, processPrompt, isInitialising } = useEditorStore()
+  const { createProject, processPrompt, isInitialising } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const { data: session, status } = useSession()

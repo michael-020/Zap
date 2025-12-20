@@ -6,6 +6,7 @@ import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import toast from "react-hot-toast"
 import { useAuthStore } from "../authStore/useAuthStore"
 import { AxiosError } from "axios"
+import { formatCode } from "@/lib/codeFormatter"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -186,7 +187,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           if (item.path === path) {
             const currentContent = item.content || ""
             const newContent = currentContent + chunk
-            return { ...item, content: newContent } // Remove formatCodeBlock here for streaming
+            return { ...item, content: newContent }
           }
           return item
         })
@@ -338,7 +339,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 console.error("CreateFile step missing path or code:", step)
                 throw new Error("Missing path or code")
               }
-              addFile(step.path, step.code)
+              addFile(step.path, formatCode(step.code))
               break
             }
 
@@ -453,9 +454,20 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         get().executeSteps(parsedSteps.filter(step => step.shouldExecute !== false))
 
         get().setMessages(res.data.prompts)
-      } catch (err) {
-        console.error("Error during initialisation:", err)
-        toast.error("Error while initialising project")
+      } catch (error) {
+        console.error("Error during initialisation:", error)
+        if (
+          error instanceof AxiosError &&
+          error.response?.data?.msg
+        ) {
+          if (error.response.data.msg === "RATE_LIMITED") {
+            toast.error("AI is busy. Please try again in a few seconds.")
+          } else {
+            toast.error(error.response.data.msg as string)
+          }
+        } else {
+          toast.error("An unexpected error occurred.")
+        }
         set({ isInitialising: false })
         hasErrorOccured = true
       } finally {
@@ -486,7 +498,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         }))
         
         const requestOptions: RequestInit = {
-          method: "POST"
+          method: "POST",
         };
 
         if (images && images.length > 0 && images[0] instanceof File) {
@@ -578,7 +590,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             // Process streaming content for files that are still streaming
             fileCompletionTracker.forEach((fileData, filePath) => {
               if (!fileData.isComplete && !get().userEditedFiles.has(filePath)) {
-                // Extract content between the opening tag and current buffer position
                 const openingTag = `<zapAction type="file" filePath="${filePath}">`;
                 const openingIndex = buffer.indexOf(openingTag);
                 
@@ -587,23 +598,16 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   const closingTag = '</zapAction>';
                   const closingIndex = buffer.indexOf(closingTag, contentStart);
                   
-                  // Extract the content portion
                   let contentToStream = '';
                   if (closingIndex === -1) {
-                    // File not complete yet, stream what we have
                     contentToStream = buffer.substring(contentStart);
                   } else {
-                    // File complete
                     contentToStream = buffer.substring(contentStart, closingIndex);
                   }
                   
-                  // Remove leading/trailing whitespace and normalize indentation
-                  // But only do this once at the start (when fileData.content is empty)
                   if (fileData.content.length === 0) {
-                    // Remove leading newline and whitespace
                     contentToStream = contentToStream.replace(/^\s*\n/, '');
                     
-                    // Find the minimum indentation to remove
                     const lines = contentToStream.split('\n');
                     const nonEmptyLines = lines.filter(line => line.trim().length > 0);
                     
@@ -615,7 +619,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                         })
                       );
                       
-                      // Remove the base indentation from all lines
                       if (minIndent > 0) {
                         contentToStream = lines
                           .map(line => line.substring(minIndent))
@@ -624,13 +627,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                     }
                   }
                   
-                  // Only stream the new content that wasn't streamed before
                   const previousLength = fileData.content.length;
                   if (contentToStream.length > previousLength) {
                     const newChunk = contentToStream.substring(previousLength);
-                    fileData.content = contentToStream; // Update tracker
+                    fileData.content = contentToStream;
                     
-                    // Stream only actual file content in reasonable chunks
                     const chunkSize = Math.min(newChunk.length, 100);
                     const limitedChunk = newChunk.substring(0, chunkSize);
                     get().streamFileContent(filePath, limitedChunk);
@@ -639,7 +640,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               }
             });
 
-            // Process complete actions (keep existing code)
             let match;
             const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
 
@@ -662,11 +662,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: code, // Format only on completion
+                  code: formatCode(code), // Format only on completion
                   path: filePath,
                 };
 
-                get().addFile(filePath, code); // Format only on completion
+                get().addFile(filePath, formatCode(code)); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -719,7 +719,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               if (!fileCompletionTracker.has(filePath)) {
                 // Initialize file for streaming
                 get().addFile(filePath, "");
-                get().setSelectedFile(filePath);
+                get().setSelectedFile(filePath); 
 
                 const step: BuildStep = {
                   id: crypto.randomUUID(),
@@ -731,90 +731,18 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   path: filePath,
                 };
 
-                // Add to completion tracker
                 fileCompletionTracker.set(filePath, { 
                   step, 
                   content: "", 
                   isComplete: false 
                 });
                 
-                // Mark file as streaming in the store
                 set(state => ({
                   streamingFiles: new Map(state.streamingFiles).set(filePath, true)
                 }));
                 
                 get().setBuildSteps([step]);
               }
-            }
-          }
-        }
-
-        // Process any remaining buffer content after stream ends
-        if (buffer.trim().length > 0) {
-          let match;
-          const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
-
-          while ((match = actionRegex.exec(buffer)) !== null) {
-            const [, type, filePath, content] = match;
-            const code = content.trim();
-
-            if (type === "file" && filePath) {
-              if (fileCompletionTracker.has(filePath)) {
-                fileCompletionTracker.get(filePath)!.isComplete = true;
-              }
-
-              get().completeFileStreaming(filePath);
-
-              const step: BuildStep = {
-                id: crypto.randomUUID(),
-                title: getTitleFromFile(filePath),
-                description: getDescriptionFromFile(filePath),
-                type: BuildStepType.CreateFile,
-                status: statusType.InProgress,
-                code: code,
-                path: filePath,
-              };
-
-              get().addFile(filePath, code);
-
-              set(state => {
-                const newMap = new Map(state.promptStepsMap)
-                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
-                newMap.set(currentPromptIndex, {
-                  ...existing,
-                  steps: [...existing.steps, step]
-                })
-                return { promptStepsMap: newMap }
-              })
-
-              get().setBuildSteps([step]);
-              get().setSelectedFile(step.path as string);
-              get().executeSteps([step]);
-            }
-
-            if (type === "shell") {
-              const decodedCode = code.replace(/&amp;/g, '&');
-              const step: BuildStep = {
-                id: crypto.randomUUID(),
-                title: "Run shell command",
-                description: decodedCode,
-                type: BuildStepType.RunScript,
-                status: statusType.InProgress,
-                code: decodedCode,
-              };
-
-              set(state => {
-                const newMap = new Map(state.promptStepsMap)
-                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
-                newMap.set(currentPromptIndex, {
-                  ...existing,
-                  steps: [...existing.steps, step]
-                })
-                return { promptStepsMap: newMap }
-              })
-
-              get().setBuildSteps([step]);
-              stepsToExecuteLater.push(step);
             }
           }
         }
@@ -835,9 +763,20 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         } else {
           console.log('No shell steps found in response');
         }
-      } catch (err) {
-        console.error("Error during build:", err);
-        toast.error("Error while building project")
+      } catch (error) {
+        console.error("Error during build:", error);
+        if (
+          error instanceof AxiosError &&
+          error.response?.data?.msg
+        ) {
+          if (error.response.data.msg === "RATE_LIMITED") {
+            toast.error("AI is busy. Please try again in a few seconds.")
+          } else {
+            toast.error(error.response.data.msg as string)
+          }
+        } else {
+          toast.error("An unexpected error occurred.")
+        }
         set({ isProcessing: false })
         hasErrorOccured = true
       } finally {
@@ -1060,11 +999,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: code, // Format only on completion
+                  code: formatCode(code), // Format only on completion
                   path: filePath,
                 };
 
-                get().addFile(filePath, code); // Format only on completion
+                get().addFile(filePath, formatCode(code)); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -1169,11 +1108,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 description: getDescriptionFromFile(filePath),
                 type: BuildStepType.CreateFile,
                 status: statusType.InProgress,
-                code: code,
+                code: formatCode(code),
                 path: filePath,
               };
 
-              get().addFile(filePath, code);
+              get().addFile(filePath, formatCode(code));
 
               set(state => {
                 const newMap = new Map(state.promptStepsMap)
@@ -1297,7 +1236,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               description: getDescriptionFromFile(filePath),
               type: BuildStepType.CreateFile,
               status: statusType.InProgress,
-              code,
+              code: formatCode(code),
               path: filePath,
             };
 
@@ -1431,42 +1370,41 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
 }))
 
+export function formatCodeBlock(code: string): string {
+  const lines = code.split('\n');
+  const result: string[] = [];
+  let indentLevel = 0;
+  const INDENT = '  '; // 2 spaces
 
-// export function formatCodeBlock(code: string): string {
-//   const lines = code.split('\n');
-//   const result: string[] = [];
-//   let indentLevel = 0;
-//   const INDENT = '  '; // 2 spaces
+  // Find base indentation to remove
+  const baseIndent = lines
+    .filter(line => line.trim())
+    .reduce((min, line) => {
+      const indent = line.match(/^\s*/)?.[0].length ?? 0;
+      return Math.min(min, indent);
+    }, Infinity);
 
-//   // Find base indentation to remove
-//   const baseIndent = lines
-//     .filter(line => line.trim())
-//     .reduce((min, line) => {
-//       const indent = line.match(/^\s*/)?.[0].length ?? 0;
-//       return Math.min(min, indent);
-//     }, Infinity);
-
-//   for (const line of lines) {
-//     // Remove base indentation from line
-//     let currentLine = line.slice(baseIndent);
+  for (const line of lines) {
+    // Remove base indentation from line
+    let currentLine = line.slice(baseIndent);
     
-//     // Decrease indent for closing brackets
-//     if (currentLine.trim().match(/^[}\])]/) && indentLevel > 0) {
-//       indentLevel--;
-//     }
+    // Decrease indent for closing brackets
+    if (currentLine.trim().match(/^[}\])]/) && indentLevel > 0) {
+      indentLevel--;
+    }
 
-//     // Add proper indentation
-//     if (currentLine.trim().length > 0) {
-//       currentLine = INDENT.repeat(indentLevel) + currentLine.trim();
-//     }
+    // Add proper indentation
+    if (currentLine.trim().length > 0) {
+      currentLine = INDENT.repeat(indentLevel) + currentLine.trim();
+    }
 
-//     result.push(currentLine);
+    result.push(currentLine);
 
-//     // Increase indent for opening brackets
-//     if (currentLine.trim().match(/[{[(]\s*$/)) {
-//       indentLevel++;
-//     }
-//   }
+    // Increase indent for opening brackets
+    if (currentLine.trim().match(/[{[(]\s*$/)) {
+      indentLevel++;
+    }
+  }
 
-//   return result.join('\n');
-// }
+  return result.join('\n');
+}

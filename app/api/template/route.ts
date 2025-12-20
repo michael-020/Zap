@@ -77,11 +77,19 @@ export async function POST(req: NextRequest) {
             },
             { status: 200 }
         )
-    } catch (error) {
-      console.error("Error while generating template: ", error)
-      return NextResponse.json(
-          { msg: "Internal Server Error" },
-          { status: 500}
-      )
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    } catch (error: any) {
+        console.error("Error while generating template: ", error)
+        if (error?.status === 429) {
+            return NextResponse.json(
+            { msg: "RATE_LIMITED" },
+            { status: 429 }
+            )
+        }
+  
+        return NextResponse.json(
+            { msg: "Internal Server Error" },
+            { status: 500}
+        )
     }
 }

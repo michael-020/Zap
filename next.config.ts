@@ -5,18 +5,31 @@ const nextConfig: NextConfig = {
   async headers() {
     return [
       {
-        source: '/:path*',
+        source: '/chat/:path*',  
         headers: [
           {
             key: 'Cross-Origin-Opener-Policy',
-            value: 'same-origin'
+            value: 'same-origin',
           },
           {
             key: 'Cross-Origin-Embedder-Policy',
-            value: 'require-corp'
-          }
-        ]
-      }
+            value: 'require-corp',
+          },
+        ],
+      },
+      {
+        source: '/prev-chat/:path*',  
+        headers: [
+          {
+            key: 'Cross-Origin-Opener-Policy',
+            value: 'same-origin',
+          },
+          {
+            key: 'Cross-Origin-Embedder-Policy',
+            value: 'require-corp',
+          },
+        ],
+      },
     ];
   },
 };

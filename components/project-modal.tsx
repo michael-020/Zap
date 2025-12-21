@@ -98,7 +98,7 @@ export default function ProjectModal({
         <div className="fixed inset-0 z-50 overflow-y-auto">
             {/* Backdrop */}
             <div 
-                className="fixed inset-0 bg-black/50 transition-opacity"
+                className="fixed inset-0 bg-black/80 transition-opacity"
                 onClick={onClose}
             />
             
@@ -112,7 +112,7 @@ export default function ProjectModal({
                     <div className="px-6 py-4 border-b border-neutral-700">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-semibold text-white">
-                                {mode === 'delete' ? 'Delete Project' : 'Rename Project'}
+                                {mode === 'delete' ? 'Delete Chat' : 'Rename Chat'}
                             </h3>
                             <button
                                 onClick={onClose}
@@ -157,7 +157,7 @@ export default function ProjectModal({
                             ) : (
                                 <div>
                                     <label htmlFor="projectName" className="block text-sm font-medium text-neutral-300 mb-2">
-                                        Project Name
+                                        Chat Name
                                     </label>
                                     <input
                                         id="projectName"
@@ -188,7 +188,7 @@ export default function ProjectModal({
                                 type="submit"
                                 className={`px-4 py-2 text-sm font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed ${
                                     mode === 'delete' 
-                                        ? 'bg-red-900/80 hover:bg-red-900/70 text-white' 
+                                        ? 'bg-red-500/70 hover:bg-red-500/60 text-white' 
                                         : 'bg-neutral-600 hover:bg-neutral-700 text-white'
                                 }`}
                                 disabled={isLoading || (mode === 'rename' && !newName.trim())}
@@ -202,7 +202,7 @@ export default function ProjectModal({
                                         <span>{mode === 'delete' ? 'Deleting...' : 'Saving...'}</span>
                                     </div>
                                 ) : (
-                                    mode === 'delete' ? 'Delete Project' : 'Save Changes'
+                                    mode === 'delete' ? 'Delete Chat' : 'Save Changes'
                                 )}
                             </button>
                         </div>

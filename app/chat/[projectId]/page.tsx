@@ -48,7 +48,7 @@ export default function ProjectPage() {
     if (projectId && !hasProcessedChatDataRef.current) {
       const fetchProject = async () => {
           try {
-            await setUpWebContainer()
+            // await setUpWebContainer()
             const res = await axiosInstance.get(`/api/project/${projectId}/chats`);
             const data = res.data;
 

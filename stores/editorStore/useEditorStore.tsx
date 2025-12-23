@@ -6,7 +6,8 @@ import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import toast from "react-hot-toast"
 import { useAuthStore } from "../authStore/useAuthStore"
 import { AxiosError } from "axios"
-import { formatCode } from "@/lib/codeFormatter"
+import { showToast } from "@/lib/toast"
+import { normalizeXmlIndentation } from "@/lib/utils"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -31,6 +32,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   isCreatingProject: false,
   projectId: "",
   isCleaningUp: false,
+  isInstalling: false,
 
   cleanupWebContainer: async () => {
     const state = get();
@@ -68,14 +70,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         isCleaningUp: false
       });
     }
-  },
-
-  setWebcontainer: async (instance: WebContainer) => {
-    if(get().webcontainer || get().isInitialisingWebContainer)
-      return;
-
-    set({ webcontainer: instance })
-    console.log("webcontainer setup")
   },
 
   setMessages: (messages) => {
@@ -257,7 +251,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
     setShellCommand: async (command: string) =>{
       console.log("command added: ", command)
-      await get().setUpWebContainer()
+      // await get().setUpWebContainer()
       set((state) => ({
         shellCommands: [...state.shellCommands, command],
       }))
@@ -270,48 +264,56 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     setDevServerProcess: (proc: WebContainerProcess) => set({ devServerProcess: proc }),
 
     handleShellCommand: async (command: string) => {
-      const { webcontainer, devServerProcess, setPreviewUrl, setDevServerProcess } = get()
+      const { webcontainer, startDevServer } = get()
       if (!webcontainer) return
 
       const parts = command.split("&&").map(p => p.trim())
 
       for (const cmd of parts) {
         if (cmd.startsWith("npm install")) {
-          const proc = await webcontainer.spawn("npm", ["install"])
-          await proc.exit
-          const devProc = await webcontainer.spawn("npm", ["run", "dev"])
-          setDevServerProcess(devProc)
+          // if (devServerProcess) {
+          //   try {
+          //     devServerProcess.kill()
+          //   } catch (err) {
+          //     console.error("Failed to kill dev server:", err)
+          //   }
+          // } 
 
-          devProc.output.pipeTo(new WritableStream({ write() {} })) 
+          startDevServer()
+          // const proc = await webcontainer.spawn("npm", ["install"])
+          // await proc.exit
+          // const devProc = await webcontainer.spawn("npm", ["run", "dev"])
+          // setDevServerProcess(devProc)
 
-          webcontainer.on("server-ready", (port, url) => {
-            console.log("Dev server ready at:", url)
-            setPreviewUrl(url)
-          })
-        } 
-        
+          // devProc.output.pipeTo(new WritableStream({ write() {} })) 
+
+          // webcontainer.on("server-ready", (port, url) => {
+          //   console.log("Dev server ready at:", url)
+          //   setPreviewUrl(url)
+          // })
+        }    
         else if (cmd.startsWith("npm run dev")) {
           // Kill existing dev server
-          if (devServerProcess) {
-            try {
-              devServerProcess.kill()
-            } catch (err) {
-              console.warn("Failed to kill dev server:", err)
-            }
-          }
-          const proc = await webcontainer.spawn("npm", ["install"])
-          await proc.exit
-          const devProc = await webcontainer.spawn("npm", ["run", "dev"])
-          setDevServerProcess(devProc)
+          // if (devServerProcess) {
+          //   try {
+          //     devServerProcess.kill()
+          //   } catch (err) {
+          //     console.error("Failed to kill dev server:", err)
+          //   }
+          // }
+          startDevServer()
+          // const proc = await webcontainer.spawn("npm", ["install"])
+          // await proc.exit
+          // const devProc = await webcontainer.spawn("npm", ["run", "dev"])
+          // setDevServerProcess(devProc)
 
-          devProc.output.pipeTo(new WritableStream({ write() {} })) // optional
+          // devProc.output.pipeTo(new WritableStream({ write() {} })) 
 
-          webcontainer.on("server-ready", (port, url) => {
-            console.log("Dev server ready at:", url)
-            setPreviewUrl(url)
-          })
+          // webcontainer.on("server-ready", (port, url) => {
+          //   console.log("Dev server ready at:", url)
+          //   setPreviewUrl(url)
+          // })
         }
-
         else {
           // Run any other shell command
           const args = cmd.split(" ")
@@ -339,7 +341,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 console.error("CreateFile step missing path or code:", step)
                 throw new Error("Missing path or code")
               }
-              addFile(step.path, formatCode(step.code))
+              addFile(step.path, step.code)
               break
             }
 
@@ -360,7 +362,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
             case BuildStepType.RunScript: {
               if (step.description) {
-                await get().setUpWebContainer()
+                // await get().setUpWebContainer()
                 console.log("Executing command:", step.description)
                 get().setShellCommand(step.description)
                 await get().handleShellCommand(step.description)
@@ -605,33 +607,51 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                     contentToStream = buffer.substring(contentStart, closingIndex);
                   }
                   
-                  if (fileData.content.length === 0) {
-                    contentToStream = contentToStream.replace(/^\s*\n/, '');
-                    
+                  // Only normalize indentation once at the start
+                  if (fileData.content.length === 0 && contentToStream.trim().length > 0) {
                     const lines = contentToStream.split('\n');
-                    const nonEmptyLines = lines.filter(line => line.trim().length > 0);
                     
-                    if (nonEmptyLines.length > 0) {
-                      const minIndent = Math.min(
-                        ...nonEmptyLines.map(line => {
-                          const match = line.match(/^(\s*)/);
-                          return match ? match[1].length : 0;
-                        })
-                      );
-                      
-                      if (minIndent > 0) {
-                        contentToStream = lines
-                          .map(line => line.substring(minIndent))
-                          .join('\n');
+                    // Find the base indentation from the SECOND non-empty line
+                    // (first line in XML is right after '>' with no indentation)
+                    let baseIndent = 0;
+                    let foundFirstLine = false;
+                    
+                    for (const line of lines) {
+                      if (line.trim().length > 0) {
+                        if (!foundFirstLine) {
+                          foundFirstLine = true;
+                          continue; // Skip first line
+                        }
+                        const match = line.match(/^(\s*)/);
+                        baseIndent = match ? match[1].length : 0;
+                        break;
                       }
+                    }
+                    
+                    // Remove the base indentation from all lines except the first
+                    if (baseIndent > 0) {
+                      contentToStream = lines
+                        .map((line, index) => {
+                          // Keep first non-empty line as-is
+                          if (index === 0) return line;
+                          
+                          // Remove base indent from subsequent lines
+                          if (line.length >= baseIndent) {
+                            return line.substring(baseIndent);
+                          }
+                          return line;
+                        })
+                        .join('\n');
                     }
                   }
                   
+                  // Stream only new content
                   const previousLength = fileData.content.length;
                   if (contentToStream.length > previousLength) {
                     const newChunk = contentToStream.substring(previousLength);
                     fileData.content = contentToStream;
                     
+                    // Stream in reasonable chunks
                     const chunkSize = Math.min(newChunk.length, 100);
                     const limitedChunk = newChunk.substring(0, chunkSize);
                     get().streamFileContent(filePath, limitedChunk);
@@ -656,17 +676,54 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
                 get().completeFileStreaming(filePath);
 
+                // Normalize the final code the same way
+                let normalizedCode = normalizeXmlIndentation(code);
+                
+                const lines = normalizedCode.split('\n');
+                
+                // Find the base indentation from the SECOND non-empty line
+                let baseIndent = 0;
+                let foundFirstLine = false;
+                
+                for (const line of lines) {
+                  if (line.trim().length > 0) {
+                    if (!foundFirstLine) {
+                      foundFirstLine = true;
+                      continue; // Skip first line
+                    }
+                    const match = line.match(/^(\s*)/);
+                    baseIndent = match ? match[1].length : 0;
+                    break;
+                  }
+                }
+                
+                // Remove the base indentation from all lines except the first
+                if (baseIndent > 0) {
+                  normalizedCode = lines
+                    .map((line, index) => {
+                      // Keep first non-empty line as-is
+                      if (index === 0) return line;
+                      
+                      // Remove base indent from subsequent lines
+                      if (line.length >= baseIndent) {
+                        return line.substring(baseIndent);
+                      }
+                      return line;
+                    })
+                    .join('\n');
+                }
+
                 const step: BuildStep = {
                   id: crypto.randomUUID(),
                   title: getTitleFromFile(filePath),
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: formatCode(code), // Format only on completion
+                  code: normalizedCode,
                   path: filePath,
                 };
 
-                get().addFile(filePath, formatCode(code)); // Format only on completion
+                get().addFile(filePath, normalizedCode);
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -999,11 +1056,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: formatCode(code), // Format only on completion
+                  code: code, // Format only on completion
                   path: filePath,
                 };
 
-                get().addFile(filePath, formatCode(code)); // Format only on completion
+                get().addFile(filePath, code); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -1108,11 +1165,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 description: getDescriptionFromFile(filePath),
                 type: BuildStepType.CreateFile,
                 status: statusType.InProgress,
-                code: formatCode(code),
+                code: code,
                 path: filePath,
               };
 
-              get().addFile(filePath, formatCode(code));
+              get().addFile(filePath, code);
 
               set(state => {
                 const newMap = new Map(state.promptStepsMap)
@@ -1236,7 +1293,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               description: getDescriptionFromFile(filePath),
               type: BuildStepType.CreateFile,
               status: statusType.InProgress,
-              code: formatCode(code),
+              code: normalizeXmlIndentation(code),
               path: filePath,
             };
 
@@ -1351,12 +1408,20 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     startDevServer: async () => {
-      const { webcontainer, devServerProcess } = get()
+      const { webcontainer, devServerProcess, setDevServerProcess } = get()
       if (!webcontainer) throw new Error("WebContainer not ready")
 
       // prevent duplicate servers
-      if (devServerProcess) return
+      if (devServerProcess) {
+        try {
+          devServerProcess.kill()
+        } catch (err) {
+          console.error("Failed to kill dev server:", err)
+        }
+      }
 
+      set({ isInstalling: true })
+      showToast("Installing Packages...\nPlease wait as it may take while for \n the installation process to complete", 5000)
       await webcontainer.spawn("npm", ["install"])
 
       const devProc = await webcontainer.spawn("npm", ["run", "dev"])
@@ -1366,45 +1431,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         console.log("Dev server ready:", url)
         set({ previewUrl: url })
       })
+      setDevServerProcess(devProc)
+      set({ isInstalling: false })
     }
 
 }))
-
-export function formatCodeBlock(code: string): string {
-  const lines = code.split('\n');
-  const result: string[] = [];
-  let indentLevel = 0;
-  const INDENT = '  '; // 2 spaces
-
-  // Find base indentation to remove
-  const baseIndent = lines
-    .filter(line => line.trim())
-    .reduce((min, line) => {
-      const indent = line.match(/^\s*/)?.[0].length ?? 0;
-      return Math.min(min, indent);
-    }, Infinity);
-
-  for (const line of lines) {
-    // Remove base indentation from line
-    let currentLine = line.slice(baseIndent);
-    
-    // Decrease indent for closing brackets
-    if (currentLine.trim().match(/^[}\])]/) && indentLevel > 0) {
-      indentLevel--;
-    }
-
-    // Add proper indentation
-    if (currentLine.trim().length > 0) {
-      currentLine = INDENT.repeat(indentLevel) + currentLine.trim();
-    }
-
-    result.push(currentLine);
-
-    // Increase indent for opening brackets
-    if (currentLine.trim().match(/[{[(]\s*$/)) {
-      indentLevel++;
-    }
-  }
-
-  return result.join('\n');
-}

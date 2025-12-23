@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 
 export function PreviewPanel() {
-    const { previewUrl, startDevServer, setUpWebContainer } = useEditorStore()
+    const { previewUrl, startDevServer } = useEditorStore()
 
     // async function init(){
     //     try {
@@ -49,7 +49,7 @@ export function PreviewPanel() {
     // }, [])
     useEffect(() => {
         const init = async () => {
-            await setUpWebContainer()
+            // await setUpWebContainer()
             await startDevServer()
         }
 

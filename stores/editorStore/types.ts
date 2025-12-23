@@ -65,6 +65,7 @@ export interface StoreState {
   projectId: string,
   isFetchingImages: boolean,
   isCreatingProject: boolean;
+  isInstalling: boolean;
   // File system
   fileItems: FileItemFlat[]
   selectedFile: string | null
@@ -80,7 +81,6 @@ export interface StoreState {
   userEditedFiles: Set<string>
 
   // Actions
-  setWebcontainer: (instance: WebContainer) => void;
   setBuildSteps: (steps: BuildStep[]) => void
   clearBuildSteps: () => void
   startBuild: () => void

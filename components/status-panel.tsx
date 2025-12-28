@@ -229,6 +229,7 @@ export function StatusPanel() {
           submitButtonSize={"4"}
           imageSelectorSize={"5"}
           showLimit={true}
+          usageTextSize="text-xs"
         />
       </div>
 

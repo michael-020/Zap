@@ -61,7 +61,6 @@ export default function ProjectPage() {
 
       fetchProject();
     }
-  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [projectId, processChatData]); 
 
   // Effect to cleanup webcontainer when leaving chat page

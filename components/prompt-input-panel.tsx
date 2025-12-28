@@ -71,7 +71,8 @@ interface PromptInputPanelProps {
   imageSelectorSize?: string,
   isPremium: boolean,
   showLimit?: boolean,
-  showBanner?: boolean
+  showBanner?: boolean,
+  usageTextSize?: string,
 }
 
 export type LimitReason = 'USAGE_LIMIT' | 'CHAR_LIMIT' | 'DOWNLOAD_LIMIT';
@@ -92,7 +93,8 @@ export function PromptInputPanel({
   imageSelectorSize,
   isPremium,
   showLimit,
-  showBanner
+  showBanner,
+  usageTextSize
 }: PromptInputPanelProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [webpFiles, setWebpFiles] = useState<File[]>([])
@@ -385,7 +387,7 @@ export function PromptInputPanel({
                   // title={usageInfo.limitReached
                   //   ? 'You have reached your daily limit.'
                   //   : `Chats left today: ${usageInfo.remaining}`}
-                    className=" text-sm text-neutral-600 dark:text-neutral-400"
+                  className={`${usageTextSize ? usageTextSize : "text-sm"} text-neutral-600 dark:text-neutral-400`}
                 >
                   {usageInfo.limitReached
                     ? 'Daily limit reached'

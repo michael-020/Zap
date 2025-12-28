@@ -140,20 +140,20 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      if (usageRecord) {
-        await prisma.usage.update({
-          where: { id: usageRecord.id },
-          data: { chatCount: usageRecord.chatCount + 1 },
-        });
-      } else {
-        await prisma.usage.create({
-          data: {
-            userId: session.user.id,
-            date: new Date(),
-            chatCount: 1,
-          },
-        });
-      }
+      // if (usageRecord) {
+      //   await prisma.usage.update({
+      //     where: { id: usageRecord.id },
+      //     data: { chatCount: usageRecord.chatCount + 1 },
+      //   });
+      // } else {
+      //   await prisma.usage.create({
+      //     data: {
+      //       userId: session.user.id,
+      //       date: new Date(),
+      //       chatCount: 1,
+      //     },
+      //   });
+      // }
     }
     
     let parsedData;

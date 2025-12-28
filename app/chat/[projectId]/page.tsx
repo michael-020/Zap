@@ -18,7 +18,8 @@ export default function ProjectPage() {
     processChatData, 
     cleanupWebContainer,
     setMessages,
-    setUpWebContainer
+    setUpWebContainer,
+    isWebcontainerReady
   } = useEditorStore()
   const router = useRouter()
   const hasProcessedChatDataRef = useRef(false);
@@ -45,7 +46,7 @@ export default function ProjectPage() {
 
   // Effect to fetch project data
   useEffect(() => {
-    if (projectId && !hasProcessedChatDataRef.current) {
+    if (isWebcontainerReady && projectId && !hasProcessedChatDataRef.current) {
       const fetchProject = async () => {
           try {
             // await setUpWebContainer()
@@ -61,7 +62,7 @@ export default function ProjectPage() {
 
       fetchProject();
     }
-  }, [projectId, processChatData]); 
+  }, [projectId, processChatData, isWebcontainerReady]); 
 
   // Effect to cleanup webcontainer when leaving chat page
   useEffect(() => {

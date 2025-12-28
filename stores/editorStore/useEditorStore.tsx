@@ -33,6 +33,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   projectId: "",
   isCleaningUp: false,
   isInstalling: false,
+  isWebcontainerReady: false,
 
   cleanupWebContainer: async () => {
     const state = get();
@@ -56,7 +57,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         devServerProcess: null,
         previewUrl: "",
         isInitialisingWebContainer: false,
-        isCleaningUp: false
+        isCleaningUp: false,
+        isWebcontainerReady: false
       });
       
       console.log("WebContainer state cleared successfully");
@@ -265,55 +267,18 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
     handleShellCommand: async (command: string) => {
       const { webcontainer, startDevServer } = get()
-      if (!webcontainer) return
+      if (!webcontainer){
+        console.log("Webcontainer not ready while executing shell command")
+        return
+      }
 
       const parts = command.split("&&").map(p => p.trim())
 
       for (const cmd of parts) {
-        if (cmd.startsWith("npm install")) {
-          // if (devServerProcess) {
-          //   try {
-          //     devServerProcess.kill()
-          //   } catch (err) {
-          //     console.error("Failed to kill dev server:", err)
-          //   }
-          // } 
-
+        if (cmd.startsWith("npm install") || cmd.startsWith("npm run dev")) {
+          console.log("Inside handleShell command, and trying to start dev server")
           startDevServer()
-          // const proc = await webcontainer.spawn("npm", ["install"])
-          // await proc.exit
-          // const devProc = await webcontainer.spawn("npm", ["run", "dev"])
-          // setDevServerProcess(devProc)
-
-          // devProc.output.pipeTo(new WritableStream({ write() {} })) 
-
-          // webcontainer.on("server-ready", (port, url) => {
-          //   console.log("Dev server ready at:", url)
-          //   setPreviewUrl(url)
-          // })
         }    
-        else if (cmd.startsWith("npm run dev")) {
-          // Kill existing dev server
-          // if (devServerProcess) {
-          //   try {
-          //     devServerProcess.kill()
-          //   } catch (err) {
-          //     console.error("Failed to kill dev server:", err)
-          //   }
-          // }
-          startDevServer()
-          // const proc = await webcontainer.spawn("npm", ["install"])
-          // await proc.exit
-          // const devProc = await webcontainer.spawn("npm", ["run", "dev"])
-          // setDevServerProcess(devProc)
-
-          // devProc.output.pipeTo(new WritableStream({ write() {} })) 
-
-          // webcontainer.on("server-ready", (port, url) => {
-          //   console.log("Dev server ready at:", url)
-          //   setPreviewUrl(url)
-          // })
-        }
         else {
           // Run any other shell command
           const args = cmd.split(" ")
@@ -333,7 +298,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             continue
           }
 
-          setStepStatus(step.id, statusType.InProgress)
+          // setStepStatus(step.id, statusType.InProgress)
           
           switch (step.type) {
             case BuildStepType.CreateFile: {
@@ -342,6 +307,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 throw new Error("Missing path or code")
               }
               addFile(step.path, step.code)
+              setStepStatus(step.id, statusType.Completed)
               break
             }
 
@@ -357,6 +323,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 type: "folder",
                 content: ""
               })
+              setStepStatus(step.id, statusType.Completed)
               break
             }
 
@@ -366,6 +333,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 console.log("Executing command:", step.description)
                 get().setShellCommand(step.description)
                 await get().handleShellCommand(step.description)
+                setStepStatus(step.id, statusType.Completed)
               }
               break
             }
@@ -377,8 +345,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             default:
               console.warn("Unhandled step type:", step.type, step)
           }
-
-          setStepStatus(step.id, statusType.Completed)
         } catch (err) {
           console.error("Error executing step:", err)
           setStepStatus(step.id, statusType.Error)
@@ -1370,46 +1336,22 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       console.log("Initialising web container...");
 
       try {
-        // let retryCount = 0;
-        // const maxRetries = 3;
-        // let webContainerInstance = null;
-
-        // while (retryCount < maxRetries && !webContainerInstance) {
-        //   try {
-        //     webContainerInstance = await WebContainer.boot();
-        //   } catch (err) {
-        //     const errorMessage = err instanceof Error ? err.message : 'Unknown error';
-        //     console.log(`Attempt ${retryCount + 1} failed, ${errorMessage}`);
-        //     if ((err instanceof Error && err.message.includes("Unable to create more instances")) || retryCount === maxRetries - 1) {
-        //       throw err;
-        //     }
-        //     retryCount++;
-        //   }
-        // }
-
-        // if (webContainerInstance) {
-        //   set({ webcontainer: webContainerInstance });
-        //   console.log("Web container initialised successfully");
-        //   return webContainerInstance;
-        // }
         const webContainerInstance = await WebContainer.boot()
         set({ webcontainer: webContainerInstance })
         console.log("Web container initialised successfully");
       } catch (error) {
         console.error("Error while initialising web container: ", error);
-        // set({ webcontainer: null });
-        // If we hit the instance limit, we might want to show a user-friendly message
-        // if (error instanceof Error && error.message.includes("Unable to create more instances")) {
-        //   toast.error("Too many preview instances open. Please close some tabs and try again.");
-        // }
       } finally {
-        set({ isInitialisingWebContainer: false });
+        set({ isInitialisingWebContainer: false, isWebcontainerReady: true });
       }
     },
 
     startDevServer: async () => {
       const { webcontainer, devServerProcess, setDevServerProcess } = get()
-      if (!webcontainer) throw new Error("WebContainer not ready")
+      if (!webcontainer){
+        console.log("Webcontainer not ready while starting dev server")
+        return
+      }
 
       // prevent duplicate servers
       if (devServerProcess) {
@@ -1422,8 +1364,16 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
       set({ isInstalling: true })
       showToast("Installing Packages...\nPlease wait as it may take while for \n the installation process to complete", 5000)
-      await webcontainer.spawn("npm", ["install"])
+      console.log("Running npm install")
+      const installProcess = await webcontainer.spawn('npm', ['install']);
 
+      const installExitCode = await installProcess.exit;
+
+      if (installExitCode !== 0) {
+        throw new Error('Unable to run npm install');
+      }
+
+      console.log("Running npm run dev")
       const devProc = await webcontainer.spawn("npm", ["run", "dev"])
       set({ devServerProcess: devProc })
 

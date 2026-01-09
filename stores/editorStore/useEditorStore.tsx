@@ -5,9 +5,6 @@ import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import toast from "react-hot-toast"
 import { useAuthStore } from "../authStore/useAuthStore"
-import { AxiosError } from "axios"
-import { showToast } from "@/lib/toast"
-import { normalizeXmlIndentation } from "@/lib/utils"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -30,48 +27,15 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   userEditedFiles: new Set(),
   isFetchingImages: false,
   isCreatingProject: false,
+  isWebContainerReady: false,
   projectId: "",
-  isCleaningUp: false,
-  isInstalling: false,
-  isWebcontainerReady: false,
 
-  cleanupWebContainer: async () => {
-    const state = get();
-    const { isCleaningUp } = state;
-    
-    // Prevent multiple concurrent cleanup attempts
-    if (isCleaningUp) {
-      console.log("Cleanup already in progress, skipping...");
+  setWebcontainer: async (instance: WebContainer) => {
+    if(get().webcontainer)
       return;
-    }
-
-    set({ isCleaningUp: true });
-
-    try {
-      console.log("Cleaning up WebContainer state...");
-      
-      // Simply nullify the state without calling teardown()
-      // This avoids the "Process aborted" error from teardown
-      set({ 
-        webcontainer: null, 
-        devServerProcess: null,
-        previewUrl: "",
-        isInitialisingWebContainer: false,
-        isCleaningUp: false,
-        isWebcontainerReady: false
-      });
-      
-      console.log("WebContainer state cleared successfully");
-    } catch (err) {
-      console.error("Unexpected error during cleanup:", err);
-      set({ 
-        webcontainer: null, 
-        devServerProcess: null,
-        previewUrl: "",
-        isInitialisingWebContainer: false,
-        isCleaningUp: false
-      });
-    }
+    else 
+      set({ webcontainer: instance })
+    console.log("webcontainer setup")
   },
 
   setMessages: (messages) => {
@@ -128,22 +92,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   
   clearPromptStepsMap: () => set({ promptStepsMap: new Map() }),
 
-  clearEditorState: () => {
-    set({ 
-      buildSteps: [],
-      fileItems: [],
-      shellCommands: [],
-      messages: [],
-      inputPrompts: [],
-      promptStepsMap: new Map(),
-      previewUrl: "",
-      streamingFiles: new Map(),
-      userEditedFiles: new Set(),
-      projectId: "",
-      selectedFile: null
-    });
-  },
-
   updateFileContent: (path, content) =>
     set((state) => {
       // Mark file as user-edited and stop streaming
@@ -183,7 +131,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           if (item.path === path) {
             const currentContent = item.content || ""
             const newContent = currentContent + chunk
-            return { ...item, content: newContent }
+            return { ...item, content: newContent } // Remove formatCodeBlock here for streaming
           }
           return item
         })
@@ -214,7 +162,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
       addFile: (path: string, content: string = "") => {
         set((state) => {
-          const formattedContent = content;
+          const formattedContent = formatCodeBlock(content);
           // Check if file already exists
           const existingIndex = state.fileItems.findIndex(item => item.path === path)
           
@@ -251,9 +199,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         }
       }),
 
-    setShellCommand: async (command: string) =>{
+    setShellCommand: (command: string) =>{
       console.log("command added: ", command)
-      // await get().setUpWebContainer()
       set((state) => ({
         shellCommands: [...state.shellCommands, command],
       }))
@@ -266,19 +213,48 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     setDevServerProcess: (proc: WebContainerProcess) => set({ devServerProcess: proc }),
 
     handleShellCommand: async (command: string) => {
-      const { webcontainer, startDevServer } = get()
-      if (!webcontainer){
-        console.log("Webcontainer not ready while executing shell command")
-        return
-      }
+      const { webcontainer, devServerProcess, setPreviewUrl, setDevServerProcess } = get()
+      if (!webcontainer) return
 
       const parts = command.split("&&").map(p => p.trim())
 
       for (const cmd of parts) {
-        if (cmd.startsWith("npm install") || cmd.startsWith("npm run dev")) {
-          console.log("Inside handleShell command, and trying to start dev server")
-          startDevServer()
-        }    
+        if (cmd.startsWith("npm install")) {
+          const proc = await webcontainer.spawn("npm", ["install"])
+          await proc.exit
+          const devProc = await webcontainer.spawn("npm", ["run", "dev"])
+          setDevServerProcess(devProc)
+
+          devProc.output.pipeTo(new WritableStream({ write() {} })) 
+
+          webcontainer.on("server-ready", (port, url) => {
+            console.log("Dev server ready at:", url)
+            setPreviewUrl(url)
+          })
+        } 
+        
+        else if (cmd.startsWith("npm run dev")) {
+          // Kill existing dev server
+          if (devServerProcess) {
+            try {
+              devServerProcess.kill()
+            } catch (err) {
+              console.warn("Failed to kill dev server:", err)
+            }
+          }
+          const proc = await webcontainer.spawn("npm", ["install"])
+          await proc.exit
+          const devProc = await webcontainer.spawn("npm", ["run", "dev"])
+          setDevServerProcess(devProc)
+
+          devProc.output.pipeTo(new WritableStream({ write() {} })) // optional
+
+          webcontainer.on("server-ready", (port, url) => {
+            console.log("Dev server ready at:", url)
+            setPreviewUrl(url)
+          })
+        }
+
         else {
           // Run any other shell command
           const args = cmd.split(" ")
@@ -298,7 +274,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             continue
           }
 
-          // setStepStatus(step.id, statusType.InProgress)
+          setStepStatus(step.id, statusType.InProgress)
           
           switch (step.type) {
             case BuildStepType.CreateFile: {
@@ -307,7 +283,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 throw new Error("Missing path or code")
               }
               addFile(step.path, step.code)
-              setStepStatus(step.id, statusType.Completed)
               break
             }
 
@@ -323,17 +298,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 type: "folder",
                 content: ""
               })
-              setStepStatus(step.id, statusType.Completed)
               break
             }
 
             case BuildStepType.RunScript: {
               if (step.description) {
-                // await get().setUpWebContainer()
                 console.log("Executing command:", step.description)
                 get().setShellCommand(step.description)
                 await get().handleShellCommand(step.description)
-                setStepStatus(step.id, statusType.Completed)
               }
               break
             }
@@ -345,6 +317,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             default:
               console.warn("Unhandled step type:", step.type, step)
           }
+
+          setStepStatus(step.id, statusType.Completed)
         } catch (err) {
           console.error("Error executing step:", err)
           setStepStatus(step.id, statusType.Error)
@@ -353,20 +327,17 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     createProject: async (prompt) => {
+      if(!get().webcontainer)
+        get().setUpWebContainer()
       set({ isCreatingProject: true })
       try {
         const projectRes = await axiosInstance.post("/api/store-project", { prompt });
         const projectId = projectRes.data.projectId;
         set({ projectId });
         return projectId;
-      } catch (error) {
-        console.error("Error creating project:", error);
-        if (error instanceof AxiosError && error.response?.data?.msg) {
-            toast.error(error.response.data.msg as string);
-        } else {
-            toast.error("An unexpected error occurred.");
-        }
-
+      } catch (err) {
+        console.error("Error creating project:", err);
+        toast.error("Error creating project");
         set({ isInitialising: false });
         return null;
       } finally {
@@ -375,6 +346,9 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     },
 
     processPrompt: async (prompt, images) => {
+      if(!get().webcontainer)
+        get().setUpWebContainer()
+
       set({ isInitialising: true })
       let url = ""
       let desc = ""
@@ -422,20 +396,9 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         get().executeSteps(parsedSteps.filter(step => step.shouldExecute !== false))
 
         get().setMessages(res.data.prompts)
-      } catch (error) {
-        console.error("Error during initialisation:", error)
-        if (
-          error instanceof AxiosError &&
-          error.response?.data?.msg
-        ) {
-          if (error.response.data.msg === "RATE_LIMITED") {
-            toast.error("AI is busy. Please try again in a few seconds.")
-          } else {
-            toast.error(error.response.data.msg as string)
-          }
-        } else {
-          toast.error("An unexpected error occurred.")
-        }
+      } catch (err) {
+        console.error("Error during initialisation:", err)
+        toast.error("Error while initialising project")
         set({ isInitialising: false })
         hasErrorOccured = true
       } finally {
@@ -466,7 +429,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         }))
         
         const requestOptions: RequestInit = {
-          method: "POST",
+          method: "POST"
         };
 
         if (images && images.length > 0 && images[0] instanceof File) {
@@ -516,9 +479,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         let fullResponse = "";
         // Separate map for tracking file completion - this one uses objects
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
-        
-        // Collect steps to execute at the end
-        const stepsToExecuteLater: BuildStep[] = [];
 
         const descriptionRegex = /^([\s\S]*?)<zapArtifeact/;
         
@@ -558,6 +518,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             // Process streaming content for files that are still streaming
             fileCompletionTracker.forEach((fileData, filePath) => {
               if (!fileData.isComplete && !get().userEditedFiles.has(filePath)) {
+                // Extract content between the opening tag and current buffer position
                 const openingTag = `<zapAction type="file" filePath="${filePath}">`;
                 const openingIndex = buffer.indexOf(openingTag);
                 
@@ -566,58 +527,50 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   const closingTag = '</zapAction>';
                   const closingIndex = buffer.indexOf(closingTag, contentStart);
                   
+                  // Extract the content portion
                   let contentToStream = '';
                   if (closingIndex === -1) {
+                    // File not complete yet, stream what we have
                     contentToStream = buffer.substring(contentStart);
                   } else {
+                    // File complete
                     contentToStream = buffer.substring(contentStart, closingIndex);
                   }
                   
-                  // Only normalize indentation once at the start
-                  if (fileData.content.length === 0 && contentToStream.trim().length > 0) {
+                  // Remove leading/trailing whitespace and normalize indentation
+                  // But only do this once at the start (when fileData.content is empty)
+                  if (fileData.content.length === 0) {
+                    // Remove leading newline and whitespace
+                    contentToStream = contentToStream.replace(/^\s*\n/, '');
+                    
+                    // Find the minimum indentation to remove
                     const lines = contentToStream.split('\n');
+                    const nonEmptyLines = lines.filter(line => line.trim().length > 0);
                     
-                    // Find the base indentation from the SECOND non-empty line
-                    // (first line in XML is right after '>' with no indentation)
-                    let baseIndent = 0;
-                    let foundFirstLine = false;
-                    
-                    for (const line of lines) {
-                      if (line.trim().length > 0) {
-                        if (!foundFirstLine) {
-                          foundFirstLine = true;
-                          continue; // Skip first line
-                        }
-                        const match = line.match(/^(\s*)/);
-                        baseIndent = match ? match[1].length : 0;
-                        break;
-                      }
-                    }
-                    
-                    // Remove the base indentation from all lines except the first
-                    if (baseIndent > 0) {
-                      contentToStream = lines
-                        .map((line, index) => {
-                          // Keep first non-empty line as-is
-                          if (index === 0) return line;
-                          
-                          // Remove base indent from subsequent lines
-                          if (line.length >= baseIndent) {
-                            return line.substring(baseIndent);
-                          }
-                          return line;
+                    if (nonEmptyLines.length > 0) {
+                      const minIndent = Math.min(
+                        ...nonEmptyLines.map(line => {
+                          const match = line.match(/^(\s*)/);
+                          return match ? match[1].length : 0;
                         })
-                        .join('\n');
+                      );
+                      
+                      // Remove the base indentation from all lines
+                      if (minIndent > 0) {
+                        contentToStream = lines
+                          .map(line => line.substring(minIndent))
+                          .join('\n');
+                      }
                     }
                   }
                   
-                  // Stream only new content
+                  // Only stream the new content that wasn't streamed before
                   const previousLength = fileData.content.length;
                   if (contentToStream.length > previousLength) {
                     const newChunk = contentToStream.substring(previousLength);
-                    fileData.content = contentToStream;
+                    fileData.content = contentToStream; // Update tracker
                     
-                    // Stream in reasonable chunks
+                    // Stream only actual file content in reasonable chunks
                     const chunkSize = Math.min(newChunk.length, 100);
                     const limitedChunk = newChunk.substring(0, chunkSize);
                     get().streamFileContent(filePath, limitedChunk);
@@ -626,6 +579,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               }
             });
 
+            // Process complete actions (keep existing code)
             let match;
             const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
 
@@ -642,54 +596,17 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
                 get().completeFileStreaming(filePath);
 
-                // Normalize the final code the same way
-                let normalizedCode = normalizeXmlIndentation(code);
-                
-                const lines = normalizedCode.split('\n');
-                
-                // Find the base indentation from the SECOND non-empty line
-                let baseIndent = 0;
-                let foundFirstLine = false;
-                
-                for (const line of lines) {
-                  if (line.trim().length > 0) {
-                    if (!foundFirstLine) {
-                      foundFirstLine = true;
-                      continue; // Skip first line
-                    }
-                    const match = line.match(/^(\s*)/);
-                    baseIndent = match ? match[1].length : 0;
-                    break;
-                  }
-                }
-                
-                // Remove the base indentation from all lines except the first
-                if (baseIndent > 0) {
-                  normalizedCode = lines
-                    .map((line, index) => {
-                      // Keep first non-empty line as-is
-                      if (index === 0) return line;
-                      
-                      // Remove base indent from subsequent lines
-                      if (line.length >= baseIndent) {
-                        return line.substring(baseIndent);
-                      }
-                      return line;
-                    })
-                    .join('\n');
-                }
-
                 const step: BuildStep = {
                   id: crypto.randomUUID(),
                   title: getTitleFromFile(filePath),
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: normalizedCode,
+                  code: formatCodeBlock(code), // Format only on completion
                   path: filePath,
                 };
 
-                get().addFile(filePath, normalizedCode);
+                get().addFile(filePath, formatCodeBlock(code)); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -728,8 +645,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 })
 
                 get().setBuildSteps([step]);
-                // Collect shell steps to execute later after all files are created
-                stepsToExecuteLater.push(step);
+                get().executeSteps([step]);
               }
             }
 
@@ -742,7 +658,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               if (!fileCompletionTracker.has(filePath)) {
                 // Initialize file for streaming
                 get().addFile(filePath, "");
-                get().setSelectedFile(filePath); 
+                get().setSelectedFile(filePath);
 
                 const step: BuildStep = {
                   id: crypto.randomUUID(),
@@ -754,12 +670,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   path: filePath,
                 };
 
+                // Add to completion tracker
                 fileCompletionTracker.set(filePath, { 
                   step, 
                   content: "", 
                   isComplete: false 
                 });
                 
+                // Mark file as streaming in the store
                 set(state => ({
                   streamingFiles: new Map(state.streamingFiles).set(filePath, true)
                 }));
@@ -778,28 +696,9 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         });
 
         get().setMessages(fullResponse);
-
-        // Log the shell steps that will be executed
-        if (stepsToExecuteLater.length > 0) {
-          console.log(`Found ${stepsToExecuteLater.length} shell steps to execute:`, stepsToExecuteLater.map(s => s.code || s.description));
-          await get().executeSteps(stepsToExecuteLater);
-        } else {
-          console.log('No shell steps found in response');
-        }
-      } catch (error) {
-        console.error("Error during build:", error);
-        if (
-          error instanceof AxiosError &&
-          error.response?.data?.msg
-        ) {
-          if (error.response.data.msg === "RATE_LIMITED") {
-            toast.error("AI is busy. Please try again in a few seconds.")
-          } else {
-            toast.error(error.response.data.msg as string)
-          }
-        } else {
-          toast.error("An unexpected error occurred.")
-        }
+      } catch (err) {
+        console.error("Error during build:", err);
+        toast.error("Error while building project")
         set({ isProcessing: false })
         hasErrorOccured = true
       } finally {
@@ -831,7 +730,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             );
           }
           
-          console.log("messages: ", get().messages)
           await axiosInstance.post("/api/store-chats", {
             prompt,
             response: get().messages,
@@ -895,9 +793,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         let fullResponse = "";
         // Separate map for tracking file completion - this one uses objects
         const fileCompletionTracker = new Map<string, { step: BuildStep, content: string, isComplete: boolean }>();
-        
-        // Collect steps to execute at the end
-        const stepsToExecuteLater: BuildStep[] = [];
 
         // Extract description from the start of the response
         const descriptionRegex = /^([\s\S]*?)<zapArtifeact/;
@@ -1022,11 +917,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                   description: getDescriptionFromFile(filePath),
                   type: BuildStepType.CreateFile,
                   status: statusType.InProgress,
-                  code: code, // Format only on completion
+                  code: formatCodeBlock(code), // Format only on completion
                   path: filePath,
                 };
 
-                get().addFile(filePath, code); // Format only on completion
+                get().addFile(filePath, formatCodeBlock(code)); // Format only on completion
 
                 set(state => {
                   const newMap = new Map(state.promptStepsMap)
@@ -1065,8 +960,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
                 })
 
                 get().setBuildSteps([step]);
-                // Collect shell steps to execute later after all files are created
-                stepsToExecuteLater.push(step);
+                get().executeSteps([step]);
               }
             }
 
@@ -1109,91 +1003,12 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           }
         }
 
-        // Process any remaining buffer content after stream ends
-        if (buffer.trim().length > 0) {
-          let match;
-          const actionRegex = /<zapAction\s+type="([^"]*)"(?:\s+filePath="([^"]*)")?>([\s\S]*?)<\/zapAction>/g;
-
-          while ((match = actionRegex.exec(buffer)) !== null) {
-            const [, type, filePath, content] = match;
-            const code = content.trim();
-
-            if (type === "file" && filePath) {
-              if (fileCompletionTracker.has(filePath)) {
-                fileCompletionTracker.get(filePath)!.isComplete = true;
-              }
-
-              get().completeFileStreaming(filePath);
-
-              const step: BuildStep = {
-                id: crypto.randomUUID(),
-                title: getTitleFromFile(filePath),
-                description: getDescriptionFromFile(filePath),
-                type: BuildStepType.CreateFile,
-                status: statusType.InProgress,
-                code: code,
-                path: filePath,
-              };
-
-              get().addFile(filePath, code);
-
-              set(state => {
-                const newMap = new Map(state.promptStepsMap)
-                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
-                newMap.set(currentPromptIndex, {
-                  ...existing,
-                  steps: [...existing.steps, step]
-                })
-                return { promptStepsMap: newMap }
-              })
-
-              get().setBuildSteps([step]);
-              get().setSelectedFile(step.path as string);
-              get().executeSteps([step]);
-            }
-
-            if (type === "shell") {
-              const decodedCode = code.replace(/&amp;/g, '&');
-              const step: BuildStep = {
-                id: crypto.randomUUID(),
-                title: "Run shell command",
-                description: decodedCode,
-                type: BuildStepType.RunScript,
-                status: statusType.InProgress,
-                code: decodedCode,
-              };
-
-              set(state => {
-                const newMap = new Map(state.promptStepsMap)
-                const existing = newMap.get(currentPromptIndex) || { prompt, steps: [] }
-                newMap.set(currentPromptIndex, {
-                  ...existing,
-                  steps: [...existing.steps, step]
-                })
-                return { promptStepsMap: newMap }
-              })
-
-              get().setBuildSteps([step]);
-              stepsToExecuteLater.push(step);
-            }
-          }
-        }
-
         // Mark all files as no longer streaming
         fileCompletionTracker.forEach((_, filePath) => {
           get().completeFileStreaming(filePath);
         });
 
         get().setMessages(fullResponse);
-
-        // Log the shell steps that will be executed
-        if (stepsToExecuteLater.length > 0) {
-          console.log(`Found ${stepsToExecuteLater.length} shell steps to execute:`, stepsToExecuteLater.map(s => s.code || s.description));
-          await get().executeSteps(stepsToExecuteLater);
-        } else {
-          console.log('No shell steps found in response');
-        }
-
         await axiosInstance.post("/api/store-chats", {
           prompt,
           response: [fullResponse],
@@ -1211,24 +1026,27 @@ export const useEditorStore = create<StoreState>((set, get) => ({
     processChatData: async (chatData) => {
       const { 
         setBuildSteps, 
+        addFile, 
+        addFileItem, 
         setMessages, 
+        setShellCommand,
         resetUserEditedFiles,
         clearBuildSteps,
-        executeSteps,
+        setUpWebContainer,
+        webcontainer
       } = get()
       
+      if(!webcontainer)
+        setUpWebContainer()
       // Reset store state
       clearBuildSteps()
       resetUserEditedFiles()
-      
-      // Clear the promptStepsMap
-      set({ promptStepsMap: new Map() })
 
       const allSteps: BuildStep[] = []
       const allMessages: string[] = []
-      console.log("processing chat data")
-      // First pass: Create all steps and initialize promptStepsMap
+
       chatData.forEach((chat, promptIndex) => {
+        
         // Initialize the prompt mapping first with description
         set((state) => {
           const newMap = new Map(state.promptStepsMap);
@@ -1258,28 +1076,38 @@ export const useEditorStore = create<StoreState>((set, get) => ({
               title: getTitleFromFile(filePath),
               description: getDescriptionFromFile(filePath),
               type: BuildStepType.CreateFile,
-              status: statusType.InProgress,
-              code: normalizeXmlIndentation(code),
+              status: statusType.Completed,
+              code,
               path: filePath,
             };
 
+            addFile(filePath, code);
+            addFileItem({
+              name: filePath.split("/").pop() || filePath,
+              path: filePath,
+              type: "file",
+              content: code
+            });
+
             promptSteps.push(step);
             allSteps.push(step);
+            get().executeSteps([step])
           }
 
           if (type === "shell") {
-            const decodedCode = code.replace(/&amp;/g, '&');
             const step: BuildStep = {
               id: crypto.randomUUID(),
               title: "Run shell command",
-              description: decodedCode,
+              description: code,
               type: BuildStepType.RunScript,
               status: statusType.InProgress,
-              code: decodedCode,
+              code,
             };
 
+            setShellCommand(code);
             promptSteps.push(step);
             allSteps.push(step);
+            get().executeSteps([step])
           }
         }
       
@@ -1301,88 +1129,72 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       
       setBuildSteps(allSteps)
       setMessages(allMessages)
-
+    
       if (chatData.length > 0) {
         set({ projectId: chatData[0].projectId })
       }
-
-      // Second pass: Execute all steps sequentially
-      // This ensures steps show as InProgress and then complete
-      await executeSteps(allSteps)
     },
 
     setUpWebContainer: async () => {
       const {
-        webcontainer,
-        isInitialisingWebContainer,
-      } = get();
-
+        setWebcontainer,
+        webcontainer
+      } = get()
       if (webcontainer) {
-        console.log("Web container already initialized, reusing existing instance.");
         return;
       }
 
-      if (isInitialisingWebContainer) {
-        console.log("Web container is already initialising, waiting...");
-
-        const currentState = get();
-        if (currentState.webcontainer) {
-          return currentState.webcontainer;
-        }
-        return null;
-      }
-
-      set({ isInitialisingWebContainer: true });
-      console.log("Initialising web container...");
-
+      set({ isInitialisingWebContainer: true })
+      console.log("initialising web container")
       try {
-        const webContainerInstance = await WebContainer.boot()
-        set({ webcontainer: webContainerInstance })
-        console.log("Web container initialised successfully");
+        const webContainerInstance = await WebContainer.boot();
+        setWebcontainer(webContainerInstance);
+        console.log("web container initialised")
       } catch (error) {
-        console.error("Error while initialising web container: ", error);
+        console.error("Error while initialisint web container: ", error)
       } finally {
-        set({ isInitialisingWebContainer: false, isWebcontainerReady: true });
+        set({ isInitialisingWebContainer: false, isWebContainerReady: true })
       }
-    },
+      
+    }
+  }))
 
-    startDevServer: async () => {
-      const { webcontainer, devServerProcess, setDevServerProcess } = get()
-      if (!webcontainer){
-        console.log("Webcontainer not ready while starting dev server")
-        return
-      }
 
-      // prevent duplicate servers
-      if (devServerProcess) {
-        try {
-          devServerProcess.kill()
-        } catch (err) {
-          console.error("Failed to kill dev server:", err)
-        }
-      }
+  export function formatCodeBlock(code: string): string {
+  const lines = code.split('\n');
+  const result: string[] = [];
+  let indentLevel = 0;
+  const INDENT = '  '; // 2 spaces
 
-      set({ isInstalling: true })
-      showToast("Installing Packages...\nPlease wait as it may take while for \n the installation process to complete", 5000)
-      console.log("Running npm install")
-      const installProcess = await webcontainer.spawn('npm', ['install']);
+  // Find base indentation to remove
+  const baseIndent = lines
+    .filter(line => line.trim())
+    .reduce((min, line) => {
+      const indent = line.match(/^\s*/)?.[0].length ?? 0;
+      return Math.min(min, indent);
+    }, Infinity);
 
-      const installExitCode = await installProcess.exit;
-
-      if (installExitCode !== 0) {
-        throw new Error('Unable to run npm install');
-      }
-
-      console.log("Running npm run dev")
-      const devProc = await webcontainer.spawn("npm", ["run", "dev"])
-      set({ devServerProcess: devProc })
-
-      webcontainer.on("server-ready", (port, url) => {
-        console.log("Dev server ready:", url)
-        set({ previewUrl: url })
-      })
-      setDevServerProcess(devProc)
-      set({ isInstalling: false })
+  for (const line of lines) {
+    // Remove base indentation from line
+    let currentLine = line.slice(baseIndent);
+    
+    // Decrease indent for closing brackets
+    if (currentLine.trim().match(/^[}\])]/) && indentLevel > 0) {
+      indentLevel--;
     }
 
-}))
+    // Add proper indentation
+    if (currentLine.trim().length > 0) {
+      currentLine = INDENT.repeat(indentLevel) + currentLine.trim();
+    }
+
+    result.push(currentLine);
+
+    // Increase indent for opening brackets
+    if (currentLine.trim().match(/[{[(]\s*$/)) {
+      indentLevel++;
+    }
+  }
+
+  return result.join('\n');
+}

@@ -59,14 +59,12 @@ export interface StoreState {
   isBuilding: boolean
   isInitialising: boolean,
   isInitialisingWebContainer: boolean,
-  isCleaningUp: boolean,
   isProcessing: boolean,
   isProcessingFollowups: boolean,
   projectId: string,
   isFetchingImages: boolean,
   isCreatingProject: boolean;
-  isInstalling: boolean;
-  isWebcontainerReady: boolean;
+  isWebContainerReady: boolean;
   // File system
   fileItems: FileItemFlat[]
   selectedFile: string | null
@@ -82,6 +80,7 @@ export interface StoreState {
   userEditedFiles: Set<string>
 
   // Actions
+  setWebcontainer: (instance: WebContainer) => void;
   setBuildSteps: (steps: BuildStep[]) => void
   clearBuildSteps: () => void
   startBuild: () => void
@@ -108,7 +107,4 @@ export interface StoreState {
   processChatData: (chatData: ChatData[]) => void;
   clearPromptStepsMap: () => void;
   setUpWebContainer: () => void;
-  cleanupWebContainer: () => Promise<void>;
-  clearEditorState: () => void; 
-  startDevServer: () => void;
 }

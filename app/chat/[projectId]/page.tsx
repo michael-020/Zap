@@ -16,10 +16,8 @@ export default function ProjectPage() {
     setSelectedFile, 
     clearPromptStepsMap, 
     processChatData, 
-    cleanupWebContainer,
     setMessages,
     setUpWebContainer,
-    isWebcontainerReady
   } = useEditorStore()
   const router = useRouter()
   const hasProcessedChatDataRef = useRef(false);
@@ -35,7 +33,7 @@ export default function ProjectPage() {
 
 
   const handleBackToInitializer = async () => {
-    await cleanupWebContainer()
+    // await cleanupWebContainer()
     await router.push("/chat")
     clearBuildSteps()
     setFileItems([])
@@ -46,7 +44,7 @@ export default function ProjectPage() {
 
   // Effect to fetch project data
   useEffect(() => {
-    if (isWebcontainerReady && projectId && !hasProcessedChatDataRef.current) {
+    if (projectId && !hasProcessedChatDataRef.current) {
       const fetchProject = async () => {
           try {
             // await setUpWebContainer()
@@ -62,14 +60,14 @@ export default function ProjectPage() {
 
       fetchProject();
     }
-  }, [projectId, processChatData, isWebcontainerReady]); 
+  }, [projectId, processChatData]); 
 
-  // Effect to cleanup webcontainer when leaving chat page
-  useEffect(() => {
-    return () => {
-      cleanupWebContainer()
-    }
-  }, [cleanupWebContainer]);
+  // // Effect to cleanup webcontainer when leaving chat page
+  // useEffect(() => {
+  //   return () => {
+  //     cleanupWebContainer()
+  //   }
+  // }, [cleanupWebContainer]);
 
   return (
     <>

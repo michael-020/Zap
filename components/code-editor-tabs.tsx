@@ -8,7 +8,7 @@ import toast from "react-hot-toast";
 import { axiosInstance } from "@/lib/axios";
 import { AxiosError } from "axios"; 
 import { UsageLimitModal } from "./usage-limit-modal"; 
-import { showLoaderToast, showSuccessToast } from "@/lib/toast";
+import { showSuccessToast } from "@/lib/toast";
 
 interface CodeEditorTabsProps {
   activeTab: "code" | "preview";
@@ -23,7 +23,7 @@ export function CodeEditorTabs({
   isFullscreen,
   setIsFullscreen,
 }: CodeEditorTabsProps) {
-  const { fileItems, isInstalling } = useEditorStore();
+  const { fileItems } = useEditorStore();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
 
@@ -83,12 +83,6 @@ export function CodeEditorTabs({
             // disabled={isInstalling}
             aria-label="Preview"
             onClick={() => {
-              if (isInstalling) {
-                showLoaderToast(
-                  "Installing packages… Your application is not ready to preview yet."
-                );
-                return;
-              }
               onTabChange("preview");
             }}
             className={`tooltip-button px-4 py-2 text-sm transition-colors rounded-r-lg flex items-center gap-1 ${

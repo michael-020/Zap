@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 
 export function PreviewPanel() {
-    const { webcontainer, previewUrl, setPreviewUrl, setUpWebContainer } = useEditorStore()
+    const { webcontainer, previewUrl, setPreviewUrl, setUpWebContainer, isWebContainerReady } = useEditorStore()
 
     // async function init(){
     //     try {
@@ -48,37 +48,39 @@ export function PreviewPanel() {
     // // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [])
     useEffect(() => {
-        const init = async () => {
-            // await setUpWebContainer()
-            if(!webcontainer) {
-                console.log("return")
-                await setUpWebContainer()
-            }
-
-            if(!webcontainer) {
-                console.log("return")
-                return;
-            }
-
-            const installProcess = await webcontainer.spawn('npm', ['install']);
-            console.log("npm i done")
-
-            installProcess.output.pipeTo(new WritableStream({
-                write() {
+        if(isWebContainerReady){
+            const init = async () => {
+                // await setUpWebContainer()
+                if(!webcontainer) {
+                    console.log("return")
+                    await setUpWebContainer()
                 }
-            }));
-
-            await webcontainer.spawn('npm', ['run', 'dev']);
-            console.log("npm run dev")
-
-            webcontainer.on('server-ready', (port, url) => {
-                console.log("url: ", url)
-                setPreviewUrl(url)
-            });
+                
+                if(!webcontainer) {
+                    console.log("return")
+                    return;
+                }
+                
+                const installProcess = await webcontainer.spawn('npm', ['install']);
+                console.log("npm i done")
+                
+                installProcess.output.pipeTo(new WritableStream({
+                    write() {
+                    }
+                }));
+                
+                await webcontainer.spawn('npm', ['run', 'dev']);
+                console.log("npm run dev")
+                
+                webcontainer.on('server-ready', (port, url) => {
+                    console.log("url: ", url)
+                    setPreviewUrl(url)
+                });
+            }
+            
+            init()
         }
-
-        init()
-    }, [])
+    }, [isWebContainerReady, setPreviewUrl, setUpWebContainer, webcontainer])
 
     
     return (

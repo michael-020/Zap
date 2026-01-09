@@ -1,6 +1,6 @@
 "use client";
 
-import { showLoaderToast, showToast } from "@/lib/toast";
+import { showToast } from "@/lib/toast";
 
 export function ToastButton() {
   return (

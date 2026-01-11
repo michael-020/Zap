@@ -173,6 +173,17 @@ exports.Prisma.UsageScalarFieldEnum = {
   chatCount: 'chatCount'
 };
 
+exports.Prisma.PaymentScalarFieldEnum = {
+  id: 'id',
+  userId: 'userId',
+  orderId: 'orderId',
+  paymentId: 'paymentId',
+  amount: 'amount',
+  currency: 'currency',
+  status: 'status',
+  createdAt: 'createdAt'
+};
+
 exports.Prisma.SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -192,13 +203,21 @@ exports.AUTHOPTIONS = exports.$Enums.AUTHOPTIONS = {
   CREDENTIALS: 'CREDENTIALS'
 };
 
+exports.PaymentStatus = exports.$Enums.PaymentStatus = {
+  PENDING: 'PENDING',
+  SUCCESS: 'SUCCESS',
+  FAILED: 'FAILED',
+  REFUNDED: 'REFUNDED'
+};
+
 exports.Prisma.ModelName = {
   User: 'User',
   Admin: 'Admin',
   OTP: 'OTP',
   Project: 'Project',
   Chat: 'Chat',
-  Usage: 'Usage'
+  Usage: 'Usage',
+  Payment: 'Payment'
 };
 
 /**

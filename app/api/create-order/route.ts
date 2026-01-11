@@ -1,6 +1,5 @@
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/server/authOptions";
-import { getServerSession } from "next-auth";
+import jwt from "jsonwebtoken"
 import { NextRequest, NextResponse } from "next/server";
 import Razorpay from "razorpay"
 
@@ -9,33 +8,64 @@ const razorpay = new Razorpay({
     key_secret: process.env.RAZORPAY_KEY_SECRET
 })
 
-// eslint-disable-next-line @typescript-eslint/no-unused-vars
+const ALLOWED_ORIGIN = "http://localhost:3001";
+
+function cors(origin: string | null): Record<string, string> {
+  if (origin === ALLOWED_ORIGIN) {
+    return {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+    };
+  }
+
+  return {};
+}
+
+export async function OPTIONS(req: NextRequest) {
+  return new Response(null, {
+    status: 204,
+    headers: cors(req.headers.get("origin")),
+  });
+}
+
 export async function POST(req: NextRequest){
+    const origin = req.headers.get("origin");
+
     try {
-        const session = await getServerSession(authOptions)
-        if(!session || !session.user){
-            return NextResponse.json(
-                { msg: "You are not authorised to access this endpoint" },
-                { status: 401}
-            )
+        const auth = req.headers.get("authorization");
+        if (!auth) {
+            return NextResponse.json({ msg: "No token" }, { status: 401 });
         }
+
+        const token = auth.split(" ")[1];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const payload: any = jwt.verify(
+            token,
+            process.env.PAYMENT_JWT_SECRET!
+        );
+
+        const amount = 100 * 100;
+
         const order = await razorpay.orders.create({
-            amount: 100 * 100,
+            amount,
             currency: "INR",
             receipt: "receipt_" + Math.random().toString(36).substring(7)
         })
 
-        await prisma.user.update({
-            where: {
-                id: session.user.id,
-            },
+        await prisma.payment.create({
             data: {
-                isPremium: true,
+                userId: payload.userId,
+                orderId: order.id,
+                amount,
+                currency: "INR",
+                status: "PENDING",
             },
         });
 
         return NextResponse.json(
-            { orderId: order.id }
+            { orderId: order.id },
+            { headers: cors(origin) }
         )
     } catch (error) {
         console.error("Error while creating order: ", error)

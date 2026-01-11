@@ -19,6 +19,7 @@ model User {
   Project       Project[]
   Usage         Usage[]
   downloadCount Int         @default(0)
+  payments      Payment[]
 }
 
 model Admin {
@@ -67,6 +68,29 @@ model Usage {
   chatCount Int      @default(0)
 
   @@unique([userId, date])
+}
+
+model Payment {
+  id     String @id @default(uuid())
+  userId String
+  user   User   @relation(fields: [userId], references: [id])
+
+  orderId   String  @unique
+  paymentId String?
+  amount    Int
+  currency  String
+
+  status    PaymentStatus
+  createdAt DateTime      @default(now())
+
+  @@index([userId])
+}
+
+enum PaymentStatus {
+  PENDING
+  SUCCESS
+  FAILED
+  REFUNDED
 }
 
 enum AUTHOPTIONS {

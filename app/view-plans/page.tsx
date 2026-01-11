@@ -51,8 +51,13 @@ const ViewPlansPage = () => {
       router.push('/chat')
       return
     }
+    else if(plan == 'pro'){
+      const res = await fetch("/api/payment-token");
+      const { token } = await res.json();
 
-    router.push('/payment-page')
+      window.location.href =
+        `http://localhost:3001/payment-page?token=${token}`;
+    }
   }
 
   return (

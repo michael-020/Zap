@@ -1,18 +1,43 @@
 import { prisma } from "@/lib/prisma";
-import { authOptions } from "@/lib/server/authOptions";
-import { getServerSession } from "next-auth";
 import { NextRequest, NextResponse } from "next/server";
+import jwt from "jsonwebtoken";
 import crypto from "crypto";
 
+const ALLOWED_ORIGIN = "http://localhost:3001";
+
+function cors(origin: string | null): Record<string, string> {
+  if (origin === ALLOWED_ORIGIN) {
+    return {
+      "Access-Control-Allow-Origin": origin,
+      "Access-Control-Allow-Headers": "Content-Type, Authorization",
+      "Access-Control-Allow-Methods": "POST, OPTIONS",
+    };
+  }
+  return {};
+}
+
+export async function OPTIONS(req: NextRequest) {
+  return new Response(null, {
+    status: 204,
+    headers: cors(req.headers.get("origin")),
+  });
+}
+
 export async function POST(req: NextRequest){
+    const origin = req.headers.get("origin");
+
     try {
-        const session = await getServerSession(authOptions)
-        if(!session || !session.user){
-            return NextResponse.json(
-                { msg: "You are not authorised to access this endpoint" },
-                { status: 401}
-            )
+        const auth = req.headers.get("authorization");
+        if (!auth) {
+            return NextResponse.json({ msg: "No token" }, { status: 401 });
         }
+
+        const token = auth.split(" ")[1];
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const payload: any = jwt.verify(
+            token,
+            process.env.PAYMENT_JWT_SECRET!
+        );
 
         const { razorpay_order_id, razorpay_payment_id, razorpay_signature } = await req.json();
 
@@ -30,18 +55,42 @@ export async function POST(req: NextRequest){
             );
         }
 
-        // Payment verified - now upgrade user
-        await prisma.user.update({
-            where: {
-                id: session.user.id,
-            },
-            data: {
-                isPremium: true,
-            },
+        const payment = await prisma.payment.findUnique({
+            where: { orderId: razorpay_order_id },
         });
 
+        if (!payment) {
+            return NextResponse.json(
+                { msg: "Payment record not found" },
+                { status: 404 }
+            );
+        }
+
+        if (payment.status === "SUCCESS") {
+            const res = NextResponse.json({ success: true });
+            Object.entries(cors(origin)).forEach(([k, v]) =>
+                res.headers.set(k, v)
+            );
+            return res;
+        }
+
+        await prisma.$transaction([
+            prisma.payment.update({
+                where: { orderId: razorpay_order_id },
+                data: {
+                status: "SUCCESS",
+                paymentId: razorpay_payment_id,
+                },
+            }),
+            prisma.user.update({
+                where: { id: payload.userId },
+                data: { isPremium: true },
+            }),
+        ]);
+
         return NextResponse.json(
-            { msg: "Payment verified and user upgraded successfully" }
+            { msg: "Payment verified and user upgraded successfully" },
+            { headers: cors(origin) }
         )
     } catch (error) {
         console.error("Error while verifying payment: ", error)

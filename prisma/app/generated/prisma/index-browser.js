@@ -207,6 +207,7 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   PENDING: 'PENDING',
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
+  DISPUTED: 'DISPUTED',
   REFUNDED: 'REFUNDED'
 };
 

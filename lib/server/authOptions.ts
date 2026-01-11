@@ -47,11 +47,28 @@ export const authOptions: AuthOptions = ({
       }
       return session
     },
-    jwt: async ({token, user, account}) => {
+    jwt: async ({trigger, token, user, account, session}) => {
       if (user) {
         token.id = user.id;
+        token.email = user.email;
         token.isPremium = user.isPremium; 
         token.downloadCount = user.downloadCount
+      }
+
+      if (trigger === "update" && session) {
+        console.log("updating user's premium status")
+        console.log("session: ", session)
+
+        const dbUser = await prisma.user.findUnique({
+          where: { id: session.user.id },
+        });
+        
+        if (dbUser) {
+          token.isPremium = dbUser.isPremium;
+          token.downloadCount = dbUser.downloadCount;
+
+          return token
+        }
       }
       
       if (account?.provider === "google" && token.email) {

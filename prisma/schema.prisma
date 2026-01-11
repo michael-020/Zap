@@ -1,6 +1,5 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "./app/generated/prisma"
 }
 
 datasource db {
@@ -85,10 +84,11 @@ model Payment {
 }
 
 enum PaymentStatus {
-  PENDING
-  SUCCESS
-  FAILED
-  REFUNDED
+  PENDING     
+  SUCCESS     
+  FAILED      
+  DISPUTED    
+  REFUNDED    
 }
 
 enum AUTHOPTIONS {

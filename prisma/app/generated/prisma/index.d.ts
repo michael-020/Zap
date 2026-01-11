@@ -57,6 +57,7 @@ export namespace $Enums {
   PENDING: 'PENDING',
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
+  DISPUTED: 'DISPUTED',
   REFUNDED: 'REFUNDED'
 };
 

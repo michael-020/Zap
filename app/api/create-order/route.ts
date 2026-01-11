@@ -45,13 +45,18 @@ export async function POST(req: NextRequest){
             process.env.PAYMENT_JWT_SECRET!
         );
 
-        const amount = 100 * 100;
+        console.log("payload: ", payload)
+
+        const { amount } = await req.json();
+        console.log("amount: ", amount)
 
         const order = await razorpay.orders.create({
-            amount,
+            amount: amount*100,
             currency: "INR",
             receipt: "receipt_" + Math.random().toString(36).substring(7)
         })
+
+        console.log(Object.keys(prisma));
 
         await prisma.payment.create({
             data: {

@@ -174,6 +174,7 @@ exports.PaymentStatus = exports.$Enums.PaymentStatus = {
   PENDING: 'PENDING',
   SUCCESS: 'SUCCESS',
   FAILED: 'FAILED',
+  DISPUTED: 'DISPUTED',
   REFUNDED: 'REFUNDED'
 };
 
@@ -230,6 +231,7 @@ const config = {
     "db"
   ],
   "activeProvider": "postgresql",
+  "postinstall": false,
   "inlineDatasources": {
     "db": {
       "url": {
@@ -238,8 +240,8 @@ const config = {
       }
     }
   },
-  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"./app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String      @id @unique @default(uuid())\n  email         String      @unique\n  password      String?\n  provider      AUTHOPTIONS @default(CREDENTIALS)\n  createdAt     DateTime    @default(now())\n  updatedAt     DateTime    @default(now())\n  isPremium     Boolean     @default(false)\n  Project       Project[]\n  Usage         Usage[]\n  downloadCount Int         @default(0)\n  payments      Payment[]\n}\n\nmodel Admin {\n  id        String   @unique @default(uuid())\n  adminId   String   @unique\n  password  String\n  createdAt DateTime @default(now())\n}\n\nmodel OTP {\n  id        String   @id @unique @default(uuid())\n  email     String   @unique\n  otp       String\n  createdAt DateTime @default(now())\n  expiresAt DateTime\n}\n\nmodel Project {\n  id         String   @id @default(uuid())\n  userId     String\n  user       User     @relation(fields: [userId], references: [id])\n  name       String\n  chats      Chat[]\n  isPublic   Boolean  @default(true)\n  previewUrl String?\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n}\n\nmodel Chat {\n  id          String   @id @default(uuid())\n  description String?\n  projectId   String\n  project     Project  @relation(fields: [projectId], references: [id])\n  prompt      String\n  response    String\n  images      String[]\n  createdAt   DateTime @default(now())\n}\n\nmodel Usage {\n  id        String   @id @default(uuid())\n  userId    String\n  user      User     @relation(fields: [userId], references: [id])\n  date      DateTime @default(now()) @db.Date\n  chatCount Int      @default(0)\n\n  @@unique([userId, date])\n}\n\nmodel Payment {\n  id     String @id @default(uuid())\n  userId String\n  user   User   @relation(fields: [userId], references: [id])\n\n  orderId   String  @unique\n  paymentId String?\n  amount    Int\n  currency  String\n\n  status    PaymentStatus\n  createdAt DateTime      @default(now())\n\n  @@index([userId])\n}\n\nenum PaymentStatus {\n  PENDING\n  SUCCESS\n  FAILED\n  REFUNDED\n}\n\nenum AUTHOPTIONS {\n  GOOGLE\n  CREDENTIALS\n}\n",
-  "inlineSchemaHash": "9f0bb93c6cee9cadda74e60e8c9fb0c68e7f6a5d81bd6cc1cc828152707e7e46",
+  "inlineSchema": "generator client {\n  provider = \"prisma-client-js\"\n  output   = \"./app/generated/prisma\"\n}\n\ndatasource db {\n  provider = \"postgresql\"\n  url      = env(\"DATABASE_URL\")\n}\n\nmodel User {\n  id            String      @id @unique @default(uuid())\n  email         String      @unique\n  password      String?\n  provider      AUTHOPTIONS @default(CREDENTIALS)\n  createdAt     DateTime    @default(now())\n  updatedAt     DateTime    @default(now())\n  isPremium     Boolean     @default(false)\n  Project       Project[]\n  Usage         Usage[]\n  downloadCount Int         @default(0)\n  payments      Payment[]\n}\n\nmodel Admin {\n  id        String   @unique @default(uuid())\n  adminId   String   @unique\n  password  String\n  createdAt DateTime @default(now())\n}\n\nmodel OTP {\n  id        String   @id @unique @default(uuid())\n  email     String   @unique\n  otp       String\n  createdAt DateTime @default(now())\n  expiresAt DateTime\n}\n\nmodel Project {\n  id         String   @id @default(uuid())\n  userId     String\n  user       User     @relation(fields: [userId], references: [id])\n  name       String\n  chats      Chat[]\n  isPublic   Boolean  @default(true)\n  previewUrl String?\n  createdAt  DateTime @default(now())\n  updatedAt  DateTime @updatedAt\n}\n\nmodel Chat {\n  id          String   @id @default(uuid())\n  description String?\n  projectId   String\n  project     Project  @relation(fields: [projectId], references: [id])\n  prompt      String\n  response    String\n  images      String[]\n  createdAt   DateTime @default(now())\n}\n\nmodel Usage {\n  id        String   @id @default(uuid())\n  userId    String\n  user      User     @relation(fields: [userId], references: [id])\n  date      DateTime @default(now()) @db.Date\n  chatCount Int      @default(0)\n\n  @@unique([userId, date])\n}\n\nmodel Payment {\n  id        String        @id @default(uuid())\n  userId    String\n  user      User          @relation(fields: [userId], references: [id])\n  orderId   String        @unique\n  paymentId String?\n  amount    Int\n  currency  String\n  status    PaymentStatus\n  createdAt DateTime      @default(now())\n\n  @@index([userId])\n}\n\nenum PaymentStatus {\n  PENDING\n  SUCCESS\n  FAILED\n  DISPUTED\n  REFUNDED\n}\n\nenum AUTHOPTIONS {\n  GOOGLE\n  CREDENTIALS\n}\n",
+  "inlineSchemaHash": "10aa9df1930166a875e70cc6d4f8eae132e25038a80dbbee2342b56812e17045",
   "copyEngine": true
 }
 config.dirname = '/'

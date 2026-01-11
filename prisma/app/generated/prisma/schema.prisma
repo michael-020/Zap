@@ -71,15 +71,13 @@ model Usage {
 }
 
 model Payment {
-  id     String @id @default(uuid())
-  userId String
-  user   User   @relation(fields: [userId], references: [id])
-
-  orderId   String  @unique
+  id        String        @id @default(uuid())
+  userId    String
+  user      User          @relation(fields: [userId], references: [id])
+  orderId   String        @unique
   paymentId String?
   amount    Int
   currency  String
-
   status    PaymentStatus
   createdAt DateTime      @default(now())
 
@@ -90,6 +88,7 @@ enum PaymentStatus {
   PENDING
   SUCCESS
   FAILED
+  DISPUTED
   REFUNDED
 }
 

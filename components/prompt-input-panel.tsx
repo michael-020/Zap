@@ -2,11 +2,11 @@
 "use client"
 import { ChangeEvent, useEffect, useRef, useState } from "react"
 import { ArrowUp, LoaderPinwheel, Plus, X } from 'lucide-react'
-import toast from "react-hot-toast"
 import { ImageModal } from "./image-modal"
 import AutoResizingTextarea from "./textarea"
 import { UsageLimitModal } from "./usage-limit-modal"
 import { UpgradeBanner } from "./upgrade-banner"
+import { showErrorToast } from "@/lib/toast"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -124,11 +124,11 @@ export function PromptInputPanel({
     if (fileArray.length === 0) return;
     const invalidFiles = fileArray.filter(file => !file.type.startsWith("image/"));
     if (invalidFiles.length > 0) {
-      toast.error("Please select only image files");
+      showErrorToast("Please select only image files");
       return;
     }
     if (imagePreviews.length + fileArray.length > maxImages) {
-      toast.error(`Maximum ${maxImages} images allowed`);
+      showErrorToast(`Maximum ${maxImages} images allowed`);
       return;
     }
     setIsProcessingImages(true);
@@ -148,7 +148,7 @@ export function PromptInputPanel({
           newWebpFiles.push(webpFile);
         } catch (error) {
           console.error('Error converting image to WebP:', error);
-          toast.error(`Failed to process image: ${file.name}`);
+          showErrorToast(`Failed to process image: ${file.name}`);
           newWebpFiles.push(file);
         }
       }
@@ -156,7 +156,7 @@ export function PromptInputPanel({
       setWebpFiles(prev => [...prev, ...newWebpFiles]);
     } catch (error) {
       console.error('Error processing images:', error);
-      toast.error('Failed to process some images');
+      showErrorToast('Failed to process some images');
     } finally {
       setIsProcessingImages(false);
     }

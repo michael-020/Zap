@@ -4,11 +4,10 @@ import { Code, Download, Eye, Fullscreen, Loader2 } from "lucide-react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
 import { useState } from "react";
-import toast from "react-hot-toast";
 import { axiosInstance } from "@/lib/axios";
 import { AxiosError } from "axios"; 
 import { UsageLimitModal } from "./usage-limit-modal"; 
-import { showSuccessToast } from "@/lib/toast";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 interface CodeEditorTabsProps {
   activeTab: "code" | "preview";
@@ -57,7 +56,7 @@ export function CodeEditorTabs({
         const errorMessage = (error instanceof AxiosError && error.response?.data?.error)
           ? error.response.data.error
           : "An unexpected error occurred during download.";
-        toast.error(errorMessage);
+        showErrorToast(errorMessage);
       }
     } finally {
       setIsDownloading(false);

@@ -5,8 +5,8 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import AuthModal from "@/components/auth-modal";
 import { useAuthStore } from "@/stores/authStore/useAuthStore";
-import toast from "react-hot-toast";
 import { PromptInputPanel } from "@/components/prompt-input-panel";
+import { showErrorToast } from "@/lib/toast";
 
 export default function Landing() {
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
@@ -18,7 +18,7 @@ export default function Landing() {
 
   const handleSubmit = (description: string, files: File[]) => {
     if (!description.trim()) {
-      toast.error("Please enter a description");
+      showErrorToast("Please enter a description");
       return;
     }
 

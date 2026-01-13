@@ -3,12 +3,13 @@
 import { ProjectInitializer } from "@/components/project-initializer";
 import { useSession } from "next-auth/react";
 import { useEffect, useRef } from "react";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export default function ChatPage() {
   const { data: session, update, status } = useSession();
   const searchParams = useSearchParams();
   const hasUpdated = useRef(false);
+  const router = useRouter()
 
   useEffect(() => {
     if (hasUpdated.current) return;
@@ -25,8 +26,12 @@ export default function ChatPage() {
           ...session!.user,
         },
       });
+
+      setTimeout(() => {
+        router.replace("/chat")
+      }, 2000)
     }
-  }, [status, searchParams, session, update]);
+  }, [status, searchParams, session, update, router]);
 
   return <ProjectInitializer />;
 }

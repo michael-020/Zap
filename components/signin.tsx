@@ -7,7 +7,7 @@ import { useSearchParams, useRouter, redirect } from "next/navigation";
 import { useEffect, useState } from "react";
 import { PasswordInput } from "@/components/PasswordInput";
 import { getAuthErrorMessage } from "@/utils/authErrors";
-import toast from "react-hot-toast";
+import { showErrorToast } from "@/lib/toast";
 
 export default function SignIn() {
   const searchParams = useSearchParams();
@@ -26,7 +26,7 @@ export default function SignIn() {
 
     const error = searchParams.get("error");
     if (error) {
-      toast.error(getAuthErrorMessage(error));
+      showErrorToast(getAuthErrorMessage(error));
     }
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
@@ -56,13 +56,13 @@ export default function SignIn() {
 
       if (result?.error) {
         console.error("Sign in error:", result.error);
-        toast.error(getAuthErrorMessage(result.error));
+        showErrorToast(getAuthErrorMessage(result.error));
       } else if (result?.ok) {
         router.push(decodedCallbackUrl);
       }
     } catch (error) {
       console.error("Sign in error:", error);
-      toast.error("An unexpected error occurred. Please try again.");
+      showErrorToast("An unexpected error occurred. Please try again.");
     } finally {
       setIsLoading(false);
     }
@@ -112,7 +112,7 @@ export default function SignIn() {
           <button
             type="submit"
             disabled={isLoading}
-            className="w-full  bg-neutral-200 border border-neutral-200 dark:border-neutral-700 text-black hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 dark:text-white dark:text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 dark:focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-neutral-900 disabled:cursor-not-allowed"
+            className="w-full  bg-neutral-200 border border-neutral-200 dark:border-neutral-700 text-black hover:bg-neutral-300 dark:bg-neutral-700 dark:hover:bg-neutral-600 disabled:bg-neutral-300 dark:disabled:bg-neutral-800 dark:text-white font-medium py-3 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-neutral-500 dark:focus:ring-neutral-600 focus:ring-offset-2 focus:ring-offset-white dark:focus:ring-offset-neutral-900 disabled:cursor-not-allowed"
           >
             {isLoading ? (
               <div className="flex items-center justify-center">

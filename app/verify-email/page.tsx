@@ -4,11 +4,10 @@ import { useEffect, useState } from "react";
 import { redirect, useRouter } from "next/navigation";
 import Link from "next/link";
 import { axiosInstance } from "@/lib/axios";
-import toast from "react-hot-toast";
 import { AxiosError } from "axios";
 import { useSession } from "next-auth/react";
 import { useAuthStore } from "@/stores/authStore/useAuthStore";
-import { showSuccessToast } from "@/lib/toast";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 
 export default function VerifyEmailPage() {
@@ -43,9 +42,9 @@ export default function VerifyEmailPage() {
         setOtpSent(true);
     } catch (error) {
         if (error instanceof AxiosError && error.response?.data?.msg) {
-            toast.error(error.response.data.msg as string);
+            showErrorToast(error.response.data.msg as string);
         } else {
-            toast.error("An unexpected error occurred.");
+            showErrorToast("An unexpected error occurred.");
         }
     } finally {
         setIsLoading(false);

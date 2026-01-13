@@ -8,9 +8,9 @@ import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation"
 import RightSidebar from "./sidebar"
 import Navbar from "./navbar"
-import toast from "react-hot-toast"
 import { axiosInstance } from "@/lib/axios"
 import { PromptInputPanel } from "./prompt-input-panel"
+import { showErrorToast } from "@/lib/toast"
 
 export function ProjectInitializer() {
   const { savedPrompt, savedImages, clearSavedData, currentUsage, isPremium, setUsage } = useAuthStore()
@@ -100,7 +100,7 @@ export function ProjectInitializer() {
     if (!promptText.trim()) return;
 
     if (currentUsage >= maxUsage) {
-      toast.error("You have reached your daily chat limit.")
+      showErrorToast("You have reached your daily chat limit.")
       return
     }
 

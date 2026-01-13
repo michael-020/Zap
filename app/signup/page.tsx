@@ -6,9 +6,8 @@ import { AxiosError } from "axios";
 import { signIn, useSession } from "next-auth/react";
 import { redirect } from "next/navigation";
 import { useEffect, useState } from "react";
-import toast from "react-hot-toast";
 import { PasswordInput } from "@/components/PasswordInput";
-import { showSuccessToast } from "@/lib/toast";
+import { showErrorToast, showSuccessToast } from "@/lib/toast";
 
 export default function SignUpPage() {
   const { inputEmail } = useAuthStore()
@@ -67,9 +66,9 @@ export default function SignUpPage() {
       showSuccessToast("Signed up successfully")
     } catch (error) {
       if (error instanceof AxiosError && error.response?.data?.msg) {
-        toast.error(error.response.data.msg as string);
+        showErrorToast(error.response.data.msg as string);
       } else {
-        toast.error("An unexpected error occurred.");
+        showErrorToast("An unexpected error occurred.");
       }
       setError(error instanceof Error ? error.message : "Error during signup");
     } finally {

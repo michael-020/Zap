@@ -3,8 +3,9 @@ import { BuildStep, BuildStepType, FileItemFlat, statusType, StoreState } from "
 import { axiosInstance } from "@/lib/axios"
 import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
-import toast from "react-hot-toast"
 import { useAuthStore } from "../authStore/useAuthStore"
+import { AxiosError } from "axios"
+import { showErrorToast } from "@/lib/toast"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   // Initial state
@@ -335,9 +336,13 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         const projectId = projectRes.data.projectId;
         set({ projectId });
         return projectId;
-      } catch (err) {
-        console.error("Error creating project:", err);
-        toast.error("Error creating project");
+      } catch (error) {
+        console.error("Error creating project:", error);
+        if (error instanceof AxiosError && error.response?.data?.msg) {
+          showErrorToast(error.response.data.msg as string);
+        } else {
+          showErrorToast("An unexpected error occurred.");
+        }
         set({ isInitialising: false });
         return null;
       } finally {
@@ -398,7 +403,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         get().setMessages(res.data.prompts)
       } catch (err) {
         console.error("Error during initialisation:", err)
-        toast.error("Error while initialising project")
+        showErrorToast("Error while initialising project")
         set({ isInitialising: false })
         hasErrorOccured = true
       } finally {
@@ -468,7 +473,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         const response = await fetch("/api/chat", requestOptions);
 
         if (!response.ok || !response.body) {
-          toast.error("Failed to stream chat response")
+          showErrorToast("Failed to stream chat response")
           return
         }
 
@@ -698,7 +703,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         get().setMessages(fullResponse);
       } catch (err) {
         console.error("Error during build:", err);
-        toast.error("Error while building project")
+        showErrorToast("Error while building project")
         set({ isProcessing: false })
         hasErrorOccured = true
       } finally {
@@ -782,7 +787,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         });
 
         if (!response.ok || !response.body) {
-          toast.error("Failed to stream chat response")
+          showErrorToast("Failed to stream chat response")
           return
         }
 

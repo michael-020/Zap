@@ -24,7 +24,7 @@ export const showSuccessToast = (message: string) => {
   });
 };
 
-export const showToast = (message: string, duration: number) => {
+export const showToast = (message: string, duration?: number) => {
   toast.custom((t) => (
     <div
       className={`${

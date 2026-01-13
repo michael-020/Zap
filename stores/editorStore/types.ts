@@ -65,6 +65,8 @@ export interface StoreState {
   isFetchingImages: boolean,
   isCreatingProject: boolean;
   isWebContainerReady: boolean;
+  isProjectBuilding: boolean;
+  isPreviewReady: boolean;
   // File system
   fileItems: FileItemFlat[]
   selectedFile: string | null

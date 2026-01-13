@@ -7,7 +7,7 @@ import { useState } from "react";
 import { axiosInstance } from "@/lib/axios";
 import { AxiosError } from "axios"; 
 import { UsageLimitModal } from "./usage-limit-modal"; 
-import { showErrorToast, showSuccessToast } from "@/lib/toast";
+import { showErrorToast, showLoaderToast, showSuccessToast } from "@/lib/toast";
 
 interface CodeEditorTabsProps {
   activeTab: "code" | "preview";
@@ -22,7 +22,7 @@ export function CodeEditorTabs({
   isFullscreen,
   setIsFullscreen,
 }: CodeEditorTabsProps) {
-  const { fileItems } = useEditorStore();
+  const { fileItems, isProjectBuilding } = useEditorStore();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
 
@@ -82,6 +82,10 @@ export function CodeEditorTabs({
             // disabled={isInstalling}
             aria-label="Preview"
             onClick={() => {
+              if(isProjectBuilding){
+                showLoaderToast("Please wait, \nyour project is being built...")
+                return
+              }
               onTabChange("preview");
             }}
             className={`tooltip-button px-4 py-2 text-sm transition-colors rounded-r-lg flex items-center gap-1 ${

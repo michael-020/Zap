@@ -5,10 +5,9 @@ import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import { useAuthStore } from "../authStore/useAuthStore"
 import { AxiosError } from "axios"
-import { showErrorToast } from "@/lib/toast"
+import { showErrorToast, showLoaderToast, showSuccessToast } from "@/lib/toast"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
-  // Initial state
   buildSteps: [],
   isBuilding: false,
   fileItems: [],
@@ -29,6 +28,8 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   isFetchingImages: false,
   isCreatingProject: false,
   isWebContainerReady: false,
+  isProjectBuilding: false,
+  isPreviewReady: false,
   projectId: "",
 
   setWebcontainer: async (instance: WebContainer) => {
@@ -220,44 +221,37 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       const parts = command.split("&&").map(p => p.trim())
 
       for (const cmd of parts) {
-        if (cmd.startsWith("npm install")) {
-          const proc = await webcontainer.spawn("npm", ["install"])
-          await proc.exit
-          const devProc = await webcontainer.spawn("npm", ["run", "dev"])
-          setDevServerProcess(devProc)
-
-          devProc.output.pipeTo(new WritableStream({ write() {} })) 
-
-          webcontainer.on("server-ready", (port, url) => {
-            console.log("Dev server ready at:", url)
-            setPreviewUrl(url)
-          })
-        } 
-        
-        else if (cmd.startsWith("npm run dev")) {
-          // Kill existing dev server
-          if (devServerProcess) {
-            try {
-              devServerProcess.kill()
-            } catch (err) {
-              console.warn("Failed to kill dev server:", err)
+        if (cmd.includes("npm install") || cmd.includes("npm run dev")) {
+          showLoaderToast("Please wait, \nyour project is being built...")
+          try {
+            if (devServerProcess) {
+              try {
+                devServerProcess.kill()
+              } catch (err) {
+                console.warn("Failed to kill dev server:", err)
+              }
             }
+            set({ isProjectBuilding: true })
+            const proc = await webcontainer.spawn("npm", ["install"])
+            await proc.exit
+            const devProc = await webcontainer.spawn("npm", ["run", "dev"])
+            setDevServerProcess(devProc)
+
+            devProc.output.pipeTo(new WritableStream({ write() {} }))
+
+            webcontainer.on("server-ready", (port, url) => {
+              console.log("Dev server ready at:", url)
+              setPreviewUrl(url)
+              set({ isProjectBuilding: false })
+              set({ isPreviewReady: true })
+            })
+          } catch (error) {
+            console.error("Error while running install or build command: ", error)
+          } finally {
+            showSuccessToast("Project built successfully!")
           }
-          const proc = await webcontainer.spawn("npm", ["install"])
-          await proc.exit
-          const devProc = await webcontainer.spawn("npm", ["run", "dev"])
-          setDevServerProcess(devProc)
-
-          devProc.output.pipeTo(new WritableStream({ write() {} })) // optional
-
-          webcontainer.on("server-ready", (port, url) => {
-            console.log("Dev server ready at:", url)
-            setPreviewUrl(url)
-          })
-        }
-
+        } 
         else {
-          // Run any other shell command
           const args = cmd.split(" ")
           const proc = await webcontainer.spawn(args[0], args.slice(1))
           await proc.exit
@@ -1037,15 +1031,11 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         setShellCommand,
         resetUserEditedFiles,
         clearBuildSteps,
-        setUpWebContainer,
-        webcontainer
       } = get()
-      
-      if(!webcontainer)
-        setUpWebContainer()
       // Reset store state
       clearBuildSteps()
       resetUserEditedFiles()
+      console.log("processing chat data")
 
       const allSteps: BuildStep[] = []
       const allMessages: string[] = []

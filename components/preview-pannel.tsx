@@ -6,7 +6,7 @@ import { useEffect } from "react";
 
 
 export function PreviewPanel() {
-    const { webcontainer, previewUrl, setPreviewUrl, setUpWebContainer, isWebContainerReady } = useEditorStore()
+    const { webcontainer, previewUrl, setPreviewUrl, setUpWebContainer, isWebContainerReady, isPreviewReady, isProjectBuilding } = useEditorStore()
 
     // async function init(){
     //     try {
@@ -48,7 +48,7 @@ export function PreviewPanel() {
     // // eslint-disable-next-line react-hooks/exhaustive-deps
     // }, [])
     useEffect(() => {
-        if(isWebContainerReady){
+        if(isWebContainerReady && !isPreviewReady && !isProjectBuilding){
             const init = async () => {
                 // await setUpWebContainer()
                 if(!webcontainer) {
@@ -80,7 +80,7 @@ export function PreviewPanel() {
             
             init()
         }
-    }, [isWebContainerReady, setPreviewUrl, setUpWebContainer, webcontainer])
+    }, [isWebContainerReady, setPreviewUrl, setUpWebContainer, webcontainer, isPreviewReady, isProjectBuilding])
 
     
     return (

@@ -8,6 +8,7 @@ import { axiosInstance } from "@/lib/axios";
 import { AxiosError } from "axios"; 
 import { UsageLimitModal } from "./usage-limit-modal"; 
 import { showErrorToast, showLoaderToast, showSuccessToast } from "@/lib/toast";
+import { useSession } from "next-auth/react";
 
 interface CodeEditorTabsProps {
   activeTab: "code" | "preview";
@@ -25,14 +26,14 @@ export function CodeEditorTabs({
   const { fileItems, isProjectBuilding } = useEditorStore();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
+  const { data: session, update } = useSession()
 
   const handleDownloadZip = async () => {
     setIsDownloading(true);
 
     try {
-      const response = await axiosInstance.post("/api/check-download");
-      const data = response.data;
-      showSuccessToast("Download approved! Preparing your zip...");
+      await axiosInstance.post("/api/check-download");
+      showSuccessToast("Download approved! Preparing your zip file");
 
       const zip = new JSZip();
       Object.entries(fileItems).forEach(([, file]) => {
@@ -44,10 +45,11 @@ export function CodeEditorTabs({
       const blob = await zip.generateAsync({ type: "blob" });
       saveAs(blob, "zap.zip");
 
-      if (data.remaining !== "Unlimited") {
-        await new Promise(r => setTimeout(r, 3000))
-        showSuccessToast(`You have ${data.remaining} downloads remaining.`);
-      }
+      update({
+        user: {
+          ...session!.user,
+        },
+      });
     } catch (error) {
       if (error instanceof AxiosError && error.response?.status === 403) {
         setIsLimitModalOpen(true);

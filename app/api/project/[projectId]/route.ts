@@ -92,9 +92,9 @@ export async function PUT(
         const { projectId } = await params;
 
         const project = await prisma.project.findUnique({
-        where: {
-            id: projectId,
-        },
+            where: {
+                id: projectId,
+            },
         });
 
         if (!project) {

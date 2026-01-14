@@ -326,7 +326,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         get().setUpWebContainer()
       set({ isCreatingProject: true })
       try {
-        const projectRes = await axiosInstance.post("/api/store-project", { prompt });
+        const projectRes = await axiosInstance.post("/api/store-project", { name: prompt });
         const projectId = projectRes.data.projectId;
         set({ projectId });
         return projectId;
@@ -343,14 +343,15 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         set({ isCreatingProject: false })
       }
     },
-
+    
     processPrompt: async (prompt, images) => {
       if(!get().webcontainer)
         get().setUpWebContainer()
-
+      
       set({ isInitialising: true })
       let url = ""
       let desc = ""
+      let name = ""
       let hasErrorOccured = false
       const currentPromptIndex = get().inputPrompts.length
       try {
@@ -375,6 +376,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
             content: prompt
           }
         })
+        name = res.data.title
         url = res.data.url.content
         const parsedSteps = parseXml(res.data.uiPrompts[0]).map((x: BuildStep) => ({
           ...x,
@@ -740,6 +742,14 @@ export const useEditorStore = create<StoreState>((set, get) => ({
         } catch (error) {
           console.error("Error while storing chats: ", error)
         }
+      }
+
+      try {
+        if(!name.trim())
+          return
+        await axiosInstance.put(`/api/update-project/${get().projectId}`, { name })
+      } catch (error) {
+        console.error("Error while updating project: ", error)
       }
     },
 

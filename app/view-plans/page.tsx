@@ -161,7 +161,7 @@ const ViewPlansPage = () => {
                 <p className="mt-2 text-purple-600 dark:text-purple-300">For professional builders</p>
 
                 <div className="mt-6 flex items-baseline">
-                  <span className="text-6xl font-extrabold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">₹100</span>
+                  <span className="text-6xl font-extrabold bg-gradient-to-r from-purple-400 to-purple-600 bg-clip-text text-transparent">₹99</span>
                   {/* <span className="ml-2 text-neutral-600 dark:text-neutral-400 text-lg">/month</span> */}
                   <span className="ml-2 text-neutral-600 dark:text-neutral-400 text-lg">Pay once, enjoy forever</span>
                 </div>

@@ -29,7 +29,7 @@ export function UsageLimitModal({ isOpen, onClose, reason }: UsageLimitModalProp
     },
     DOWNLOAD_LIMIT: {
       title: "Download Limit Reached",
-      description: "You have reached your download limit for free projects. Please upgrade to Pro for unlimited downloads."
+      description: "You have reached your download limit for free account. Please upgrade to Pro for unlimited downloads."
     }
   }
 

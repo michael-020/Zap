@@ -5,7 +5,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 
 const projectSchema = z.object({
-  prompt: z.string().min(1)
+  name: z.string().min(1)
 })
 
 export async function POST(req: NextRequest) {
@@ -49,11 +49,11 @@ export async function POST(req: NextRequest) {
           { status: 400 }
         )
       }
-      const { prompt } = validatedSchema.data
+      const { name } = validatedSchema.data
 
       const newProject = await prisma.project.create({
           data: {
-              name: prompt,
+              name,
               userId: session.user.id
           }
       })

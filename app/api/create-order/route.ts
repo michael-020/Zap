@@ -56,8 +56,6 @@ export async function POST(req: NextRequest){
             receipt: "receipt_" + Math.random().toString(36).substring(7)
         })
 
-        console.log(Object.keys(prisma));
-
         await prisma.payment.create({
             data: {
                 userId: payload.userId,

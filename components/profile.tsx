@@ -9,6 +9,8 @@ import ProjectCardSkeleton from "./project-card-skeleton"
 import { useRouter } from "next/navigation"
 import { useEditorStore } from "@/stores/editorStore/useEditorStore"
 import { Project } from "./project-card"
+import { useSession } from "next-auth/react"
+import { DownloadIcon } from "lucide-react"
 
 export function Profile() {
     const [projects, setProjects] = useState<Project[] | null>(null)
@@ -18,6 +20,7 @@ export function Profile() {
     const [isHovered, setIsHovered] = useState(false)
     const router = useRouter()
     const { clearBuildSteps, setFileItems, setSelectedFile, clearPromptStepsMap, setMessages } = useEditorStore()
+    const session = useSession()
 
     const handleBackToInitializer = () => {
         clearBuildSteps()
@@ -75,6 +78,11 @@ export function Profile() {
         fetchProjects()
     }, [])
 
+    const user = session?.data?.user
+    const downloadCount = user?.downloadCount ?? 0
+    const isPremium = user?.isPremium ?? false
+    const downloadLimit = 5
+
     return (
         <div className="min-h-screen bg-neutral-50 dark:bg-neutral-950">
             <Navbar 
@@ -84,24 +92,39 @@ export function Profile() {
                 showBackButton={true}
             />
             <div className="pt-20 px-4 sm:px-6 lg:px-8 max-w-7xl mx-auto">
-                <div className="mb-8 flex items-center justify-between">
-                    <div>
-                        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white mb-2">
+                <div className="mb-6">
+                    <div className="flex items-center justify-between mb-2">
+                        <h1 className="text-3xl font-bold text-neutral-900 dark:text-white">
                             My Chats
                         </h1>
-                        <p className="text-neutral-600 dark:text-neutral-300">
-                            Manage and explore your previous Chats
-                        </p>
+                        {!isLoading && projects && projects.length > 0 && (
+                            <button
+                                onClick={() => setIsSelectionMode(!isSelectionMode)}
+                                className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-100 text-neutral-800 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700 transition-colors"
+                            >
+                                {isSelectionMode ? 'Cancel Selection' : 'Select Chats'}
+                            </button>
+                        )}
                     </div>
-                    {!isLoading && projects && projects.length > 0 && (
-                        <button
-                            onClick={() => setIsSelectionMode(!isSelectionMode)}
-                            className="px-4 py-2 text-sm font-medium rounded-lg bg-neutral-100 text-neutral-800 hover:bg-neutral-200 dark:bg-neutral-800 dark:text-white dark:hover:bg-neutral-700 transition-colors"
-                        >
-                            {isSelectionMode ? 'Cancel Selection' : 'Select Chats'}
-                        </button>
+                    <p className="text-neutral-600 dark:text-neutral-300 mb-4">
+                        Manage and explore your previous Chats
+                    </p>
+                    {user && (
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-lg bg-white dark:bg-neutral-900 border border-neutral-200 dark:border-neutral-800">
+                            <DownloadIcon className="size-4 text-neutral-700 dark:text-neutral-300" />
+                            <span className="text-sm font-medium text-neutral-700 dark:text-neutral-300">
+                                Downloads: {isPremium ? downloadCount : `${downloadCount}/${downloadLimit}`}
+                            </span>
+                            {!isPremium && downloadCount >= downloadLimit && (
+                                <span className="ml-1 px-2 py-0.5 text-xs font-medium rounded bg-amber-100 dark:bg-amber-900/30 text-amber-700 dark:text-amber-400">
+                                    Limit reached
+                                </span>
+                            )}
+                        </div>
                     )}
                 </div>
+                
+                <div className="mb-8">
 
                 {isLoading ? (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -143,6 +166,7 @@ export function Profile() {
                 setIsOpenAction={handleSidebarClose}
                 onMouseLeaveAction={handleSidebarMouseLeave}
             />
+        </div>
         </div>
     )
 }

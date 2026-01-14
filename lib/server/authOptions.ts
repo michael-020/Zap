@@ -65,6 +65,7 @@ export const authOptions: AuthOptions = ({
         
         if (dbUser) {
           token.isPremium = dbUser.isPremium;
+          console.log("updated download count: ", dbUser?.downloadCount)
           token.downloadCount = dbUser.downloadCount;
 
           return token

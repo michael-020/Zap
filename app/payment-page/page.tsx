@@ -10,7 +10,7 @@ import Navbar from "@/components/navbar"
 import RightSidebar from "@/components/sidebar"
 
 const PaymentPage = () => {
-    const amount = 100; 
+    const amount = 99; 
     const [isProcessing, setIsProcessing] = useState(false);
     const [paymentStatus, setPaymentStatus] = useState(""); 
     const [razorpayLoaded, setRazorpayLoaded] = useState(false);
@@ -42,12 +42,12 @@ const PaymentPage = () => {
     }, [isHovered]);
     
     const handleSidebarMouseLeave = () => {
-    setIsHovered(false);
+        setIsHovered(false);
     };
 
     const handleSidebarClose = () => {
-    setIsOpen(false);
-    setIsHovered(false);
+        setIsOpen(false);       
+        setIsHovered(false);
     };
 
     const sidebarVisible = isOpen || isHovered;

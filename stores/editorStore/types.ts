@@ -67,6 +67,7 @@ export interface StoreState {
   isWebContainerReady: boolean;
   isProjectBuilding: boolean;
   isPreviewReady: boolean;
+  showToast: boolean;
   // File system
   fileItems: FileItemFlat[]
   selectedFile: string | null

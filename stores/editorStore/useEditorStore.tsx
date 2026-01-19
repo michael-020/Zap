@@ -5,7 +5,7 @@ import { getDescriptionFromFile, getTitleFromFile, parseXml } from "@/lib/steps"
 import { WebContainer, WebContainerProcess } from "@webcontainer/api"
 import { useAuthStore } from "../authStore/useAuthStore"
 import { AxiosError } from "axios"
-import { showErrorToast, showLoaderToast, showSuccessToast } from "@/lib/toast"
+import { showErrorToast, showSuccessToast } from "@/lib/toast"
 
 export const useEditorStore = create<StoreState>((set, get) => ({
   buildSteps: [],
@@ -30,6 +30,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
   isWebContainerReady: false,
   isProjectBuilding: false,
   isPreviewReady: false,
+  showToast: false,
   projectId: "",
 
   setWebcontainer: async (instance: WebContainer) => {
@@ -222,7 +223,6 @@ export const useEditorStore = create<StoreState>((set, get) => ({
 
       for (const cmd of parts) {
         if (cmd.includes("npm install") || cmd.includes("npm run dev")) {
-          showLoaderToast("Please wait, \nyour project is being built...")
           try {
             if (devServerProcess) {
               try {
@@ -248,7 +248,10 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           } catch (error) {
             console.error("Error while running install or build command: ", error)
           } finally {
-            showSuccessToast("Project built successfully!")
+            if(!get().showToast){
+              showSuccessToast("Project built successfully!")
+              set({ showToast: true })
+            }
           }
         } 
         else {

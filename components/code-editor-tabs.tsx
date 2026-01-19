@@ -3,7 +3,7 @@ import { useEditorStore } from "@/stores/editorStore/useEditorStore";
 import { Code, Download, Eye, Fullscreen, Loader2 } from "lucide-react";
 import JSZip from "jszip";
 import { saveAs } from "file-saver";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { axiosInstance } from "@/lib/axios";
 import { AxiosError } from "axios"; 
 import { UsageLimitModal } from "./usage-limit-modal"; 
@@ -23,10 +23,17 @@ export function CodeEditorTabs({
   isFullscreen,
   setIsFullscreen,
 }: CodeEditorTabsProps) {
-  const { fileItems, isProjectBuilding } = useEditorStore();
+  const { fileItems, isProjectBuilding, isProcessing, isProcessingFollowups } = useEditorStore();
   const [isDownloading, setIsDownloading] = useState(false);
   const [isLimitModalOpen, setIsLimitModalOpen] = useState(false);
   const { data: session, update } = useSession()
+
+  useEffect(() => {
+    if (isProcessing || isProcessingFollowups) {
+      onTabChange("code");
+    }
+  }, [isProcessing, isProcessingFollowups, onTabChange]);
+
 
   const handleDownloadZip = async () => {
     setIsDownloading(true);

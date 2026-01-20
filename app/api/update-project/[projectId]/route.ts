@@ -10,7 +10,7 @@ const updateProjectSchema = z.object({
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { projectId: string } }
+  { params }: { params: Promise<{ projectId: string }> }
 ) {
   try {
     const session = await getServerSession(authOptions);
@@ -22,7 +22,7 @@ export async function PUT(
       );
     }
 
-    const { projectId } = params;
+    const { projectId } = await params;
 
     if (!projectId) {
       return NextResponse.json(

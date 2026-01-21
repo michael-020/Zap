@@ -165,7 +165,7 @@ export function StatusPanel() {
               </button>
             </div>
             {steps.length > 0 && (
-              <div className="space-y-2 ml-2 bg-neutral-100 dark:bg-neutral-900 px-3 p-2 rounded-lg">
+              <div title="outer-layer" className="space-y-2 ml-2 bg-neutral-100 dark:bg-neutral-900 px-3 p-2 rounded-lg">
                 {steps.filter(step => step.shouldExecute !== false).map((step) => (
                   <div key={step.id} className="flex items-start gap-3 py-0.5 group">
                     {getStatusIcon(step.status)}
@@ -173,22 +173,22 @@ export function StatusPanel() {
                       {step.type === BuildStepType.RunScript ? 
                         <div className="space-y-2">
                             <p className="text-[0.8rem] text-blue-500">Execute Command</p>
-                          <p className="text-[0.8rem] text-orange-500 dark:text-orange-300 py-2 pl-2 rounded-md text-wrap bg-neutral-200 dark:bg-neutral-800">
+                          <p className="text-[0.8rem] text-orange-500 dark:text-orange-300 py-2 pl-2 rounded-md break-all bg-neutral-200 dark:bg-neutral-800">
                             {step.description}
                           </p> 
                         </div> :
-                        <div className="text-[0.8rem] text-neutral-800 dark:text-gray-300 text-wrap transition-colors">
+                        <div className="text-[0.8rem] text-neutral-800 dark:text-gray-300 transition-colors">
                           {step.title.startsWith("Create") ? (
                             <div className="space-x-1 flex flex-wrap items-center">
                               <span className="font-semibold text-black dark:text-white">Create</span>
-                              <span className="bg-neutral-200 dark:bg-neutral-800 p-2 py-1 rounded-md">
+                              <span className="bg-neutral-200 dark:bg-neutral-800 p-2 py-1 rounded-md truncate max-w-full block" title={step.title.replace(/^Create\s*/, "").replace(/^React Component\s*/, "")}>
                                 {step.title
                                   .replace(/^Create\s*/, "")                  
                                   .replace(/^React Component\s*/, "")}        
                               </span>
                             </div>
                           ) : (
-                            <div className="text-black dark:text-white">{step.title}</div>
+                            <div className="text-black dark:text-white truncate" title={step.title}>{step.title}</div>
                           )}
                         </div>
                       }

@@ -272,11 +272,11 @@ export function PromptInputPanel({
           <div className="flex items-center justify-between">
             <h3 className="text-lg font-semibold text-white">
               Selected Images ({imagePreviews.length})
-              {isProcessingImages && (
+              {/* {isProcessingImages && (
                 <span className="ml-2 text-sm text-neutral-400">
                   Processing...
                 </span>
-              )}
+              )} */}
             </h3>
             <button
               type="button"

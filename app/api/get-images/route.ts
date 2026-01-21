@@ -147,11 +147,10 @@ export async function POST(req: NextRequest) {
     });
     try {
         const { url } = await req.json()
-        const correctUrl = url;
-        // console.log("correct url: ", correctUrl)
-        // if (!url.startsWith("https://") && !url.startsWith("http://")) {
-        //   correctUrl = `https://${url}`;
-        // }
+        let correctUrl = url;
+        if (!url.startsWith("https://") && !url.startsWith("http://")) {
+          correctUrl = `https://${url}`;
+        }
 
         const res = await axios.get(correctUrl, { timeout: 10000 });
 

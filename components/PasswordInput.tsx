@@ -29,6 +29,7 @@ export function PasswordInput({
       <input
         id={id}
         name={name}
+        autoComplete="new-password"
         type={showPassword ? "text" : "password"}
         value={value}
         onChange={onChange}

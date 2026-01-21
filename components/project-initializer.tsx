@@ -15,7 +15,7 @@ import { showErrorToast } from "@/lib/toast"
 export function ProjectInitializer() {
   const { savedPrompt, savedImages, clearSavedData, currentUsage, isPremium, setUsage } = useAuthStore()
   const [description, setDescription] = useState("")
-  const { createProject, processPrompt, isInitialising } = useEditorStore()
+  const { createProject, processPrompt, isInitialising, isCreatingProject } = useEditorStore()
   const [isOpen, setIsOpen] = useState(false)
   const [isHovered, setIsHovered] = useState(false)
   const { data: session, status } = useSession()
@@ -147,7 +147,7 @@ export function ProjectInitializer() {
               description={description}
               setDescription={setDescription}
               onSubmit={handleSubmit}
-              isSubmitting={isInitialising}
+              isSubmitting={isInitialising || isCreatingProject}
               disabled={false}
               placeholder="Describe the website you want to build..."
               usageInfo={{

@@ -380,7 +380,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
           }
         })
         name = res.data.title
-        url = res.data.url.content
+        url = res.data.url
         const parsedSteps = parseXml(res.data.uiPrompts[0]).map((x: BuildStep) => ({
           ...x,
           status: statusType.InProgress
@@ -408,7 +408,7 @@ export const useEditorStore = create<StoreState>((set, get) => ({
       } finally {
         set({ isInitialising: false })
       }
-      
+
       if(url && url.trim() !== "not a url".toLowerCase() && !hasErrorOccured){
         set({ isFetchingImages: true })
         try {

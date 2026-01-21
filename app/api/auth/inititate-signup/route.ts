@@ -48,7 +48,7 @@ export async function POST(req: NextRequest){
             },
         })
 
-        const emailSent = sendOTP(email, otp)
+        const emailSent = await sendOTP(email, otp)
         if(!emailSent){
             return NextResponse.json(
                 { msg: "Failed to send OTP, please try again."},

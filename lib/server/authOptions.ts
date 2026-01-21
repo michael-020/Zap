@@ -121,6 +121,12 @@ export const authOptions: AuthOptions = ({
         return false;
       }
     },
+    async redirect({ url, baseUrl }) {
+      if (url.startsWith(baseUrl)) {
+        return `${baseUrl}/chat`;
+      }
+      return baseUrl;
+    },
   },
   session: {
     strategy: "jwt"

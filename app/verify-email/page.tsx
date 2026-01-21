@@ -16,7 +16,6 @@ export default function VerifyEmailPage() {
   const [otp, setOtp] = useState("");
   const [otpSent, setOtpSent] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [error, setError] = useState("");
   const { setInputEmail } = useAuthStore()
   const { data: session } = useSession()
 
@@ -28,7 +27,6 @@ export default function VerifyEmailPage() {
   const handleSendOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     try {
         const res = await axiosInstance.post("/api/auth/inititate-signup", {
@@ -54,7 +52,6 @@ export default function VerifyEmailPage() {
   const handleVerifyOtp = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setError("");
 
     try {
       const res = await axiosInstance.post("/api/auth/verify-email", {
@@ -65,8 +62,12 @@ export default function VerifyEmailPage() {
       showSuccessToast(res.data.msg);
       setInputEmail(email)
       router.push(`/signup`);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "Failed to verify OTP");
+    } catch (error) {
+      if (error instanceof AxiosError && error.response?.data?.msg) {
+        showErrorToast(error.response.data.msg as string);
+      } else {
+        showErrorToast("An unexpected error occurred.");
+      }
     } finally {
       setIsLoading(false);
     }
@@ -81,12 +82,6 @@ export default function VerifyEmailPage() {
             {otpSent ? "Enter the OTP sent to your email" : "Verify your email to continue"}
           </p>
         </div>
-
-        {error && (
-          <div className="mb-6 p-4 bg-red-900/20 border border-red-800 rounded-lg">
-            <p className="text-red-400 text-sm font-medium">{error}</p>
-          </div>
-        )}
 
         <form onSubmit={otpSent ? handleVerifyOtp : handleSendOtp} className="space-y-6">
           <div>

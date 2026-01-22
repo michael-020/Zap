@@ -61,7 +61,7 @@ export default function Landing() {
           <h1 className="text-4xl md:text-5xl font-black text-neutral-900 dark:text-white leading-tight">
             Start with a sentence.
           </h1>
-          <h2 className="text-4xl md:text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
+          <h2 className="text-4xl bg-purple-400 md:text-5xl font-black bg-gradient-to-r from-blue-400 via-purple-400 to-pink-400 bg-clip-text text-transparent">
             End with a website.
           </h2>
         </div>

@@ -50,7 +50,7 @@ export default function Navbar({
           {/* All dropdown logic is now encapsulated in UserDropdown */}
           {session && <UserDropdown />}
 
-          {showPanelToggle && onPanelToggle && (
+          {session && showPanelToggle && onPanelToggle && (
             <motion.button
               className="text-neutral-950 dark:text-neutral-200 hover:text-neutral-700 dark:hover:text-neutral-50 p-2 rounded-lg"
               onClick={onPanelToggle}

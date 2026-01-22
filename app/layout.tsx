@@ -29,7 +29,7 @@ export default function RootLayout({
   return (
     <html lang="en" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-hidden` }
+        className={`${geistSans.variable} ${geistMono.variable} antialiased` }
       >
         <ThemeProvider
           attribute="class"
@@ -38,8 +38,10 @@ export default function RootLayout({
           disableTransitionOnChange
         >
           <Providers>
-            <WebContainerManager />
-            {children}
+            <div className="overflow-y-hidden h-screen">
+              <WebContainerManager />
+              {children}
+            </div>
           </Providers> 
         </ThemeProvider>
        <Toaster />

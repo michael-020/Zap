@@ -37,7 +37,7 @@ export default function Landing() {
       <nav className="fixed top-0 left-0 right-0 z-50 bg-white dark:bg-neutral-950/80 border-0.5 backdrop-blur-xl border-b border-neutral-200 dark:border-neutral-800">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-16">
-            <div className="text-xl font-bold text-neutral-900 dark:text-white select-none">Zap</div>
+            <div className="text-xl font-bold text-neutral-900 dark:text-white select-none font-stretch-extra-expanded">Zap</div>
             <div className="flex gap-4">
               <button
                 onClick={() => router.push("/signin")}
@@ -90,7 +90,7 @@ export default function Landing() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-6">
             <div className="flex flex-col items-center md:items-start gap-2">
-              <div className="text-xl font-bold text-neutral-900 dark:text-white select-none">
+              <div className="text-xl font-bold text-neutral-900 dark:text-white select-none font-stretch-extra-expanded">
                 Zap
               </div>
               <p className="text-sm text-neutral-500 dark:text-neutral-400">

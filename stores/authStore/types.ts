@@ -4,6 +4,7 @@ export interface authState {
     savedImages: File[];
     currentUsage: number;
     isPremium: boolean;
+    isFetchingUsage: boolean
 }
 
 export interface authAction {
@@ -15,4 +16,5 @@ export interface authAction {
     incrementUsage: () => void;
     resetUsage: () => void;
     setPremiumStatus: (status: boolean) => void;
+    fetchUsage: () => void;
 }

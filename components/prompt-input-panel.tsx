@@ -7,6 +7,8 @@ import AutoResizingTextarea from "./textarea"
 import { UsageLimitModal } from "./usage-limit-modal"
 import { UpgradeBanner } from "./upgrade-banner"
 import { showErrorToast } from "@/lib/toast"
+import { useAuthStore } from "@/stores/authStore/useAuthStore"
+import { UsageSkeleton } from "./usage-skeleton"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -105,6 +107,7 @@ export function PromptInputPanel({
   const [isDragging, setIsDragging] = useState(false) 
   const [modalReason, setModalReason] = useState<LimitReason | null>(null)
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(!isPremium)
+  const { isFetchingUsage } = useAuthStore()
   
   const CHAR_LIMIT = 500;
 
@@ -378,28 +381,21 @@ export function PromptInputPanel({
             />
             
             <div className={` ${submitButtonSize ? "bottom-2 right-0.5": "bottom-4 right-4" } pt-0 p-3 pr-0 flex items-center justify-center gap-2`}>
-            {!isPremium && usageInfo && (
-              <div className="flex gap-1 items-center justify-center">
-                <button 
-                  // aria-label={usageInfo.limitReached
-                  //   ? 'You have reached your daily limit.'
-                  //   : `Chats left today: ${usageInfo.remaining}`}
-                  // title={usageInfo.limitReached
-                  //   ? 'You have reached your daily limit.'
-                  //   : `Chats left today: ${usageInfo.remaining}`}
-                  className={`${usageTextSize ? usageTextSize : "text-sm"} text-neutral-600 dark:text-neutral-400`}
-                >
-                  {usageInfo.limitReached
-                    ? 'Daily limit reached'
-                    : `${usageInfo.remaining} chats left today`}
-                </button>
-                {/* <button
-                  title={usageInfo.limitReached
-                    ? 'You have reached your daily limit.'
-                    : `Chats left today: ${usageInfo.remaining}`}
-                >
-                  <CircleQuestionMark className={`text-neutral-500 size-3.5`} />
-                </button> */}
+            {!isPremium && (
+              <div className="flex gap-1 items-center justify-center min-h-[1rem]">
+                {isFetchingUsage ? (
+                  <UsageSkeleton textSize={usageTextSize} />
+                ) : usageInfo ? (
+                  <button
+                    className={`${usageTextSize ?? "text-sm"} text-neutral-600 dark:text-neutral-400`}
+                  >
+                    {usageInfo.limitReached
+                      ? 'Daily limit reached'
+                      : usageInfo.remaining === 1
+                      ? `${usageInfo.remaining} chat left today`
+                      : `${usageInfo.remaining} chats left today`}
+                  </button>
+                ) : null}
               </div>
             )}
             <button

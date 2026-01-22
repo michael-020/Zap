@@ -2,12 +2,13 @@ import { create } from "zustand"
 import { authAction, authState } from "./types"
 import { axiosInstance } from "@/lib/axios"
 
-export const useAuthStore = create<authState & authAction>((set) => ({
+export const useAuthStore = create<authState & authAction>((set, get) => ({
     inputEmail: "",
     savedPrompt: "",
     savedImages: [],
     currentUsage: 0,   
     isPremium: false, 
+    isFetchingUsage: false,
 
     setInputEmail: (email: string) => {
         set({ inputEmail: email })
@@ -26,6 +27,7 @@ export const useAuthStore = create<authState & authAction>((set) => ({
     },
 
     setUsage: (usage: number) => {
+        console.log("updating usage: ", usage)
         set({ currentUsage: usage })
     },
 
@@ -41,4 +43,17 @@ export const useAuthStore = create<authState & authAction>((set) => ({
     setPremiumStatus: (status: boolean) => {
         set({ isPremium: status })
     },
+
+    fetchUsage: async () => {
+        set({ isFetchingUsage: true })
+        try {
+            const response = await axiosInstance.get('/api/usage')
+            const data = response.data
+            get().setUsage(data.currentUsage) 
+        } catch (error) {
+            console.error('Failed to fetch usage:', error)
+        } finally {
+            set({ isFetchingUsage: false })
+        }
+    }
 }))

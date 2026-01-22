@@ -30,9 +30,16 @@ export function StatusPanel() {
   const [isModalOpen, setIsModalOpen] = useState(false)
   const [modalImageSrc, setModalImageSrc] = useState("")
   const session = useSession()
-  const { currentUsage, isPremium } = useAuthStore()
+  const { currentUsage, isPremium, fetchUsage } = useAuthStore()
   const [loadingWordIndex, setLoadingWordIndex] = useState(0)
   const maxUsage = isPremium ? Infinity : 5
+
+  useEffect(() => {
+    if (session && !isPremium) {
+      fetchUsage()
+    }
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session, isPremium])
 
   const openImageModal = (imageSrc: string) => {
     setModalImageSrc(imageSrc)

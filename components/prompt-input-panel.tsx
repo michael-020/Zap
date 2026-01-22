@@ -9,6 +9,7 @@ import { UpgradeBanner } from "./upgrade-banner"
 import { showErrorToast } from "@/lib/toast"
 import { useAuthStore } from "@/stores/authStore/useAuthStore"
 import { UsageSkeleton } from "./usage-skeleton"
+import { BrowserSupportModal, isBrowserSupported } from "./browser-support-modal"
 
 async function convertToWebP(file: File, quality: number = 0.8): Promise<File> {
   return new Promise((resolve, reject) => {
@@ -75,6 +76,7 @@ interface PromptInputPanelProps {
   showLimit?: boolean,
   showBanner?: boolean,
   usageTextSize?: string,
+  showSupportModal?: boolean
 }
 
 export type LimitReason = 'USAGE_LIMIT' | 'CHAR_LIMIT' | 'DOWNLOAD_LIMIT';
@@ -96,7 +98,8 @@ export function PromptInputPanel({
   isPremium,
   showLimit,
   showBanner,
-  usageTextSize
+  usageTextSize,
+  showSupportModal = true
 }: PromptInputPanelProps) {
   const [imagePreviews, setImagePreviews] = useState<string[]>([])
   const [webpFiles, setWebpFiles] = useState<File[]>([])
@@ -107,6 +110,7 @@ export function PromptInputPanel({
   const [isDragging, setIsDragging] = useState(false) 
   const [modalReason, setModalReason] = useState<LimitReason | null>(null)
   const [showUpgradeBanner, setShowUpgradeBanner] = useState(!isPremium)
+  const [showBrowserModal, setShowBrowserModal] = useState(false)
   const { isFetchingUsage } = useAuthStore()
   
   const CHAR_LIMIT = 500;
@@ -246,6 +250,11 @@ export function PromptInputPanel({
   };
 
   const handleSubmit = () => {
+    if (showSupportModal && !isBrowserSupported()) {
+      setShowBrowserModal(true)
+      return
+    }
+
     if (!isPremium && description.length > CHAR_LIMIT) {
       setModalReason('CHAR_LIMIT');
       return;
@@ -434,6 +443,13 @@ export function PromptInputPanel({
         isOpen={true}
         onClose={() => setModalReason(null)}
         reason={modalReason}
+      />
+    )}
+
+    {showBrowserModal && (
+      <BrowserSupportModal 
+        isOpen={true}
+        onClose={() => setShowBrowserModal(false)}
       />
     )}
     </>

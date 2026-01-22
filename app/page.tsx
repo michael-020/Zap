@@ -81,6 +81,7 @@ export default function Landing() {
             textareaHeight="6rem"
             textareaMaxHeight="16rem"
             maxImages={10}
+            showSupportModal={false}
           />
         </div>
       </div>
